@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>2024_ITW</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="dk_files/libs/clipboard/clipboard.min.js"></script>
+<script src="dk_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="dk_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="dk_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="dk_files/libs/quarto-html/popper.min.js"></script>
+<script src="dk_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="dk_files/libs/quarto-html/anchor.min.js"></script>
+<link href="dk_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="dk_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="dk_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="dk_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="dk_files/libs/bootstrap/bootstrap-9e3ffae467580fdb927a41352e75a2e0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:ItemRetentionFormula msdt:dt="string"></mso:ItemRetentionFormula>
+<mso:_dlc_policyId msdt:dt="string">0x0101</mso:_dlc_policyId>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">2024_ITW</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.6
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.1     ✔ tibble    3.3.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.2
+✔ purrr     1.2.1     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>itw <span class="ot">&lt;-</span> <span class="fu">read_sav</span>(<span class="st">"data/ITW_2024.sav"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(itw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 13,314
+Columns: 298
+$ uniqueid                &lt;dbl&gt; 2.02401e+11, 2.02401e+11, 2.02401e+11, 2.02401…
+$ responseid              &lt;dbl&gt; 2, 3, 8, 10, 19, 25, 28, 29, 30, 31, 33, 35, 3…
+$ Wave                    &lt;dbl+lbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+$ Year                    &lt;dbl&gt; 2024, 2024, 2024, 2024, 2024, 2024, 2024, 2024…
+$ Season                  &lt;dbl+lbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+$ Gender                  &lt;dbl+lbl&gt; 2, 1, 1, 1, 2, 2, 1, 2, 2, 1, 1, 2, 2, 2, …
+$ gendersplit             &lt;dbl+lbl&gt; 2, 1, 1, 1, 2, 2, 1, 2, 2, 1, 1, 2, 2, 2, …
+$ age_weight              &lt;dbl+lbl&gt;  5, 11,  4, 10,  7,  6, 10,  5,  3,  7, 11…
+$ Age                     &lt;dbl+lbl&gt; 3, 6, 2, 5, 4, 3, 5, 3, 2, 4, 6, 5, 2, 2, …
+$ a3                      &lt;dbl+lbl&gt; 5, 2, 3, 7, 3, 2, 2, 5, 4, 4, 5, 4, 4, 4, …
+$ ANZSCO_major            &lt;dbl+lbl&gt; 1, 4, 2, 5, 4, 1, 2, 1, 5, 1, 1, 1, 2, 2, …
+$ ANZSCO_sub_major        &lt;dbl+lbl&gt;  3, 19,  6, 29, 19,  1, 10,  1, 27,  1,  3…
+$ a4                      &lt;dbl+lbl&gt; 3, 5, 3, 5, 4, 1, 1, 2, 4, 1, 3, 5, 3, 5, …
+$ WorkRole                &lt;dbl+lbl&gt; 3, 4, 3, 4, 3, 1, 1, 2, 3, 1, 3, 4, 3, 4, …
+$ a5                      &lt;dbl+lbl&gt; 5, 2, 1, 2, 4, 1, 1, 2, 3, 2, 4, 2, 2, 4, …
+$ OrgSize                 &lt;dbl+lbl&gt; 3, 2, 1, 2, 3, 1, 1, 2, 3, 2, 3, 2, 2, 3, …
+$ a6                      &lt;dbl+lbl&gt;  7, 17, 13,  6, 16,  7, 13, 10, 11,  7, 10…
+$ a7                      &lt;dbl+lbl&gt;  8, 44, 31, NA, 40, 12, 33, 20, 22,  8, 19…
+$ a8                      &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ a10                     &lt;dbl+lbl&gt; 3, 6, 9, 5, 3, 3, 1, 3, 5, 2, 3, 6, 4, 6, …
+$ Region                  &lt;dbl+lbl&gt; 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, …
+$ WorkLocation            &lt;dbl+lbl&gt; 2, 3, 5, 3, 2, 2, 1, 2, 3, 1, 2, 3, 2, 3, …
+$ a11_1                   &lt;dbl+lbl&gt; 2, 4, 2, 5, 5, 2, 1, 4, 2, 5, 5, 5, 2, 1, …
+$ WorkArrangement         &lt;dbl+lbl&gt; 2, 2, 2, 3, 3, 2, 1, 2, 2, 3, 3, 3, 2, 1, …
+$ a13_1                   &lt;dbl+lbl&gt; 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, …
+$ a13_2                   &lt;dbl+lbl&gt; 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, …
+$ a13_3                   &lt;dbl+lbl&gt; 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, …
+$ a13_4                   &lt;dbl+lbl&gt; 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, …
+$ a13_5                   &lt;dbl+lbl&gt; 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, …
+$ a13_6                   &lt;dbl+lbl&gt; 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, …
+$ a13_7                   &lt;dbl+lbl&gt; 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, …
+$ a13_8                   &lt;dbl+lbl&gt; 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, …
+$ a13_9                   &lt;dbl+lbl&gt; 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, …
+$ a13_10                  &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, …
+$ a13_11                  &lt;dbl+lbl&gt; 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, …
+$ Policies                &lt;dbl&gt; 6, 10, 3, 6, 2, 0, 3, 6, 3, 10, 4, 0, 1, 9, 0,…
+$ PoliciesGrouped         &lt;dbl+lbl&gt; 3, 3, 2, 3, 2, 1, 2, 3, 2, 3, 3, 1, 1, 3, …
+$ a13_99                  &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, …
+$ a14a                    &lt;dbl+lbl&gt;  3, 20,  6,  5,  3,  7, 20,  7,  7, 10, 20…
+$ JobTenure               &lt;dbl+lbl&gt; 2, 5, 3, 2, 2, 3, 5, 3, 3, 3, 5, 1, 3, 2, …
+$ a14b                    &lt;dbl+lbl&gt;  3, 20,  6,  5,  3,  7, 20,  7,  7, 10, 20…
+$ OrgTenure               &lt;dbl+lbl&gt; 2, 5, 3, 2, 2, 3, 5, 3, 3, 3, 5, 1, 4, 2, …
+$ a15                     &lt;dbl+lbl&gt; 1, 2, 1, 2, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, …
+$ a16                     &lt;dbl+lbl&gt;  1,  1,  1,  1, NA, NA,  1,  1,  1,  1,  1…
+$ a17                     &lt;dbl+lbl&gt; 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, …
+$ a18                     &lt;dbl+lbl&gt; 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+$ b1_1                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 5, 4, 2, 3, 5, 1, 3, 5, 5, …
+$ b1_2                    &lt;dbl+lbl&gt; 5, 4, 4, 4, 4, 5, 4, 2, 4, 4, 1, 4, 5, 4, …
+$ b1_3                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 5, 4, 4, 3, 4, 1, 3, 5, 5, …
+$ b1_4                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 1, 4, 5, 5, …
+$ b1_5                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 5, 4, 3, 4, 4, 1, 3, 5, 4, …
+$ b1_6                    &lt;dbl+lbl&gt; 5, 4, 4, 4, 4, 5, 4, 5, 4, 4, 5, 2, 5, 5, …
+$ b1_7                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 4, 4, 5, 3, 4, 5, 3, 5, 5, …
+$ b1_8                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 5, 4, 4, 4, 5, 1, 3, 5, 5, …
+$ b1_9                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 4, 4, 5, 4, 5, 1, 4, 5, 5, …
+$ b1_10                   &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 5, 4, 5, 3, 5, 5, 4, 5, 5, …
+$ b2_1                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 4, 4, 4, 3, 5, 1, 4, 5, 3, …
+$ b2_2                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 4, 4, 5, 3, 5, 1, 4, 5, 2, …
+$ b2_3                    &lt;dbl+lbl&gt; 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 1, 3, 5, 4, …
+$ b2_4                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 2, 4, 4, 4, 2, 4, 1, 5, 5, 2, …
+$ b2_5                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 1, 4, 5, 3, …
+$ b2_6                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 4, 4, 5, 3, 4, 1, 5, 5, 2, …
+$ b2_7                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 4, 4, 5, 3, 5, 1, 3, 5, 1, …
+$ b2_8                    &lt;dbl+lbl&gt; 4, 4, 3, 4, 3, 4, 4, 4, 4, 5, 1, 4, 5, 4, …
+$ b2_9                    &lt;dbl+lbl&gt; 4, 4, 3, 4, 4, 4, 4, 4, 3, 4, 1, 4, 5, 2, …
+$ b2_10                   &lt;dbl+lbl&gt; 3, 4, 3, 4, 4, 4, 4, 5, 3, 4, 1, 2, 5, 3, …
+$ b3x1_1                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 2, 4, 4, 4, 5, 1, 4, 5, 4, …
+$ b3x2_1                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 2, 2, 4, 5, 4, 5, 1, 4, 5, 3, …
+$ b3x2_2                  &lt;dbl+lbl&gt; 4, 4, 3, 4, 2, 2, 4, 5, 4, 4, 1, 4, 5, 4, …
+$ b3x2_3                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 3, 4, 5, 4, 5, 1, 3, 5, 4, …
+$ b3x3_1                  &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 2, 4, 5, 5, 4, 1, 4, 5, 4, …
+$ b3x3_2                  &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 2, 4, 5, 5, 4, 1, 4, 5, 4, …
+$ b3x3_3                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 3, 4, 5, 5, 5, 1, 3, 5, 4, …
+$ b3x4_1                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 2, 2, 4, 5, 4, 5, 1, 4, 5, 4, …
+$ b3x4_2                  &lt;dbl+lbl&gt; 4, 4, 3, 4, 2, 1, 4, 5, 4, 4, 1, 3, 5, 4, …
+$ b3x4_3                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 4, 4, 5, 5, 4, 1, 3, 5, 4, …
+$ b4x1_1                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 5, 4, 5, 4, 4, 1, 3, 5, 5, …
+$ b4x1_2                  &lt;dbl+lbl&gt; 3, 4, 3, 4, 1, 5, 4, 5, 4, 4, 1, 4, 5, 5, …
+$ b4x1_3                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 1, 5, 4, 4, 4, 5, 1, 2, 5, 5, …
+$ b4x2_1                  &lt;dbl+lbl&gt; 4, 4, 4, 4, 2, 5, 4, 4, 4, 4, 1, 5, 5, 4, …
+$ b4x2_2                  &lt;dbl+lbl&gt; 4, 4, 4, 4, 2, 5, 4, 5, 4, 5, 1, 1, 5, 3, …
+$ b4x2_3                  &lt;dbl+lbl&gt; 4, 4, 3, 4, 3, 5, 4, 5, 4, 4, 1, 3, 5, 4, …
+$ b4x2_4                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 5, 4, 5, 4, 5, 1, 2, 5, 4, …
+$ b4x3_1                  &lt;dbl+lbl&gt; 3, 4, 4, 4, 4, 5, 4, 5, 4, 4, 1, 4, 5, 4, …
+$ b4x3_2                  &lt;dbl+lbl&gt; 4, 4, 4, 4, 2, 5, 4, 4, 3, 4, 1, 4, 5, 4, …
+$ b4x3_3                  &lt;dbl+lbl&gt; 2, 4, 4, 4, 2, 5, 4, 4, 4, 5, 1, 2, 5, 4, …
+$ b5_1                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 2, 2, 4, 4, 2, 5, 1, 3, 5, 4, …
+$ b5_2                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 2, 4, 5, 5, 4, 1, 3, 5, 4, …
+$ b5_3                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 1, 4, 4, 4, 4, 1, 2, 4, 3, …
+$ b5_4                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 2, 4, 4, 4, 2, 5, 1, 4, 5, 4, …
+$ b5_5                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 2, 1, 4, 4, 2, 5, 1, 3, 5, 3, …
+$ b5_6                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 2, 1, 4, 5, 2, 4, 1, 4, 5, 4, …
+$ b5_7                    &lt;dbl+lbl&gt; 3, 4, 3, 4, 2, 3, 4, 5, 3, 5, 1, 3, 5, 3, …
+$ b6_1                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 3, 4, 5, 5, 5, 1, 3, 5, 4, …
+$ b7_1                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 4, 5, 4, 5, 4, 4, 1, 2, 5, 2, …
+$ b7_2                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 3, 4, 4, 4, 5, 1, 1, 5, 2, …
+$ b8_1                    &lt;dbl+lbl&gt; 4, 4, 3, 4, 2, 4, 4, 3, 2, 5, 1, 3, 5, 3, …
+$ b8_2                    &lt;dbl+lbl&gt; 2, 1, 4, 4, 2, 2, 4, 3, 2, 4, 1, 3, 5, 1, …
+$ b8_3                    &lt;dbl+lbl&gt; 4, 3, 4, 4, 4, 3, 4, 2, 3, 4, 1, 2, 5, 1, …
+$ b9_1                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 4, 4, 4, 5, 3, 4, 1, 4, 5, 3, …
+$ b9_2                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 1, 2, 5, 2, …
+$ b9_3                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 4, 4, 4, 4, 3, 5, 1, 4, 5, 3, …
+$ b10_1                   &lt;dbl+lbl&gt; 3, 4, 3, 4, 4, 3, 4, 5, 3, 4, 1, 3, 5, 3, …
+$ b10_2                   &lt;dbl+lbl&gt; 3, 4, 4, 4, 2, 4, 4, 5, 3, 4, 1, 4, 5, 2, …
+$ b10_3                   &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 4, 4, 5, 3, 5, 1, 4, 5, 3, …
+$ b11_1                   &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 4, 4, 5, 4, 5, 1, 2, 5, 3, …
+$ b11_2                   &lt;dbl+lbl&gt; 3, 4, 4, 4, 4, 4, 4, 5, 3, 4, 1, 2, 5, 5, …
+$ b11_3                   &lt;dbl+lbl&gt; 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 1, 3, 5, 4, …
+$ b11_4                   &lt;dbl+lbl&gt; 4, 4, 4, 4, 3, 4, 4, 5, 2, 5, 3, 3, 5, 5, …
+$ b12a_1                  &lt;dbl+lbl&gt; 10,  7,  8,  5,  8,  3,  0, 10,  7,  5, 10…
+$ WorkloadRating          &lt;dbl&gt; 10, 7, 8, 5, 8, 3, 0, 10, 7, 5, 10, 3, 5, 8, 8…
+$ b13_1                   &lt;dbl+lbl&gt; 2, 4, 3, 4, 4, 5, 4, 5, 4, 4, 1, 3, 3, 4, …
+$ AppWorkload             &lt;dbl+lbl&gt; 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, …
+$ b14_1                   &lt;dbl+lbl&gt; 2, 4, 4, 4, 3, 4, 4, 4, 3, 4, 1, 3, 3, 3, …
+$ OverallMH               &lt;dbl+lbl&gt; 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, …
+$ b14a_1                  &lt;dbl+lbl&gt;  5,  6,  8,  8,  6,  9,  5,  8,  7,  6,  0…
+$ b15a_1                  &lt;dbl+lbl&gt; 4, 4, 4, 1, 4, 2, 3, 5, 3, 4, 5, 3, 3, 4, …
+$ b15a_2                  &lt;dbl+lbl&gt; 4, 4, 4, 2, 4, 2, 3, 5, 2, 5, 5, 2, 3, 4, …
+$ b15a_3                  &lt;dbl+lbl&gt; 2, 4, 5, 1, 4, 1, 3, 5, 3, 5, 5, 3, 2, 4, …
+$ b15a_4                  &lt;dbl+lbl&gt; 3, 4, 5, 1, 3, 3, 3, 4, 2, 2, 5, 3, 2, 3, …
+$ b15a_5                  &lt;dbl+lbl&gt; 2, 3, 4, 1, 2, 2, 3, 4, 3, 1, 5, 2, 3, 3, …
+$ b15a_6                  &lt;dbl+lbl&gt; 2, 2, 4, 1, 3, 2, 3, 3, 3, 1, 5, 3, 3, 2, …
+$ b15a_7                  &lt;dbl+lbl&gt; 2, 2, 4, 1, 2, 1, 2, 4, 1, 2, 5, 2, 3, 2, …
+$ b15a_8                  &lt;dbl+lbl&gt; 2, 3, 4, 1, 2, 1, 2, 5, 1, 1, 5, 2, 1, 3, …
+$ b15a_9                  &lt;dbl+lbl&gt; 2, 3, 4, 1, 3, 1, 2, 2, 1, 1, 5, 3, 1, 2, …
+$ b15a_10                 &lt;dbl+lbl&gt; 2, 3, 4, 1, 2, 3, 2, 4, 3, 2, 5, 2, 1, 3, …
+$ b15a_11                 &lt;dbl+lbl&gt; 2, 3, 3, 1, 2, 3, 2, 5, 3, 1, 5, 3, 1, 3, …
+$ b15a_12                 &lt;dbl+lbl&gt; 2, 3, 3, 1, 2, 2, 2, 2, 2, 2, 3, 3, 1, 3, …
+$ BATexhaustion           &lt;dbl&gt; 3.333333, 4.000000, 4.333333, 1.333333, 4.0000…
+$ BATmental_distance      &lt;dbl&gt; 2.333333, 3.000000, 4.333333, 1.000000, 2.6666…
+$ BATcognitive_impairment &lt;dbl&gt; 2.000000, 3.000000, 3.333333, 1.000000, 2.0000…
+$ BATemotional_impairment &lt;dbl&gt; 2.000000, 2.666667, 4.000000, 1.000000, 2.3333…
+$ BAT12_total             &lt;dbl&gt; 2.416667, 3.166667, 4.000000, 1.083333, 2.7500…
+$ BAT12risk_level         &lt;dbl+lbl&gt; 1, 3, 3, 1, 2, 1, 1, 3, 1, 1, 3, 2, 1, 3, …
+$ BAT12_grouped           &lt;dbl+lbl&gt; 2, 3, 4, 1, 2, 2, 2, 4, 2, 2, 4, 2, 2, 3, …
+$ b15                     &lt;dbl+lbl&gt;  3,  2,  3,  5,  3,  4,  5,  2,  4,  5,  1…
+$ Burnout                 &lt;dbl+lbl&gt;  1,  1,  1,  0,  1,  0,  0,  1,  0,  0,  1…
+$ d1_1                    &lt;dbl+lbl&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 3, 3, 5, …
+$ Retention               &lt;dbl+lbl&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 2, 3, …
+$ d1_2                    &lt;dbl+lbl&gt; 3, 4, 4, 4, 3, 4, 4, 2, 2, 4, 1, 3, 3, 2, …
+$ OpenMH                  &lt;dbl+lbl&gt; 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, …
+$ d2_1                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, …
+$ d2_2                    &lt;dbl+lbl&gt; 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ d2_3                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, …
+$ d2_4                    &lt;dbl+lbl&gt; 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ d2_5                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, …
+$ d2_6                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ d2_99                   &lt;dbl+lbl&gt; 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, …
+$ WorkChanges             &lt;dbl+lbl&gt; 2, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 1, …
+$ d3_1                    &lt;dbl+lbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, …
+$ d3_2                    &lt;dbl+lbl&gt; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, …
+$ d3_3                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, …
+$ d3_4                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, …
+$ d3_5                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ d3_6                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, …
+$ d3_7                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ d3_8                    &lt;dbl+lbl&gt; 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, …
+$ d3_9                    &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ d3_10                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ HarmfulExp              &lt;dbl&gt; 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 5, 2, 0, 0, 0, 0…
+$ HarmfulExpGrouped       &lt;dbl+lbl&gt; 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 2, 0, 0, …
+$ d3_98                   &lt;dbl+lbl&gt; 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, …
+$ d3_99                   &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, …
+$ WorkAbility             &lt;dbl+lbl&gt;  7,  7,  8,  8,  8,  5,  8, 10,  7,  9,  0…
+$ WorkAbilityGrouped      &lt;dbl+lbl&gt; 1, 1, 2, 2, 2, 1, 2, 2, 1, 2, 0, 1, 1, 1, …
+$ d6                      &lt;dbl+lbl&gt;  3,  3,  2,  3,  3,  3,  3,  3,  3,  3,  3…
+$ MHclaim                 &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ d8                      &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ e1                      &lt;dbl+lbl&gt;  4,  2,  3,  3,  3,  4,  3,  5,  3,  5,  1…
+$ e2                      &lt;dbl+lbl&gt;  2,  3,  3,  3,  3,  3,  3,  2,  3,  4,  1…
+$ MHchange12mths          &lt;dbl+lbl&gt;  1,  2,  2,  2,  2,  2,  2,  1,  2,  3,  1…
+$ e3_1                    &lt;dbl+lbl&gt; 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ e3_2                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ e3_3                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ e3_4                    &lt;dbl+lbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ e3_5                    &lt;dbl+lbl&gt; 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ e3_6                    &lt;dbl+lbl&gt; 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, …
+$ e3_7                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ e3_8                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ e3_9                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ e3_99                   &lt;dbl+lbl&gt; 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, …
+$ e3_9_other              &lt;chr&gt; "", "", "", "", "", "", "", "", "", "", "", ""…
+$ e4_2                    &lt;dbl+lbl&gt; 5, 3, 3, 1, 1, 1, 3, 3, 3, 1, 5, 2, 1, 2, …
+$ e4_4                    &lt;dbl+lbl&gt; 3, 2, 4, 1, 1, 1, 2, 1, 3, 1, 5, 3, 1, 1, …
+$ e4_5                    &lt;dbl+lbl&gt; 3, 4, 4, 1, 1, 1, 2, 3, 3, 1, 5, 4, 1, 1, …
+$ e4_7                    &lt;dbl+lbl&gt; 2, 3, 4, 1, 1, 1, 2, 3, 2, 1, 5, 3, 1, 1, …
+$ e4_8                    &lt;dbl+lbl&gt; 3, 3, 3, 1, 1, 2, 2, 4, 2, 1, 5, 2, 1, 2, …
+$ e4_10                   &lt;dbl+lbl&gt; 4, 3, 3, 1, 1, 1, 1, 1, 2, 1, 5, 2, 1, 1, …
+$ K6score                 &lt;dbl&gt; 14, 12, 15, 0, 0, 1, 6, 9, 9, 0, 24, 10, 0, 2,…
+$ K6grouped               &lt;dbl+lbl&gt; 3, 2, 3, 1, 1, 1, 2, 2, 2, 1, 3, 2, 1, 1, …
+$ e5                      &lt;dbl+lbl&gt;  1,  1,  2, NA, NA,  2,  1,  1,  2, NA,  1…
+$ e6                      &lt;dbl&gt; 2, 1, NA, NA, NA, NA, 2, 2, NA, NA, 19, NA, NA…
+$ e7                      &lt;dbl&gt; 2, 1, NA, NA, NA, NA, 0, 2, NA, NA, 9, NA, NA,…
+$ DaysImpacted            &lt;dbl&gt; 4, 2, NA, NA, NA, NA, 2, 4, NA, NA, 28, NA, NA…
+$ e8a_1                   &lt;dbl+lbl&gt;  1,  1, NA, NA, NA, NA,  1,  0, NA, NA,  0…
+$ e8a_3                   &lt;dbl+lbl&gt;  0,  0, NA, NA, NA, NA,  0,  1, NA, NA,  0…
+$ e8a_4                   &lt;dbl+lbl&gt;  0,  0, NA, NA, NA, NA,  0,  0, NA, NA,  0…
+$ e8a_5                   &lt;dbl+lbl&gt;  0,  0, NA, NA, NA, NA,  0,  0, NA, NA,  1…
+$ e8a_6                   &lt;dbl+lbl&gt;  0,  0, NA, NA, NA, NA,  0,  0, NA, NA,  0…
+$ e8b_1                   &lt;dbl&gt; 2, 1, NA, NA, NA, NA, 2, 0, NA, NA, 0, NA, NA,…
+$ e8b_3                   &lt;dbl&gt; 0, 0, NA, NA, NA, NA, 0, 2, NA, NA, 0, NA, NA,…
+$ e8b_4                   &lt;dbl&gt; 0, 0, NA, NA, NA, NA, 0, 0, NA, NA, 0, NA, NA,…
+$ DaysAbsent              &lt;dbl&gt; 2, 1, NA, NA, NA, NA, 2, 2, NA, NA, 0, NA, NA,…
+$ Absent                  &lt;dbl+lbl&gt; 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, …
+$ e9_1_1                  &lt;dbl+lbl&gt; 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ MHC_12mths              &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, …
+$ MHC_lifetime            &lt;dbl+lbl&gt; 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, …
+$ e9_1_98                 &lt;dbl+lbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, …
+$ e9_1_99                 &lt;dbl+lbl&gt; 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, …
+$ e10                     &lt;dbl+lbl&gt;  2,  2, NA, NA, NA, NA, NA, NA, NA, NA,  1…
+$ e11                     &lt;dbl+lbl&gt;  2,  2, NA, NA, NA, NA, NA, NA, NA, NA,  2…
+$ MHCimpact               &lt;dbl+lbl&gt;  1,  1, NA, NA, NA, NA, NA, NA, NA, NA,  1…
+$ e13                     &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f1_1                    &lt;dbl&gt; 1, 2, 2, 1, 4, 3, 1, 3, 2, 1, 1, 2, 3, 2, 2, 2…
+$ f1_2                    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 0…
+$ f1_3                    &lt;dbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+$ f1_4                    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0…
+$ f2                      &lt;dbl+lbl&gt;  4,  3,  3,  7,  4,  5,  5,  3,  6,  3,  1…
+$ f3                      &lt;dbl&gt; 3095, 4805, 6108, 4511, 3809, 3161, 2217, 3071…
+$ abslocation             &lt;dbl+lbl&gt; 3, 6, 9, 5, 3, 3, 1, 3, 5, 2, 3, 6, 3, 5, …
+$ HomeState               &lt;dbl+lbl&gt; 2, 3, 5, 3, 2, 2, 1, 2, 3, 1, 2, 3, 2, 3, …
+$ f5                      &lt;dbl+lbl&gt;  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1…
+$ ATSIorigin              &lt;dbl+lbl&gt;  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1…
+$ f6_1                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_2                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_3                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_4                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_5                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_6                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_9                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_7                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_8                    &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+$ LGBTQIA                 &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, …
+$ f6_98                   &lt;dbl+lbl&gt; 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, …
+$ f6_99                   &lt;dbl+lbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, …
+$ f7                      &lt;dbl+lbl&gt;  1, 12,  5, 10,  8,  7,  7,  7,  6,  7,  3…
+$ f8_1                    &lt;dbl+lbl&gt; 2, 5, 4, 4, 5, 3, 2, 3, 5, 4, 1, 3, 3, 3, …
+$ f8_2                    &lt;dbl+lbl&gt; 2, 4, 4, 4, 5, 3, 2, 2, 5, 4, 1, 4, 3, 3, …
+$ f8_3                    &lt;dbl+lbl&gt; 2, 4, 3, 3, 5, 5, 2, 3, 5, 4, 1, 3, 3, 3, …
+$ f9                      &lt;dbl+lbl&gt;  2,  1,  2,  1,  1,  1,  1,  2,  1,  2,  2…
+$ f10_1                   &lt;dbl+lbl&gt;  8,  2,  8,  7,  2,  3,  9, 10,  5,  7, 10…
+$ FinancialStress         &lt;dbl+lbl&gt; 2, 1, 2, 2, 1, 1, 2, 2, 1, 2, 2, 1, 1, 1, …
+$ f4                      &lt;dbl+lbl&gt; 1984, 1955, 1991, 1961, 1974, 1979, 1962, …
+$ Generation              &lt;dbl+lbl&gt; 4, 2, 4, 2, 3, 3, 2, 4, 4, 3, 2, 2, 4, 4, …
+$ frthrrsrch              &lt;dbl+lbl&gt; 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, …
+$ intdur1                 &lt;dbl&gt; 12.3160, 11.3317, 24.4662, 12.3647, 19.3572, 1…
+$ Weight                  &lt;dbl&gt; 0.8091659, 1.2563831, 0.8048178, 1.0304188, 0.…
+$ Connectedness           &lt;dbl&gt; 80.0, 75.0, 75.0, 75.0, 70.0, 92.5, 75.0, 70.0…
+$ Leadership              &lt;dbl&gt; 62.5, 75.0, 65.0, 75.0, 57.5, 75.0, 75.0, 85.0…
+$ Safety                  &lt;dbl&gt; 60.0, 75.0, 70.0, 75.0, 40.0, 32.5, 75.0, 97.5…
+$ WorkDesign              &lt;dbl&gt; 57.5, 75.0, 70.0, 75.0, 32.5, 100.0, 75.0, 90.…
+$ Capability              &lt;dbl&gt; 64.28571, 75.00000, 71.42857, 75.00000, 32.142…
+$ ThrivingScore           &lt;dbl&gt; 64.85714, 75.00000, 70.28571, 75.00000, 46.428…
+$ Environment             &lt;dbl&gt; 60.00000, 80.00000, 80.00000, 80.00000, 66.666…
+$ TraumaticEvents         &lt;dbl&gt; 60, 80, 80, 80, 60, 60, 80, 85, 70, 95, 20, 50…
+$ Recognition             &lt;dbl&gt; 66.66667, 53.33333, 73.33333, 80.00000, 53.333…
+$ ChangeMgt               &lt;dbl&gt; 60.00000, 80.00000, 73.33333, 80.00000, 60.000…
+$ JobControl              &lt;dbl&gt; 66.66667, 80.00000, 73.33333, 80.00000, 33.333…
+$ RoleClarity             &lt;dbl&gt; 73.33333, 80.00000, 80.00000, 80.00000, 60.000…
+$ MgtSupport              &lt;dbl&gt; 72, 80, 76, 80, 68, 80, 80, 92, 64, 88, 20, 76…
+$ Workload                &lt;dbl&gt; 60.00000, 80.00000, 66.66667, 80.00000, 66.666…
+$ RelationshipsFairness   &lt;dbl&gt; 72.30769, 80.00000, 78.46154, 80.00000, 66.153…
+$ f11a_1                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_2                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_3                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_4                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_5                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_6                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_7                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_8                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_97                 &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_98                 &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_99                 &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f11a_97_other           &lt;chr&gt; "", "", "", "", "", "", "", "", "", "", "", ""…
+$ LifeTransition          &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ LifeTransitionGrp       &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ LifeTransitionExp       &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ Menopause               &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ MenopauseGroup          &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_1                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_2                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_3                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_4                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_5                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_6                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_7                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_8                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_9                   &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_10                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_11                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_12                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_13                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_97                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_98                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_99                  &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ f12_97_other            &lt;chr&gt; "", "", "", "", "", "", "", "", "", "", "", ""…
+$ ChronicHealth           &lt;dbl+lbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+$ `filter_$`              &lt;dbl+lbl&gt; 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, …</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(itw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    uniqueid           responseid        Wave            Year     
+ Min.   :2.024e+11   Min.   :   2   Min.   :1.000   Min.   :2024  
+ 1st Qu.:2.024e+11   1st Qu.:2162   1st Qu.:2.000   1st Qu.:2024  
+ Median :2.024e+11   Median :4324   Median :3.000   Median :2024  
+ Mean   :2.024e+11   Mean   :4361   Mean   :2.537   Mean   :2024  
+ 3rd Qu.:2.024e+11   3rd Qu.:6282   3rd Qu.:3.000   3rd Qu.:2024  
+ Max.   :2.024e+11   Max.   :9897   Max.   :4.000   Max.   :2024  
+                                                                  
+     Season          Gender       gendersplit      age_weight    
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   : 1.000  
+ 1st Qu.:1.000   1st Qu.:1.000   1st Qu.:1.000   1st Qu.: 4.000  
+ Median :2.000   Median :2.000   Median :2.000   Median : 6.000  
+ Mean   :1.536   Mean   :1.508   Mean   :1.503   Mean   : 6.209  
+ 3rd Qu.:2.000   3rd Qu.:2.000   3rd Qu.:2.000   3rd Qu.: 8.000  
+ Max.   :2.000   Max.   :4.000   Max.   :2.000   Max.   :11.000  
+                                                                 
+      Age              a3        ANZSCO_major   ANZSCO_sub_major
+ Min.   :1.000   Min.   :1.00   Min.   :1.000   Min.   : 1.00   
+ 1st Qu.:2.000   1st Qu.:4.00   1st Qu.:2.000   1st Qu.: 6.00   
+ Median :3.000   Median :4.00   Median :2.000   Median : 9.00   
+ Mean   :3.354   Mean   :4.18   Mean   :3.105   Mean   :14.79   
+ 3rd Qu.:4.000   3rd Qu.:5.00   3rd Qu.:5.000   3rd Qu.:26.00   
+ Max.   :6.000   Max.   :8.00   Max.   :8.000   Max.   :43.00   
+                                                                
+       a4           WorkRole           a5           OrgSize     
+ Min.   :0.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:2.000   1st Qu.:2.000  
+ Median :4.000   Median :3.000   Median :2.000   Median :2.000  
+ Mean   :3.672   Mean   :3.162   Mean   :2.691   Mean   :2.242  
+ 3rd Qu.:5.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:3.000  
+ Max.   :6.000   Max.   :5.000   Max.   :5.000   Max.   :3.000  
+                                                                
+       a6              a7              a8             a10        
+ Min.   : 1.00   Min.   : 1.00   Min.   :1.000   Min.   : 1.000  
+ 1st Qu.: 7.00   1st Qu.:18.00   1st Qu.:1.000   1st Qu.: 2.000  
+ Median :13.00   Median :32.00   Median :2.000   Median : 3.000  
+ Mean   :11.31   Mean   :29.83   Mean   :2.127   Mean   : 4.536  
+ 3rd Qu.:16.00   3rd Qu.:42.00   3rd Qu.:3.750   3rd Qu.: 6.000  
+ Max.   :20.00   Max.   :53.00   Max.   :4.000   Max.   :15.000  
+                 NA's   :2123    NA's   :12928                   
+     Region        WorkLocation       a11_1       WorkArrangement
+ Min.   :0.0000   Min.   :1.000   Min.   :1.000   Min.   :1.00   
+ 1st Qu.:0.0000   1st Qu.:1.000   1st Qu.:3.000   1st Qu.:2.00   
+ Median :1.0000   Median :2.000   Median :4.000   Median :2.00   
+ Mean   :0.7355   Mean   :2.651   Mean   :3.716   Mean   :2.32   
+ 3rd Qu.:1.0000   3rd Qu.:3.000   3rd Qu.:5.000   3rd Qu.:3.00   
+ Max.   :1.0000   Max.   :8.000   Max.   :5.000   Max.   :3.00   
+                                                                 
+     a13_1            a13_2            a13_3            a13_4       
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+ Median :1.0000   Median :0.0000   Median :1.0000   Median :1.0000  
+ Mean   :0.6286   Mean   :0.4338   Mean   :0.6137   Mean   :0.6122  
+ 3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+                                                                    
+     a13_5           a13_6            a13_7            a13_8       
+ Min.   :0.000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.000   1st Qu.:0.0000   1st Qu.:1.0000   1st Qu.:0.0000  
+ Median :1.000   Median :1.0000   Median :1.0000   Median :0.0000  
+ Mean   :0.612   Mean   :0.5485   Mean   :0.7815   Mean   :0.4475  
+ 3rd Qu.:1.000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+ Max.   :1.000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+                                                                   
+     a13_9            a13_10           a13_11          Policies     
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   : 0.000  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.: 3.000  
+ Median :0.0000   Median :0.0000   Median :0.0000   Median : 6.000  
+ Mean   :0.2663   Mean   :0.4193   Mean   :0.3535   Mean   : 5.717  
+ 3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.: 9.000  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :11.000  
+                                                                    
+ PoliciesGrouped     a13_99             a14a          JobTenure    
+ Min.   :1.000   Min.   :0.00000   Min.   : 0.000   Min.   :1.000  
+ 1st Qu.:2.000   1st Qu.:0.00000   1st Qu.: 2.000   1st Qu.:2.000  
+ Median :3.000   Median :0.00000   Median : 4.000   Median :2.000  
+ Mean   :2.494   Mean   :0.06422   Mean   : 6.227   Mean   :2.558  
+ 3rd Qu.:3.000   3rd Qu.:0.00000   3rd Qu.: 9.000   3rd Qu.:3.000  
+ Max.   :3.000   Max.   :1.00000   Max.   :20.000   Max.   :5.000  
+                                                                   
+      a14b          OrgTenure          a15              a16        
+ Min.   : 0.000   Min.   :1.000   Min.   : 1.000   Min.   : 1.000  
+ 1st Qu.: 3.000   1st Qu.:2.000   1st Qu.: 1.000   1st Qu.: 1.000  
+ Median : 6.000   Median :3.000   Median : 1.000   Median : 1.000  
+ Mean   : 8.377   Mean   :2.931   Mean   : 1.757   Mean   : 2.225  
+ 3rd Qu.:14.000   3rd Qu.:4.000   3rd Qu.: 2.000   3rd Qu.: 1.000  
+ Max.   :20.000   Max.   :5.000   Max.   :99.000   Max.   :99.000  
+                                                   NA's   :1364    
+      a17             a18             b1_1            b1_2      
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:1.000   1st Qu.:1.000   1st Qu.:3.000   1st Qu.:3.000  
+ Median :3.000   Median :1.000   Median :4.000   Median :4.000  
+ Mean   :2.259   Mean   :1.208   Mean   :3.884   Mean   :3.866  
+ 3rd Qu.:3.000   3rd Qu.:1.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :3.000   Max.   :2.000   Max.   :5.000   Max.   :5.000  
+                                                                
+      b1_3            b1_4            b1_5            b1_6      
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:4.000   1st Qu.:4.000   1st Qu.:4.000   1st Qu.:4.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.975   Mean   :3.958   Mean   :4.006   Mean   :4.312  
+ 3rd Qu.:5.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:5.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+      b1_7            b1_8            b1_9           b1_10      
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:4.000   1st Qu.:4.000   1st Qu.:4.000   1st Qu.:4.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :4.184   Mean   :3.899   Mean   :4.146   Mean   :4.083  
+ 3rd Qu.:5.000   3rd Qu.:4.000   3rd Qu.:5.000   3rd Qu.:5.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+      b2_1            b2_2            b2_3            b2_4      
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.727   Mean   :3.709   Mean   :3.825   Mean   :3.443  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+      b2_5            b2_6           b2_7            b2_8            b2_9      
+ Min.   :1.000   Min.   :1.00   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.00   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000  
+ Median :4.000   Median :4.00   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.739   Mean   :3.68   Mean   :3.689   Mean   :3.662   Mean   :3.797  
+ 3rd Qu.:4.000   3rd Qu.:4.00   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.00   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                               
+     b2_10           b3x1_1          b3x2_1          b3x2_2     
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:4.000   1st Qu.:3.000   1st Qu.:3.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.668   Mean   :3.983   Mean   :3.801   Mean   :3.771  
+ 3rd Qu.:4.000   3rd Qu.:5.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+     b3x2_3          b3x3_1          b3x3_2          b3x3_3     
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:4.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.955   Mean   :3.855   Mean   :3.818   Mean   :4.002  
+ 3rd Qu.:5.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:5.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+     b3x4_1          b3x4_2          b3x4_3          b4x1_1     
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:4.000   1st Qu.:3.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.863   Mean   :3.808   Mean   :3.995   Mean   :3.677  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:5.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+     b4x1_2          b4x1_3          b4x2_1          b4x2_2     
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.532   Mean   :3.637   Mean   :3.721   Mean   :3.657  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+     b4x2_3          b4x2_4          b4x3_1          b4x3_2     
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.638   Mean   :3.623   Mean   :3.766   Mean   :3.469  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+     b4x3_3           b5_1           b5_2            b5_3            b5_4     
+ Min.   :1.000   Min.   :1.00   Min.   :1.000   Min.   :1.000   Min.   :1.00  
+ 1st Qu.:3.000   1st Qu.:3.00   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.00  
+ Median :4.000   Median :3.00   Median :4.000   Median :4.000   Median :4.00  
+ Mean   :3.649   Mean   :3.35   Mean   :3.794   Mean   :3.681   Mean   :3.41  
+ 3rd Qu.:4.000   3rd Qu.:4.00   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.00  
+ Max.   :5.000   Max.   :5.00   Max.   :5.000   Max.   :5.000   Max.   :5.00  
+                                                                              
+      b5_5            b5_6            b5_7            b6_1      
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:2.000   1st Qu.:3.000   1st Qu.:4.000  
+ Median :4.000   Median :3.000   Median :4.000   Median :4.000  
+ Mean   :3.613   Mean   :3.154   Mean   :3.527   Mean   :4.085  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:5.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+      b7_1            b7_2            b8_1            b8_2      
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:2.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :3.000  
+ Mean   :3.744   Mean   :3.841   Mean   :3.486   Mean   :3.132  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+      b8_3            b9_1            b9_2            b9_3           b10_1     
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.00  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.00  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000   Median :4.00  
+ Mean   :3.399   Mean   :3.575   Mean   :3.525   Mean   :3.635   Mean   :3.53  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.00  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.00  
+                                                                               
+     b10_2           b10_3           b11_1           b11_2      
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000  
+ Median :4.000   Median :4.000   Median :4.000   Median :4.000  
+ Mean   :3.486   Mean   :3.504   Mean   :3.645   Mean   :3.789  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+     b11_3           b11_4         b12a_1       WorkloadRating  
+ Min.   :1.000   Min.   :1.0   Min.   : 0.000   Min.   : 0.000  
+ 1st Qu.:3.000   1st Qu.:3.0   1st Qu.: 5.000   1st Qu.: 5.000  
+ Median :4.000   Median :4.0   Median : 7.000   Median : 7.000  
+ Mean   :3.655   Mean   :3.8   Mean   : 6.842   Mean   : 6.842  
+ 3rd Qu.:4.000   3rd Qu.:4.0   3rd Qu.: 8.000   3rd Qu.: 8.000  
+ Max.   :5.000   Max.   :5.0   Max.   :10.000   Max.   :10.000  
+                                                                
+     b13_1        AppWorkload         b14_1         OverallMH     
+ Min.   :1.000   Min.   :0.0000   Min.   :1.000   Min.   :0.0000  
+ 1st Qu.:3.000   1st Qu.:0.0000   1st Qu.:3.000   1st Qu.:0.0000  
+ Median :4.000   Median :1.0000   Median :4.000   Median :1.0000  
+ Mean   :3.463   Mean   :0.5996   Mean   :3.538   Mean   :0.6011  
+ 3rd Qu.:4.000   3rd Qu.:1.0000   3rd Qu.:4.000   3rd Qu.:1.0000  
+ Max.   :5.000   Max.   :1.0000   Max.   :5.000   Max.   :1.0000  
+                                                                  
+     b14a_1           b15a_1          b15a_2          b15a_3     
+ Min.   : 0.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.: 5.000   1st Qu.:2.000   1st Qu.:2.000   1st Qu.:2.000  
+ Median : 7.000   Median :3.000   Median :3.000   Median :3.000  
+ Mean   : 6.536   Mean   :3.031   Mean   :2.932   Mean   :2.735  
+ 3rd Qu.: 8.000   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:3.000  
+ Max.   :10.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                 
+     b15a_4          b15a_5          b15a_6          b15a_7     
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:2.000   1st Qu.:2.000   1st Qu.:2.000   1st Qu.:1.000  
+ Median :3.000   Median :3.000   Median :3.000   Median :2.000  
+ Mean   :2.718   Mean   :2.658   Mean   :2.589   Mean   :2.131  
+ 3rd Qu.:3.000   3rd Qu.:3.000   3rd Qu.:3.000   3rd Qu.:3.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+     b15a_8          b15a_9         b15a_10         b15a_11     
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:1.000   1st Qu.:1.000   1st Qu.:2.000   1st Qu.:2.000  
+ Median :2.000   Median :2.000   Median :2.000   Median :2.000  
+ Mean   :2.083   Mean   :2.143   Mean   :2.422   Mean   :2.386  
+ 3rd Qu.:3.000   3rd Qu.:3.000   3rd Qu.:3.000   3rd Qu.:3.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+    b15a_12      BATexhaustion   BATmental_distance BATcognitive_impairment
+ Min.   :1.000   Min.   :1.000   Min.   :1.000      Min.   :1.000          
+ 1st Qu.:2.000   1st Qu.:2.333   1st Qu.:2.000      1st Qu.:1.667          
+ Median :2.000   Median :3.000   Median :2.667      Median :2.333          
+ Mean   :2.222   Mean   :2.900   Mean   :2.655      Mean   :2.343          
+ 3rd Qu.:3.000   3rd Qu.:3.333   3rd Qu.:3.333      3rd Qu.:3.000          
+ Max.   :5.000   Max.   :5.000   Max.   :5.000      Max.   :5.000          
+                                                                           
+ BATemotional_impairment  BAT12_total    BAT12risk_level BAT12_grouped  
+ Min.   :1.000           Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:1.333           1st Qu.:2.000   1st Qu.:1.000   1st Qu.:2.000  
+ Median :2.000           Median :2.417   Median :1.000   Median :2.000  
+ Mean   :2.119           Mean   :2.504   Mean   :1.702   Mean   :2.326  
+ 3rd Qu.:2.667           3rd Qu.:3.000   3rd Qu.:3.000   3rd Qu.:3.000  
+ Max.   :5.000           Max.   :5.000   Max.   :3.000   Max.   :4.000  
+                                                                        
+      b15          Burnout            d1_1         Retention         d1_2      
+ Min.   : 1.0   Min.   : 0.000   Min.   :1.000   Min.   :1.00   Min.   :1.000  
+ 1st Qu.: 3.0   1st Qu.: 0.000   1st Qu.:3.000   1st Qu.:2.00   1st Qu.:3.000  
+ Median : 4.0   Median : 0.000   Median :4.000   Median :3.00   Median :4.000  
+ Mean   : 6.1   Mean   : 2.773   Mean   :3.873   Mean   :2.61   Mean   :3.392  
+ 3rd Qu.: 4.0   3rd Qu.: 1.000   3rd Qu.:5.000   3rd Qu.:3.00   3rd Qu.:4.000  
+ Max.   :99.0   Max.   :99.000   Max.   :5.000   Max.   :3.00   Max.   :5.000  
+                                                                               
+     OpenMH           d2_1              d2_2             d2_3       
+ Min.   :0.000   Min.   :0.00000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.000   1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.0000  
+ Median :1.000   Median :0.00000   Median :0.0000   Median :0.0000  
+ Mean   :0.522   Mean   :0.07233   Mean   :0.2334   Mean   :0.1981  
+ 3rd Qu.:1.000   3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.0000  
+ Max.   :1.000   Max.   :1.00000   Max.   :1.0000   Max.   :1.0000  
+                                                                    
+      d2_4             d2_5             d2_6             d2_99       
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.00000   Min.   :0.0000  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000  
+ Median :0.0000   Median :0.0000   Median :0.00000   Median :0.0000  
+ Mean   :0.1549   Mean   :0.1818   Mean   :0.04281   Mean   :0.4838  
+ 3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:1.0000  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.00000   Max.   :1.0000  
+                                                                     
+  WorkChanges          d3_1              d3_2             d3_3       
+ Min.   :0.0000   Min.   :0.00000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.0000  
+ Median :1.0000   Median :0.00000   Median :0.0000   Median :0.0000  
+ Mean   :0.7382   Mean   :0.02306   Mean   :0.1001   Mean   :0.1088  
+ 3rd Qu.:1.0000   3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.0000  
+ Max.   :2.0000   Max.   :1.00000   Max.   :1.0000   Max.   :1.0000  
+                                                                     
+      d3_4            d3_5              d3_6              d3_7        
+ Min.   :0.000   Min.   :0.00000   Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.000   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.000   Median :0.00000   Median :0.00000   Median :0.00000  
+ Mean   :0.107   Mean   :0.02216   Mean   :0.01149   Mean   :0.08307  
+ 3rd Qu.:0.000   3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.00000  
+ Max.   :1.000   Max.   :1.00000   Max.   :1.00000   Max.   :1.00000  
+                                                                      
+      d3_8              d3_9            d3_10          HarmfulExp   
+ Min.   :0.00000   Min.   :0.0000   Min.   :0.0000   Min.   :0.000  
+ 1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.000  
+ Median :0.00000   Median :0.0000   Median :0.0000   Median :0.000  
+ Mean   :0.05025   Mean   :0.0422   Mean   :0.0477   Mean   :0.539  
+ 3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:1.000  
+ Max.   :1.00000   Max.   :1.0000   Max.   :1.0000   Max.   :9.000  
+                   NA's   :6180     NA's   :10422                   
+ HarmfulExpGrouped     d3_98            d3_99          WorkAbility    
+ Min.   :0.00      Min.   :0.0000   Min.   :0.00000   Min.   : 0.000  
+ 1st Qu.:0.00      1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.: 6.000  
+ Median :0.00      Median :1.0000   Median :0.00000   Median : 8.000  
+ Mean   :0.49      Mean   :0.6815   Mean   :0.03665   Mean   : 7.301  
+ 3rd Qu.:1.00      3rd Qu.:1.0000   3rd Qu.:0.00000   3rd Qu.: 9.000  
+ Max.   :3.00      Max.   :1.0000   Max.   :1.00000   Max.   :10.000  
+ NA's   :1                                                            
+ WorkAbilityGrouped       d6            MHclaim              d8       
+ Min.   :0.000      Min.   : 1.000   Min.   :0.00000   Min.   :1.000  
+ 1st Qu.:1.000      1st Qu.: 3.000   1st Qu.:0.00000   1st Qu.:1.000  
+ Median :2.000      Median : 3.000   Median :0.00000   Median :1.000  
+ Mean   :1.501      Mean   : 4.692   Mean   :0.02441   Mean   :1.209  
+ 3rd Qu.:2.000      3rd Qu.: 3.000   3rd Qu.:0.00000   3rd Qu.:1.000  
+ Max.   :2.000      Max.   :99.000   Max.   :1.00000   Max.   :3.000  
+                                                       NA's   :12989  
+       e1               e2         MHchange12mths        e3_1        
+ Min.   : 1.000   Min.   : 1.000   Min.   : 1.000   Min.   :0.00000  
+ 1st Qu.: 3.000   1st Qu.: 3.000   1st Qu.: 2.000   1st Qu.:0.00000  
+ Median : 3.000   Median : 3.000   Median : 2.000   Median :0.00000  
+ Mean   : 3.909   Mean   : 4.008   Mean   : 2.942   Mean   :0.08269  
+ 3rd Qu.: 4.000   3rd Qu.: 4.000   3rd Qu.: 3.000   3rd Qu.:0.00000  
+ Max.   :99.000   Max.   :99.000   Max.   :99.000   Max.   :1.00000  
+                                                                     
+      e3_2              e3_3              e3_4            e3_5       
+ Min.   :0.00000   Min.   :0.00000   Min.   :0.000   Min.   :0.0000  
+ 1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.000   1st Qu.:0.0000  
+ Median :0.00000   Median :0.00000   Median :0.000   Median :0.0000  
+ Mean   :0.03981   Mean   :0.06933   Mean   :0.154   Mean   :0.2636  
+ 3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.000   3rd Qu.:1.0000  
+ Max.   :1.00000   Max.   :1.00000   Max.   :1.000   Max.   :1.0000  
+                                                                     
+      e3_6             e3_7              e3_8            e3_9        
+ Min.   :0.0000   Min.   :0.00000   Min.   :0.000   Min.   :0.00000  
+ 1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.000   1st Qu.:0.00000  
+ Median :0.0000   Median :0.00000   Median :0.000   Median :0.00000  
+ Mean   :0.2376   Mean   :0.08773   Mean   :0.111   Mean   :0.03538  
+ 3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:0.000   3rd Qu.:0.00000  
+ Max.   :1.0000   Max.   :1.00000   Max.   :1.000   Max.   :1.00000  
+                                                                     
+     e3_99         e3_9_other             e4_2            e4_4      
+ Min.   :0.0000   Length:13314       Min.   :1.000   Min.   :1.000  
+ 1st Qu.:0.0000   Class :character   1st Qu.:1.000   1st Qu.:1.000  
+ Median :0.0000   Mode  :character   Median :2.000   Median :2.000  
+ Mean   :0.4123                      Mean   :2.256   Mean   :1.919  
+ 3rd Qu.:1.0000                      3rd Qu.:3.000   3rd Qu.:3.000  
+ Max.   :1.0000                      Max.   :5.000   Max.   :5.000  
+                                                                    
+      e4_5            e4_7            e4_8           e4_10      
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:1.000   1st Qu.:1.000   1st Qu.:1.000   1st Qu.:1.000  
+ Median :2.000   Median :2.000   Median :2.000   Median :1.000  
+ Mean   :2.206   Mean   :1.989   Mean   :2.248   Mean   :1.821  
+ 3rd Qu.:3.000   3rd Qu.:3.000   3rd Qu.:3.000   3rd Qu.:3.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :5.000  
+                                                                
+    K6score         K6grouped          e5              e6        
+ Min.   : 0.000   Min.   :1.00   Min.   :1.000   Min.   : 0.000  
+ 1st Qu.: 2.000   1st Qu.:1.00   1st Qu.:1.000   1st Qu.: 0.000  
+ Median : 5.000   Median :2.00   Median :2.000   Median : 2.000  
+ Mean   : 6.439   Mean   :1.69   Mean   :1.642   Mean   : 2.936  
+ 3rd Qu.:11.000   3rd Qu.:2.00   3rd Qu.:2.000   3rd Qu.: 4.000  
+ Max.   :24.000   Max.   :3.00   Max.   :2.000   Max.   :28.000  
+                                 NA's   :1954    NA's   :9243    
+       e7          DaysImpacted       e8a_1           e8a_3       
+ Min.   : 0.000   Min.   : 0.00   Min.   :0.000   Min.   :0.0000  
+ 1st Qu.: 1.000   1st Qu.: 2.00   1st Qu.:0.000   1st Qu.:0.0000  
+ Median : 2.000   Median : 5.00   Median :0.000   Median :0.0000  
+ Mean   : 3.584   Mean   : 6.52   Mean   :0.351   Mean   :0.1263  
+ 3rd Qu.: 5.000   3rd Qu.: 9.00   3rd Qu.:1.000   3rd Qu.:0.0000  
+ Max.   :28.000   Max.   :28.00   Max.   :1.000   Max.   :1.0000  
+ NA's   :9243     NA's   :9243    NA's   :9243    NA's   :9243    
+     e8a_4            e8a_5            e8a_6           e8b_1        
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.000   Min.   : 0.0000  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.000   1st Qu.: 0.0000  
+ Median :0.0000   Median :0.0000   Median :0.000   Median : 0.0000  
+ Mean   :0.1634   Mean   :0.3817   Mean   :0.069   Mean   : 0.9831  
+ 3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:0.000   3rd Qu.: 1.0000  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.000   Max.   :28.0000  
+ NA's   :9243     NA's   :9243     NA's   :9243    NA's   :9243     
+     e8b_3             e8b_4           DaysAbsent         Absent      
+ Min.   : 0.0000   Min.   : 0.0000   Min.   : 0.000   Min.   :0.0000  
+ 1st Qu.: 0.0000   1st Qu.: 0.0000   1st Qu.: 0.000   1st Qu.:0.0000  
+ Median : 0.0000   Median : 0.0000   Median : 1.000   Median :0.0000  
+ Mean   : 0.5168   Mean   : 0.5254   Mean   : 2.025   Mean   :0.2099  
+ 3rd Qu.: 0.0000   3rd Qu.: 0.0000   3rd Qu.: 3.000   3rd Qu.:0.0000  
+ Max.   :28.0000   Max.   :24.0000   Max.   :28.000   Max.   :1.0000  
+ NA's   :9243      NA's   :9243      NA's   :9243                     
+     e9_1_1         MHC_12mths      MHC_lifetime      e9_1_98       
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.000   Min.   :0.00000  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.000   1st Qu.:0.00000  
+ Median :0.0000   Median :0.0000   Median :0.000   Median :0.00000  
+ Mean   :0.2307   Mean   :0.1916   Mean   :0.397   Mean   :0.08247  
+ 3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:1.000   3rd Qu.:0.00000  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.000   Max.   :1.00000  
+                                                                    
+    e9_1_99            e10              e11           MHCimpact     
+ Min.   :0.0000   Min.   : 1.000   Min.   : 1.000   Min.   : 1.000  
+ 1st Qu.:0.0000   1st Qu.: 1.000   1st Qu.: 2.000   1st Qu.: 1.000  
+ Median :1.0000   Median : 2.000   Median : 3.000   Median : 2.000  
+ Mean   :0.5206   Mean   : 4.428   Mean   : 9.501   Mean   : 8.738  
+ 3rd Qu.:1.0000   3rd Qu.: 2.000   3rd Qu.: 3.000   3rd Qu.: 2.000  
+ Max.   :1.0000   Max.   :99.000   Max.   :99.000   Max.   :99.000  
+                  NA's   :8029     NA's   :8029     NA's   :8029    
+      e13              f1_1             f1_2              f1_3        
+ Min.   : 1.000   Min.   : 1.000   Min.   : 0.0000   Min.   : 0.0000  
+ 1st Qu.: 2.000   1st Qu.: 2.000   1st Qu.: 0.0000   1st Qu.: 0.0000  
+ Median : 2.000   Median : 2.000   Median : 0.0000   Median : 0.0000  
+ Mean   : 6.148   Mean   : 2.131   Mean   : 0.2521   Mean   : 0.2141  
+ 3rd Qu.: 2.000   3rd Qu.: 2.000   3rd Qu.: 0.0000   3rd Qu.: 0.0000  
+ Max.   :99.000   Max.   :15.000   Max.   :11.0000   Max.   :10.0000  
+ NA's   :6180                                                         
+      f1_4              f2               f3        abslocation    
+ Min.   :0.0000   Min.   : 1.000   Min.   : 800   Min.   : 1.000  
+ 1st Qu.:0.0000   1st Qu.: 2.000   1st Qu.:2478   1st Qu.: 2.000  
+ Median :0.0000   Median : 3.000   Median :3174   Median : 3.000  
+ Mean   :0.1356   Mean   : 4.166   Mean   :3657   Mean   : 4.482  
+ 3rd Qu.:0.0000   3rd Qu.: 5.000   3rd Qu.:4570   3rd Qu.: 6.000  
+ Max.   :9.0000   Max.   :99.000   Max.   :7331   Max.   :14.000  
+                                                                  
+   HomeState           f5           ATSIorigin          f6_1       
+ Min.   :1.000   Min.   : 1.000   Min.   : 1.000   Min.   :0.0000  
+ 1st Qu.:1.000   1st Qu.: 1.000   1st Qu.: 1.000   1st Qu.:0.0000  
+ Median :2.000   Median : 1.000   Median : 1.000   Median :0.0000  
+ Mean   :2.635   Mean   : 2.383   Mean   : 2.375   Mean   :0.0163  
+ 3rd Qu.:3.000   3rd Qu.: 1.000   3rd Qu.: 1.000   3rd Qu.:0.0000  
+ Max.   :8.000   Max.   :99.000   Max.   :99.000   Max.   :1.0000  
+                                                                   
+      f6_2              f6_3             f6_4               f6_5         
+ Min.   :0.00000   Min.   :0.0000   Min.   :0.000000   Min.   :0.000000  
+ 1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.000000   1st Qu.:0.000000  
+ Median :0.00000   Median :0.0000   Median :0.000000   Median :0.000000  
+ Mean   :0.05265   Mean   :0.0486   Mean   :0.006309   Mean   :0.004657  
+ 3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.000000   3rd Qu.:0.000000  
+ Max.   :1.00000   Max.   :1.0000   Max.   :1.000000   Max.   :1.000000  
+                                                                         
+      f6_6               f6_9              f6_7               f6_8         
+ Min.   :0.000000   Min.   :0.00000   Min.   :0.000000   Min.   :0.000000  
+ 1st Qu.:0.000000   1st Qu.:0.00000   1st Qu.:0.000000   1st Qu.:0.000000  
+ Median :0.000000   Median :0.00000   Median :0.000000   Median :0.000000  
+ Mean   :0.007811   Mean   :0.01097   Mean   :0.009464   Mean   :0.003605  
+ 3rd Qu.:0.000000   3rd Qu.:0.00000   3rd Qu.:0.000000   3rd Qu.:0.000000  
+ Max.   :1.000000   Max.   :1.00000   Max.   :1.000000   Max.   :1.000000  
+                                                                           
+    LGBTQIA           f6_98            f6_99               f7       
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.00000   Min.   : 1.00  
+ 1st Qu.:0.0000   1st Qu.:1.0000   1st Qu.:0.00000   1st Qu.: 3.00  
+ Median :0.0000   Median :1.0000   Median :0.00000   Median : 5.00  
+ Mean   :0.1393   Mean   :0.8093   Mean   :0.05198   Mean   :14.27  
+ 3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:0.00000   3rd Qu.: 8.00  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.00000   Max.   :99.00  
+                                                                    
+      f8_1            f8_2            f8_3             f9        
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Min.   : 1.000  
+ 1st Qu.:3.000   1st Qu.:3.000   1st Qu.:3.000   1st Qu.: 1.000  
+ Median :4.000   Median :4.000   Median :4.000   Median : 1.000  
+ Mean   :3.567   Mean   :3.622   Mean   :3.739   Mean   : 9.599  
+ 3rd Qu.:5.000   3rd Qu.:5.000   3rd Qu.:5.000   3rd Qu.: 2.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000   Max.   :99.000  
+                                                                 
+     f10_1        FinancialStress       f4         Generation   
+ Min.   : 1.000   Min.   :1.000   Min.   :1936   Min.   :1.000  
+ 1st Qu.: 3.000   1st Qu.:1.000   1st Qu.:1970   1st Qu.:3.000  
+ Median : 6.000   Median :1.000   Median :1981   Median :4.000  
+ Mean   : 5.337   Mean   :1.384   Mean   :1980   Mean   :3.498  
+ 3rd Qu.: 7.000   3rd Qu.:2.000   3rd Qu.:1991   3rd Qu.:4.000  
+ Max.   :10.000   Max.   :2.000   Max.   :2006   Max.   :5.000  
+                                                                
+   frthrrsrch       intdur1             Weight       Connectedness   
+ Min.   :1.000   Min.   :    3.76   Min.   :0.0000   Min.   :  0.00  
+ 1st Qu.:1.000   1st Qu.:   12.52   1st Qu.:0.7110   1st Qu.: 67.50  
+ Median :1.000   Median :   17.67   Median :0.9375   Median : 75.00  
+ Mean   :1.286   Mean   :  114.38   Mean   :1.0000   Mean   : 75.78  
+ 3rd Qu.:2.000   3rd Qu.:   26.31   3rd Qu.:1.2044   3rd Qu.: 85.00  
+ Max.   :2.000   Max.   :16676.51   Max.   :7.3681   Max.   :100.00  
+                                                                     
+   Leadership         Safety         WorkDesign       Capability    
+ Min.   :  0.00   Min.   :  0.00   Min.   :  0.00   Min.   :  0.00  
+ 1st Qu.: 57.50   1st Qu.: 62.50   1st Qu.: 55.00   1st Qu.: 50.00  
+ Median : 72.50   Median : 75.00   Median : 70.00   Median : 64.29  
+ Mean   : 67.35   Mean   : 72.13   Mean   : 65.92   Mean   : 62.60  
+ 3rd Qu.: 77.50   3rd Qu.: 85.00   3rd Qu.: 77.50   3rd Qu.: 75.00  
+ Max.   :100.00   Max.   :100.00   Max.   :100.00   Max.   :100.00  
+                                                                    
+ ThrivingScore     Environment     TraumaticEvents   Recognition    
+ Min.   :  0.00   Min.   : 20.00   Min.   : 20.00   Min.   : 20.00  
+ 1st Qu.: 60.00   1st Qu.: 66.67   1st Qu.: 65.00   1st Qu.: 53.33  
+ Median : 70.36   Median : 80.00   Median : 75.00   Median : 66.67  
+ Mean   : 68.76   Mean   : 76.67   Mean   : 74.59   Mean   : 66.78  
+ 3rd Qu.: 78.29   3rd Qu.: 86.67   3rd Qu.: 85.00   3rd Qu.: 80.00  
+ Max.   :100.00   Max.   :100.00   Max.   :100.00   Max.   :100.00  
+                                                                    
+   ChangeMgt        JobControl      RoleClarity       MgtSupport    
+ Min.   : 20.00   Min.   : 20.00   Min.   : 20.00   Min.   : 20.00  
+ 1st Qu.: 60.00   1st Qu.: 60.00   1st Qu.: 66.67   1st Qu.: 68.00  
+ Median : 73.33   Median : 73.33   Median : 80.00   Median : 80.00  
+ Mean   : 70.14   Mean   : 72.09   Mean   : 74.96   Mean   : 74.57  
+ 3rd Qu.: 80.00   3rd Qu.: 80.00   3rd Qu.: 80.00   3rd Qu.: 84.00  
+ Max.   :100.00   Max.   :100.00   Max.   :100.00   Max.   :100.00  
+                                                                    
+    Workload      RelationshipsFairness     f11a_1           f11a_2     
+ Min.   : 20.00   Min.   : 20.00        Min.   :0.0000   Min.   :0.000  
+ 1st Qu.: 60.00   1st Qu.: 70.77        1st Qu.:0.0000   1st Qu.:0.000  
+ Median : 73.33   Median : 78.46        Median :0.0000   Median :0.000  
+ Mean   : 71.49   Mean   : 77.28        Mean   :0.0353   Mean   :0.096  
+ 3rd Qu.: 80.00   3rd Qu.: 86.15        3rd Qu.:0.0000   3rd Qu.:0.000  
+ Max.   :100.00   Max.   :100.00        Max.   :1.0000   Max.   :1.000  
+                                        NA's   :7116     NA's   :7116   
+     f11a_3           f11a_4           f11a_5           f11a_6      
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+ Median :0.0000   Median :0.0000   Median :0.0000   Median :0.0000  
+ Mean   :0.1131   Mean   :0.0662   Mean   :0.0132   Mean   :0.0708  
+ 3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.0000  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+ NA's   :7116     NA's   :7116     NA's   :7116     NA's   :7116    
+     f11a_7           f11a_8          f11a_97          f11a_98      
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+ Median :0.0000   Median :0.0000   Median :0.0000   Median :1.0000  
+ Mean   :0.0603   Mean   :0.1265   Mean   :0.0252   Mean   :0.5208  
+ 3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:1.0000  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+ NA's   :7116     NA's   :7116     NA's   :7116     NA's   :7116    
+    f11a_99      f11a_97_other      LifeTransition   LifeTransitionGrp
+ Min.   :0.000   Length:13314       Min.   :0.0000   Min.   :0.0000   
+ 1st Qu.:0.000   Class :character   1st Qu.:0.0000   1st Qu.:0.0000   
+ Median :0.000   Mode  :character   Median :0.0000   Median :0.0000   
+ Mean   :0.035                      Mean   :0.6068   Mean   :0.5676   
+ 3rd Qu.:0.000                      3rd Qu.:1.0000   3rd Qu.:1.0000   
+ Max.   :1.000                      Max.   :7.0000   Max.   :2.0000   
+ NA's   :7116                       NA's   :7116     NA's   :7116     
+ LifeTransitionExp   Menopause      MenopauseGroup      f12_1        
+ Min.   :0.0000    Min.   :0.0000   Min.   :1.000   Min.   :0.00000  
+ 1st Qu.:0.0000    1st Qu.:0.0000   1st Qu.:1.000   1st Qu.:0.00000  
+ Median :0.0000    Median :0.0000   Median :2.000   Median :0.00000  
+ Mean   :0.4442    Mean   :0.1312   Mean   :2.098   Mean   :0.07625  
+ 3rd Qu.:1.0000    3rd Qu.:0.0000   3rd Qu.:3.000   3rd Qu.:0.00000  
+ Max.   :1.0000    Max.   :1.0000   Max.   :3.000   Max.   :1.00000  
+ NA's   :7116      NA's   :7116     NA's   :11819   NA's   :3097     
+     f12_2             f12_3           f12_4             f12_5        
+ Min.   :0.00000   Min.   :0.000   Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.00000   1st Qu.:0.000   1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.00000   Median :0.000   Median :0.00000   Median :0.00000  
+ Mean   :0.09514   Mean   :0.124   Mean   :0.03015   Mean   :0.04238  
+ 3rd Qu.:0.00000   3rd Qu.:0.000   3rd Qu.:0.00000   3rd Qu.:0.00000  
+ Max.   :1.00000   Max.   :1.000   Max.   :1.00000   Max.   :1.00000  
+ NA's   :3097      NA's   :3097    NA's   :3097      NA's   :3097     
+     f12_6            f12_7             f12_8            f12_9        
+ Min.   :0.0000   Min.   :0.00000   Min.   :0.0000   Min.   :0.00000  
+ 1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.00000  
+ Median :0.0000   Median :0.00000   Median :0.0000   Median :0.00000  
+ Mean   :0.1204   Mean   :0.02427   Mean   :0.1013   Mean   :0.00842  
+ 3rd Qu.:0.0000   3rd Qu.:0.00000   3rd Qu.:0.0000   3rd Qu.:0.00000  
+ Max.   :1.0000   Max.   :1.00000   Max.   :1.0000   Max.   :1.00000  
+ NA's   :3097     NA's   :3097      NA's   :3097     NA's   :3097     
+     f12_10            f12_11            f12_12            f12_13       
+ Min.   :0.00000   Min.   :0.00000   Min.   :0.00000   Min.   :0.00000  
+ 1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.00000   1st Qu.:0.00000  
+ Median :0.00000   Median :0.00000   Median :0.00000   Median :0.00000  
+ Mean   :0.00979   Mean   :0.01586   Mean   :0.01742   Mean   :0.00695  
+ 3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.00000   3rd Qu.:0.00000  
+ Max.   :1.00000   Max.   :1.00000   Max.   :1.00000   Max.   :1.00000  
+ NA's   :3097      NA's   :3097      NA's   :3097      NA's   :3097     
+     f12_97            f12_98           f12_99        f12_97_other      
+ Min.   :0.00000   Min.   :0.0000   Min.   :0.00000   Length:13314      
+ 1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.:0.00000   Class :character  
+ Median :0.00000   Median :1.0000   Median :0.00000   Mode  :character  
+ Mean   :0.04669   Mean   :0.5113   Mean   :0.05129                     
+ 3rd Qu.:0.00000   3rd Qu.:1.0000   3rd Qu.:0.00000                     
+ Max.   :1.00000   Max.   :1.0000   Max.   :1.00000                     
+ NA's   :3097      NA's   :3097     NA's   :3097                        
+ ChronicHealth       filter_$      
+ Min.   :0.0000   Min.   :0.00000  
+ 1st Qu.:0.0000   1st Qu.:0.00000  
+ Median :0.0000   Median :0.00000  
+ Mean   :0.4381   Mean   :0.09178  
+ 3rd Qu.:1.0000   3rd Qu.:0.00000  
+ Max.   :1.0000   Max.   :1.00000  
+ NA's   :3097                      </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(itw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 13314</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(itw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "uniqueid"                "responseid"             
+  [3] "Wave"                    "Year"                   
+  [5] "Season"                  "Gender"                 
+  [7] "gendersplit"             "age_weight"             
+  [9] "Age"                     "a3"                     
+ [11] "ANZSCO_major"            "ANZSCO_sub_major"       
+ [13] "a4"                      "WorkRole"               
+ [15] "a5"                      "OrgSize"                
+ [17] "a6"                      "a7"                     
+ [19] "a8"                      "a10"                    
+ [21] "Region"                  "WorkLocation"           
+ [23] "a11_1"                   "WorkArrangement"        
+ [25] "a13_1"                   "a13_2"                  
+ [27] "a13_3"                   "a13_4"                  
+ [29] "a13_5"                   "a13_6"                  
+ [31] "a13_7"                   "a13_8"                  
+ [33] "a13_9"                   "a13_10"                 
+ [35] "a13_11"                  "Policies"               
+ [37] "PoliciesGrouped"         "a13_99"                 
+ [39] "a14a"                    "JobTenure"              
+ [41] "a14b"                    "OrgTenure"              
+ [43] "a15"                     "a16"                    
+ [45] "a17"                     "a18"                    
+ [47] "b1_1"                    "b1_2"                   
+ [49] "b1_3"                    "b1_4"                   
+ [51] "b1_5"                    "b1_6"                   
+ [53] "b1_7"                    "b1_8"                   
+ [55] "b1_9"                    "b1_10"                  
+ [57] "b2_1"                    "b2_2"                   
+ [59] "b2_3"                    "b2_4"                   
+ [61] "b2_5"                    "b2_6"                   
+ [63] "b2_7"                    "b2_8"                   
+ [65] "b2_9"                    "b2_10"                  
+ [67] "b3x1_1"                  "b3x2_1"                 
+ [69] "b3x2_2"                  "b3x2_3"                 
+ [71] "b3x3_1"                  "b3x3_2"                 
+ [73] "b3x3_3"                  "b3x4_1"                 
+ [75] "b3x4_2"                  "b3x4_3"                 
+ [77] "b4x1_1"                  "b4x1_2"                 
+ [79] "b4x1_3"                  "b4x2_1"                 
+ [81] "b4x2_2"                  "b4x2_3"                 
+ [83] "b4x2_4"                  "b4x3_1"                 
+ [85] "b4x3_2"                  "b4x3_3"                 
+ [87] "b5_1"                    "b5_2"                   
+ [89] "b5_3"                    "b5_4"                   
+ [91] "b5_5"                    "b5_6"                   
+ [93] "b5_7"                    "b6_1"                   
+ [95] "b7_1"                    "b7_2"                   
+ [97] "b8_1"                    "b8_2"                   
+ [99] "b8_3"                    "b9_1"                   
+[101] "b9_2"                    "b9_3"                   
+[103] "b10_1"                   "b10_2"                  
+[105] "b10_3"                   "b11_1"                  
+[107] "b11_2"                   "b11_3"                  
+[109] "b11_4"                   "b12a_1"                 
+[111] "WorkloadRating"          "b13_1"                  
+[113] "AppWorkload"             "b14_1"                  
+[115] "OverallMH"               "b14a_1"                 
+[117] "b15a_1"                  "b15a_2"                 
+[119] "b15a_3"                  "b15a_4"                 
+[121] "b15a_5"                  "b15a_6"                 
+[123] "b15a_7"                  "b15a_8"                 
+[125] "b15a_9"                  "b15a_10"                
+[127] "b15a_11"                 "b15a_12"                
+[129] "BATexhaustion"           "BATmental_distance"     
+[131] "BATcognitive_impairment" "BATemotional_impairment"
+[133] "BAT12_total"             "BAT12risk_level"        
+[135] "BAT12_grouped"           "b15"                    
+[137] "Burnout"                 "d1_1"                   
+[139] "Retention"               "d1_2"                   
+[141] "OpenMH"                  "d2_1"                   
+[143] "d2_2"                    "d2_3"                   
+[145] "d2_4"                    "d2_5"                   
+[147] "d2_6"                    "d2_99"                  
+[149] "WorkChanges"             "d3_1"                   
+[151] "d3_2"                    "d3_3"                   
+[153] "d3_4"                    "d3_5"                   
+[155] "d3_6"                    "d3_7"                   
+[157] "d3_8"                    "d3_9"                   
+[159] "d3_10"                   "HarmfulExp"             
+[161] "HarmfulExpGrouped"       "d3_98"                  
+[163] "d3_99"                   "WorkAbility"            
+[165] "WorkAbilityGrouped"      "d6"                     
+[167] "MHclaim"                 "d8"                     
+[169] "e1"                      "e2"                     
+[171] "MHchange12mths"          "e3_1"                   
+[173] "e3_2"                    "e3_3"                   
+[175] "e3_4"                    "e3_5"                   
+[177] "e3_6"                    "e3_7"                   
+[179] "e3_8"                    "e3_9"                   
+[181] "e3_99"                   "e3_9_other"             
+[183] "e4_2"                    "e4_4"                   
+[185] "e4_5"                    "e4_7"                   
+[187] "e4_8"                    "e4_10"                  
+[189] "K6score"                 "K6grouped"              
+[191] "e5"                      "e6"                     
+[193] "e7"                      "DaysImpacted"           
+[195] "e8a_1"                   "e8a_3"                  
+[197] "e8a_4"                   "e8a_5"                  
+[199] "e8a_6"                   "e8b_1"                  
+[201] "e8b_3"                   "e8b_4"                  
+[203] "DaysAbsent"              "Absent"                 
+[205] "e9_1_1"                  "MHC_12mths"             
+[207] "MHC_lifetime"            "e9_1_98"                
+[209] "e9_1_99"                 "e10"                    
+[211] "e11"                     "MHCimpact"              
+[213] "e13"                     "f1_1"                   
+[215] "f1_2"                    "f1_3"                   
+[217] "f1_4"                    "f2"                     
+[219] "f3"                      "abslocation"            
+[221] "HomeState"               "f5"                     
+[223] "ATSIorigin"              "f6_1"                   
+[225] "f6_2"                    "f6_3"                   
+[227] "f6_4"                    "f6_5"                   
+[229] "f6_6"                    "f6_9"                   
+[231] "f6_7"                    "f6_8"                   
+[233] "LGBTQIA"                 "f6_98"                  
+[235] "f6_99"                   "f7"                     
+[237] "f8_1"                    "f8_2"                   
+[239] "f8_3"                    "f9"                     
+[241] "f10_1"                   "FinancialStress"        
+[243] "f4"                      "Generation"             
+[245] "frthrrsrch"              "intdur1"                
+[247] "Weight"                  "Connectedness"          
+[249] "Leadership"              "Safety"                 
+[251] "WorkDesign"              "Capability"             
+[253] "ThrivingScore"           "Environment"            
+[255] "TraumaticEvents"         "Recognition"            
+[257] "ChangeMgt"               "JobControl"             
+[259] "RoleClarity"             "MgtSupport"             
+[261] "Workload"                "RelationshipsFairness"  
+[263] "f11a_1"                  "f11a_2"                 
+[265] "f11a_3"                  "f11a_4"                 
+[267] "f11a_5"                  "f11a_6"                 
+[269] "f11a_7"                  "f11a_8"                 
+[271] "f11a_97"                 "f11a_98"                
+[273] "f11a_99"                 "f11a_97_other"          
+[275] "LifeTransition"          "LifeTransitionGrp"      
+[277] "LifeTransitionExp"       "Menopause"              
+[279] "MenopauseGroup"          "f12_1"                  
+[281] "f12_2"                   "f12_3"                  
+[283] "f12_4"                   "f12_5"                  
+[285] "f12_6"                   "f12_7"                  
+[287] "f12_8"                   "f12_9"                  
+[289] "f12_10"                  "f12_11"                 
+[291] "f12_12"                  "f12_13"                 
+[293] "f12_97"                  "f12_98"                 
+[295] "f12_99"                  "f12_97_other"           
+[297] "ChronicHealth"           "filter_$"               </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>itw <span class="ot">&lt;-</span> itw <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">wave =</span> <span class="fu">factor</span>(Wave, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Q1_2024"</span>, <span class="st">"Q2_2024"</span> , <span class="st">"Q3_2024"</span> , <span class="st">"Q4_2024"</span>))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span> (itw , <span class="st">"data/itw_clean.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>itw <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/itw_clean.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>((itw<span class="sc">$</span>K6score))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   2.000   5.000   6.439  11.000  24.000 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>((itw<span class="sc">$</span>BAT12_total))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   2.000   2.417   2.504   3.000   5.000 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>aggregated_itw <span class="ot">&lt;-</span> itw <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Wave) <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_K6score =</span> <span class="fu">mean</span>(K6score, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

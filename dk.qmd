@@ -1,0 +1,47 @@
+---
+title: "2024_ITW"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(haven)
+
+itw <- read_sav("data/ITW_2024.sav")
+glimpse(itw)
+summary(itw)
+nrow(itw)
+names(itw)
+```
+
+```{r}
+itw <- itw |>
+  mutate(
+    wave = factor(Wave, levels = c("Q1_2024", "Q2_2024" , "Q3_2024" , "Q4_2024"))
+  )
+```
+
+```{r}
+saveRDS (itw , "data/itw_clean.rds")
+```
+
+```{r}
+itw <- readRDS("data/itw_clean.rds")
+```
+
+```{r}
+summary((itw$K6score))
+summary((itw$BAT12_total))
+```
+
+```{r}
+aggregated_itw <- itw |>
+  group_by(Wave) |>
+  summarise(
+    mean_K6score = mean(K6score, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+```
+
