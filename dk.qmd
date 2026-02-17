@@ -1,47 +1,462 @@
 ---
-title: "2024_ITW"
+title: "2024-25_ITW"
 format: html
 editor: visual
 ---
-
 ```{r}
 library(tidyverse)
 library(haven)
+library(forcats)
+library(effsize)  
+library(broom)
 
-itw <- read_sav("data/ITW_2024.sav")
-glimpse(itw)
-summary(itw)
-nrow(itw)
-names(itw)
-```
+# Load SPSS files
+itw_2024 <- read_sav("data/ITW_2024.sav") |> zap_labels()
+itw_2025 <- read_sav("data/ITW_2025.sav") |> zap_labels()
 
-```{r}
-itw <- itw |>
+# Harmonise variable names
+itw_2025 <- itw_2025 |> rename(K6score = k6score)
+
+# Combine datasets
+itw_all <- bind_rows(itw_2024, itw_2025) |>
   mutate(
-    wave = factor(Wave, levels = c("Q1_2024", "Q2_2024" , "Q3_2024" , "Q4_2024"))
+    Year = as.integer(as.character(Year)),
+    Year = ifelse(is.na(Year), 2025L, Year),
+    Wave = as.integer(as.character(Wave)),
+
+    Quarter = factor(
+      paste0("Q", Wave),
+      levels = c("Q1","Q2","Q3","Q4"),
+      ordered = TRUE
+    ),
+
+    Quarter_num = as.numeric(Quarter)
+  )
+
+# Save clean dataset
+saveRDS(itw_all, "data/itw_all_clean.rds")
+
+
+```
+
+
+```{r}
+# NATIONAL DATASET (FULL WORKFORCE)
+itw_national <- itw_all |>
+  mutate(Group = "National")
+
+# INDUSTRY DATASET (Retail and Transport only)
+itw_industry <- itw_all |>
+  mutate(
+    Group = case_when(
+      a6 == 7 ~ "Retail",
+      a6 == 9 ~ "Transport",
+      TRUE ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(Group))
+
+# Check sample sizes
+itw_industry |> count(Group)
+```
+
+
+### Superfriend domain scores
+```{r}
+connectedness_items <- paste0("b1_", 1:10)
+leadership_items    <- paste0("b2_", 1:10)
+
+safety_items <- c(
+  "b3x1_1",
+  paste0("b3x2_", 1:3),
+  paste0("b3x3_", 1:3),
+  paste0("b3x4_", 1:3)
+)
+
+work_design_items <- c(
+  paste0("b4x1_", 1:3),
+  paste0("b4x2_", 1:4),
+  paste0("b4x3_", 1:3)
+)
+
+capability_items <- paste0("b5_", 1:7)
+
+score_sf <- function(df, items) {
+
+  m <- rowMeans(df[, items], na.rm = TRUE)
+  s <- (m - 1) * 25
+  s[is.nan(m)] <- NA
+  s
+}
+
+
+itw_national <- itw_national |>
+  mutate(
+    Connectedness = score_sf(itw_national, connectedness_items),
+    Leadership    = score_sf(itw_national, leadership_items),
+    Safety        = score_sf(itw_national, safety_items),
+    Work_Design   = score_sf(itw_national, work_design_items),
+    Capability    = score_sf(itw_national, capability_items)
+  )
+
+itw_industry <- itw_industry |>
+  mutate(
+    Connectedness = score_sf(itw_industry, connectedness_items),
+    Leadership    = score_sf(itw_industry, leadership_items),
+    Safety        = score_sf(itw_industry, safety_items),
+    Work_Design   = score_sf(itw_industry, work_design_items),
+    Capability    = score_sf(itw_industry, capability_items)
   )
 ```
 
+###  Psychological hazards
 ```{r}
-saveRDS (itw , "data/itw_clean.rds")
+mgmt_support_items <- c("b2_1","b2_2","b2_3","b2_4","b2_5")
+workload_items     <- c("b4x1_1","b4x1_2","b4x1_3")
+recognition_items  <- c("b2_6","b2_7","b2_8","b2_9","b2_10")
+
+score_hazard <- function(df, items){
+  m <- rowMeans(df[, items], na.rm=TRUE)
+  m[is.nan(m)] <- NA
+  m
+}
+
+itw_national <- itw_national |>
+  mutate(
+    Hazard_Management_Support = score_hazard(itw_national, mgmt_support_items),
+    Hazard_Workload           = score_hazard(itw_national, workload_items),
+    Hazard_Recognition        = score_hazard(itw_national, recognition_items)
+  )
 ```
 
+
+### Aggregation helper
 ```{r}
-itw <- readRDS("data/itw_clean.rds")
+agg_qtr_year <- function(df, var){
+  df |>
+    group_by(Year, Quarter) |>
+    summarise(
+      mean = mean(.data[[var]], na.rm=TRUE),
+      sd   = sd(.data[[var]], na.rm=TRUE),
+      n    = sum(!is.na(.data[[var]])),
+      se   = sd/sqrt(n),
+      lci  = mean - 1.96*se,
+      uci  = mean + 1.96*se,
+      .groups="drop"
+    )
+}
 ```
 
-```{r}
-summary((itw$K6score))
-summary((itw$BAT12_total))
-```
+
+## National Plots
+**K6**
 
 ```{r}
-aggregated_itw <- itw |>
-  group_by(Wave) |>
+k6_nat <- agg_qtr_year(itw_national, "K6score")
+
+ggplot(k6_nat, aes(x = Quarter, y = mean,
+                   colour = factor(Year),
+                   group = Year)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = lci, ymax = uci), width = 0.1) +
+  scale_colour_manual(values = c("steelblue","firebrick")) +
+  theme_minimal() +
+  labs(
+    title = "Psychological Distress (K6) – National Workforce",
+    x = "Quarter",
+    y = "Mean K6 (95% CI)",
+    colour = "Year"
+  )
+
+
+```
+
+**Burnout**
+```{r}
+bat_nat <- agg_qtr_year(itw_national, "BAT12_total")
+
+ggplot(bat_nat, aes(x = Quarter, y = mean,
+                    colour = factor(Year),
+                    group = Year)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = lci, ymax = uci), width = 0.1) +
+  scale_colour_manual(values = c("steelblue","firebrick")) +
+  theme_minimal() +
+  labs(
+    title = "Burnout (BAT-12) – National Workforce",
+    x = "Quarter",
+    y = "Mean BAT-12 (95% CI)",
+    colour = "Year"
+  )
+
+
+```
+
+
+**Superfriend domains- National**
+```{r}
+sf_domains <- c("Connectedness","Leadership","Safety",
+                "Work_Design","Capability")
+
+sf_nat <- itw_national |>
+  select(Year, Quarter, all_of(sf_domains)) |>
+  pivot_longer(-c(Year, Quarter),
+               names_to = "Domain",
+               values_to = "Score") |>
+  group_by(Year, Quarter, Domain) |>
   summarise(
-    mean_K6score = mean(K6score, na.rm = TRUE),
-    n = n(),
-    .groups = "drop"
+    mean = mean(Score, na.rm=TRUE),
+    se   = sd(Score, na.rm=TRUE)/sqrt(sum(!is.na(Score))),
+    lci  = mean - 1.96*se,
+    uci  = mean + 1.96*se,
+    .groups="drop"
   )
+
+ggplot(sf_nat,
+       aes(Quarter, mean,
+           colour = factor(Year),
+           group = Year)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=.1) +
+  facet_wrap(~Domain) +
+  scale_colour_manual(values = c("steelblue","firebrick")) +
+  theme_minimal() +
+  labs(
+    title="SuperFriend Domains – National",
+    y="Mean (95% CI)",
+    colour="Year"
+  )
+
+
+```
+**Psychosocial Hazards**
+```{r}
+haz_vars <- c(
+  "Hazard_Management_Support",
+  "Hazard_Workload",
+  "Hazard_Recognition"
+)
+
+haz_nat <- itw_national |>
+  select(Year, Quarter, all_of(haz_vars)) |>
+  pivot_longer(-c(Year,Quarter),
+               names_to="Hazard",
+               values_to="Score") |>
+  group_by(Year,Quarter,Hazard) |>
+  summarise(
+    mean=mean(Score,na.rm=TRUE),
+    se=sd(Score,na.rm=TRUE)/sqrt(sum(!is.na(Score))),
+    lci=mean-1.96*se,
+    uci=mean+1.96*se,
+    .groups="drop"
+  )
+
+ggplot(haz_nat,
+       aes(Quarter,mean,
+           colour=factor(Year),
+           group=Year))+
+  geom_line()+
+  geom_point()+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=.1)+
+  facet_wrap(~Hazard)+
+  theme_minimal()+
+  labs(
+    title="Psychosocial Hazards – National",
+    y="Mean Score",
+    colour="Year"
+  )
+
+```
+
+
+## Industry Plots
+**K6**
+```{r}
+k6_ind <- itw_industry |>
+  group_by(Group, Year, Quarter) |>
+  summarise(
+    mean = mean(K6score, na.rm=TRUE),
+    se   = sd(K6score, na.rm=TRUE)/sqrt(sum(!is.na(K6score))),
+    lci  = mean - 1.96*se,
+    uci  = mean + 1.96*se,
+    .groups="drop"
+  )
+
+ggplot(k6_ind,
+       aes(Quarter, mean,
+           colour = factor(Year),
+           group = Year)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=.1) +
+  facet_wrap(~Group) +
+  scale_colour_manual(values = c("steelblue","firebrick")) +
+  theme_minimal() +
+  labs(
+    title="K6 – Retail vs Transport",
+    y="Mean K6 (95% CI)",
+    colour="Year"
+  )
+
+```
+
+**Burnout**
+
+```{r}
+# Burnout – Industry
+
+bat_ind <- itw_industry |>
+  group_by(Group, Year, Quarter) |>
+  summarise(
+    mean = mean(BAT12_total, na.rm=TRUE),
+    se   = sd(BAT12_total, na.rm=TRUE)/sqrt(sum(!is.na(BAT12_total))),
+    lci  = mean - 1.96*se,
+    uci  = mean + 1.96*se,
+    .groups="drop"
+  )
+
+ggplot(bat_ind,
+       aes(Quarter, mean,
+           colour = factor(Year),
+           group = Year)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=.1) +
+  facet_wrap(~Group) +
+  scale_colour_manual(values=c("steelblue","firebrick")) +
+  theme_minimal() +
+  labs(
+    title="Burnout (BAT-12) – Retail vs Transport",
+    y="Mean BAT-12 (95% CI)",
+    colour="Year"
+  )
+
+```
+
+```{r}
+itw_national <- itw_national |>
+  mutate(K6_modsev = ifelse(K6score>=13,1,0))
+
+itw_industry <- itw_industry |>
+  mutate(K6_modsev = ifelse(K6score>=13,1,0))
+
+```
+
+
+### Chi square test industry
+```{r}
+chi_results <- itw_industry |>
+  group_by(Group) |>
+  summarise(
+
+    chisq_p =
+      chisq.test(table(Quarter,K6_modsev))$p.value,
+
+    trend_p = {
+
+      tbl <- table(Quarter,K6_modsev)
+
+      prop.trend.test(tbl[,2],
+                      rowSums(tbl))$p.value
+    },
+
+    .groups="drop"
+  )
+
+chi_results
+
+```
+
+### Time series regression National
+```{r}
+run_lm_trend <- function(df,outcome){
+
+  lm(as.formula(paste(outcome,"~ Quarter_num")),
+     data=df) |>
+    tidy() |>
+    filter(term=="Quarter_num") |>
+    mutate(outcome=outcome)
+
+}
+
+mh_nat <- bind_rows(
+
+  run_lm_trend(itw_national,"K6score"),
+
+  run_lm_trend(itw_national,"BAT12_total")
+
+)
+
+mh_nat
+
+```
+
+### Industry regression
+
+```{r}
+mh_industry <- bind_rows(
+
+  run_lm_trend(
+    filter(itw_industry,Group=="Retail"),
+    "K6score"
+  ) |> mutate(Group="Retail"),
+
+  run_lm_trend(
+    filter(itw_industry,Group=="Transport"),
+    "K6score"
+  ) |> mutate(Group="Transport")
+
+)
+
+mh_industry
+
+```
+
+### Q1-Q4 t test NATIONAL
+```{r}
+run_ttest <- function(df,outcome){
+
+  df |>
+    filter(Quarter %in% c("Q1","Q4")) |>
+    t.test(as.formula(paste(outcome,"~ Quarter")),
+           data=_) |>
+    tidy() |>
+    mutate(outcome=outcome)
+
+}
+
+ttest_nat <- bind_rows(
+
+  run_ttest(itw_national,"K6score"),
+
+  run_ttest(itw_national,"BAT12_total")
+
+)
+
+ttest_nat
+
+```
+
+### Industry t-test
+```{r}
+ttest_ind <- bind_rows(
+
+run_ttest(
+  filter(itw_industry,Group=="Retail"),
+  "K6score"
+) |> mutate(Group="Retail"),
+
+run_ttest(
+  filter(itw_industry,Group=="Transport"),
+  "K6score"
+) |> mutate(Group="Transport")
+
+)
+
+ttest_ind
+
 ```
 
