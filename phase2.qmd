@@ -9,60 +9,94 @@ editor: visual
 
 ```{r}
 library(tidyverse)
-library(dplyr)
 library(haven)
 library(janitor)
+library(readxl)
+library(lubridate)
 
-itw_2024 <- read_sav("data/ITW_2024.sav")
-itw_2025 <- read_sav("data/ITW_2025.sav")
+# Read and clean ITW files
+itw_2024 <- read_sav("data/ITW_2024.sav") %>%
+  clean_names()
 
-```
+itw_2025 <- read_sav("data/ITW_2025.sav") %>%
+  clean_names()
 
-```{r}
+# Harmonise variable names
+itw_2024 <- itw_2024 %>%
+  rename(k6_score = k6score)
+
+itw_2025 <- itw_2025 %>%
+  rename(k6_score = k6score)
+
+# Add year
 itw_2024 <- itw_2024 %>%
   mutate(year = 2024)
 
 itw_2025 <- itw_2025 %>%
   mutate(year = 2025)
 
-
-itw_2025 <- itw_2025 %>%
-  rename(K6score = k6score)
-
+# Combine
 itw_all <- bind_rows(itw_2024, itw_2025)
 
-```
-```{r}
+# Fix missing year values and create quarter
 itw_all <- itw_all %>%
   mutate(
-    Year = if_else(is.na(Year) & Wave == 4, 2025, Year)
+    year = if_else(is.na(year) & wave == 4, 2025, year),
+    quarter = paste(year, paste0("Q", wave))
   )
 
-itw_all <- itw_all %>%
-  mutate(
-    quarter = paste(Year, paste0("Q", Wave))
-  )
-```
-
-
-
-```{r}
-nrow(itw_2024)
-nrow(itw_2025)
-nrow(itw_all)
-```
-```{r}
+# Check counts
 itw_all %>%
-  count(Year, Wave)
-```
+  count(year, wave)
 
-```{r}
+# Create national quarterly summary
 wave_summary <- itw_all %>%
   group_by(quarter) %>%
   summarise(
     mean_f10 = mean(f10_1, na.rm = TRUE),
-    mean_k6 = mean(K6score, na.rm = TRUE),
-    n = n()
+    high_f10_pct = mean(f10_1 >= 8, na.rm = TRUE) * 100,
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
   )
+
+# Read ABS file
+abs_raw <- read_excel(
+  "data/allgroupsbyhouseholds.xlsx",
+  sheet = "Data1",
+  col_names = FALSE
+) %>%
+  clean_names()
+
+# Data rows start at row 11
+date_row_idx <- 11
+
+# Extract Employee households all-groups index
+abs_lci <- abs_raw %>%
+  slice(date_row_idx:n()) %>%
+  transmute(
+    date_raw = as.numeric(x1),
+    employee_lci = as.numeric(x3)
+  ) %>%
+  mutate(
+    date = as.Date(date_raw, origin = "1899-12-30"),
+    quarter = paste(format(date, "%Y"), paste0("Q", quarter(date)))
+  ) %>%
+  select(quarter, employee_lci)
+
+# Keep 2024-2025 only
+abs_lci_2425 <- abs_lci %>%
+  filter(quarter %in% c(
+    "2024 Q1", "2024 Q2", "2024 Q3", "2024 Q4",
+    "2025 Q1", "2025 Q2", "2025 Q3", "2025 Q4"
+  ))
+
+# Merge
+phase2_dataset <- wave_summary %>%
+  left_join(abs_lci_2425, by = "quarter")
+
+# Result
+phase2_dataset
+colSums(is.na(phase2_dataset))
 ```
 
