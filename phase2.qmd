@@ -1,0 +1,68 @@
+---
+title: "Phase2"
+author: Dev Gur
+format: html
+editor: visual
+---
+
+## 
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(haven)
+library(janitor)
+
+itw_2024 <- read_sav("data/ITW_2024.sav")
+itw_2025 <- read_sav("data/ITW_2025.sav")
+
+```
+
+```{r}
+itw_2024 <- itw_2024 %>%
+  mutate(year = 2024)
+
+itw_2025 <- itw_2025 %>%
+  mutate(year = 2025)
+
+
+itw_2025 <- itw_2025 %>%
+  rename(K6score = k6score)
+
+itw_all <- bind_rows(itw_2024, itw_2025)
+
+```
+```{r}
+itw_all <- itw_all %>%
+  mutate(
+    Year = if_else(is.na(Year) & Wave == 4, 2025, Year)
+  )
+
+itw_all <- itw_all %>%
+  mutate(
+    quarter = paste(Year, paste0("Q", Wave))
+  )
+```
+
+
+
+```{r}
+nrow(itw_2024)
+nrow(itw_2025)
+nrow(itw_all)
+```
+```{r}
+itw_all %>%
+  count(Year, Wave)
+```
+
+```{r}
+wave_summary <- itw_all %>%
+  group_by(quarter) %>%
+  summarise(
+    mean_f10 = mean(f10_1, na.rm = TRUE),
+    mean_k6 = mean(K6score, na.rm = TRUE),
+    n = n()
+  )
+```
+
