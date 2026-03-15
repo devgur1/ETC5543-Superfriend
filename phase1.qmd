@@ -221,7 +221,8 @@ ggplot(k6_nat, aes(x = Quarter, y = mean,
     title = "Psychological Distress (K6) – National Workforce",
     x = "Quarter",
     y = "Mean K6 (95% CI)",
-    colour = "Year"
+    colour = "Year",
+    caption = "Note. Higher K6 scores indicate greater psychological distress. Error bars represent 95% confidence intervals."
   )
 
 
@@ -248,7 +249,8 @@ ggplot(bat_nat, aes(x = Quarter, y = mean,
     title = "Burnout (BAT-12) – National Workforce",
     x = "Quarter",
     y = "Mean BAT-12 (95% CI)",
-    colour = "Year"
+    colour = "Year",
+    caption = "Note. Higher BAT-12 scores indicate greater burnout. Error bars represent 95% confidence intervals."
   )
 
 
