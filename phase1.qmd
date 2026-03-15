@@ -266,38 +266,45 @@ sf_domains <- c("Connectedness","Leadership","Safety",
 
 sf_nat <- itw_national |>
   select(Year, Quarter, all_of(sf_domains)) |>
-  pivot_longer(-c(Year, Quarter),
-               names_to = "Domain",
-               values_to = "Score") |>
+  pivot_longer(
+    -c(Year, Quarter),
+    names_to = "Domain",
+    values_to = "Score"
+  ) |>
+  mutate(
+    Domain = factor(
+      Domain,
+      levels = c("Capability", "Work_Design", "Leadership", "Safety", "Connectedness")
+    )
+  ) |>
   group_by(Year, Quarter, Domain) |>
   summarise(
-    mean = mean(Score, na.rm=TRUE),
-    se   = sd(Score, na.rm=TRUE)/sqrt(sum(!is.na(Score))),
-    lci  = mean - 1.96*se,
-    uci  = mean + 1.96*se,
-    .groups="drop"
+    mean = mean(Score, na.rm = TRUE),
+    se   = sd(Score, na.rm = TRUE) / sqrt(sum(!is.na(Score))),
+    lci  = mean - 1.96 * se,
+    uci  = mean + 1.96 * se,
+    .groups = "drop"
   )
 
-ggplot(sf_nat,
-       aes(Quarter, mean,
-           colour = factor(Year),
-           group = Year)) +
+ggplot(
+  sf_nat,
+  aes(Quarter, mean, colour = factor(Year), group = Year)
+) +
   geom_line() +
   geom_point() +
-  geom_errorbar(aes(ymin=lci,ymax=uci),width=.1) +
-  facet_wrap(~Domain) +
-  scale_colour_manual(values = c("blue","red")) +
+  geom_errorbar(aes(ymin = lci, ymax = uci), width = .1) +
+  facet_wrap(~Domain, ncol = 3) +
+  scale_colour_manual(values = c("blue", "red")) +
   theme_minimal() +
   labs(
-    title="SuperFriend Domains – National",
-    y="Mean (95% CI)",
-    colour="Year"
+    title = "SuperFriend Domains – National",
+    y = "Mean (95% CI)",
+    colour = "Year"
   )
-
 
 ```
 
-The five organisational climate domains present a mixed picture, Leadership shows a concerning downward trajectory across quarters, while Safety and Work Design demonstrate modest improvements in 2025, suggesting structural workplace adjustments may be taking effect. Connectedness remains remarkably stable throughout, indicating social bonds at work resist deterioration even as leadership quality erodes. This divergence structural factors improving while relational factors decline suggests organisations are addressing policies and procedures but failing to maintain the quality of day to day leadership interactions.
+The five organisational climate domains present a mixed picture, Leadership shows a slightly downward trajectory across quarters, while Safety, Work Design, Connectedness, and Capability remain relatively consistent across both years. Overall, the results suggest that organisational climate indicators were largely stable over time, with no substantial shifts in domain scores across quarters.
 
 **Psychosocial Hazards**
 
