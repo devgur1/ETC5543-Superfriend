@@ -346,7 +346,7 @@ ggplot(haz_nat,
 
 ```
 
-The most revealing finding is the dissociation between stable workload and deteriorating relational factors: Management Support and Recognition show significant declines across quarters, while Workload remains virtually flat, indicating the problem is not how much work employees do but how they are treated while doing it. Recognition proves most volatile, with steepest declines occurring in Q1-to-Q2 and Q2-to-Q3 comparisons, precisely mirroring the distress peaks observed in the K6 data. This pattern confirms that deteriorating psychosocial safety stems from eroded managerial relationships and feeling undervalued, not increased task demands, pointing interventions toward leadership development and recognition programs rather than workload reduction.
+The most revealing finding is the dissociation between stable workload and deteriorating relational factors: Management Support and Recognition show broadly similar trajectories across quarters, with both domains peaking at Q2, there is considerable linear deterioration through to Q4. However, the magnitude of these changes is relatively small and should be interpreted cautiously. While some sequential quarter-to-quarter comparisons show statistically significant differences, most changes remain within a narrow range, suggesting that psychosocial hazard scores were relatively stable over time. Workload shows little variation across quarters in either year, reinforcing the pattern that perceived task demands remained largely constant. Overall, the results indicate modest fluctuations in relational aspects of the workplace environment, rather than large or consistent deterioration across the study period.
 
 ## Industry Plots
 
@@ -363,6 +363,8 @@ k6_ind <- itw_industry |>
     .groups="drop"
   )
 
+k6_national_avg <- mean(itw_national$K6score, na.rm = TRUE)
+
 ggplot(k6_ind,
        aes(Quarter, mean,
            colour = factor(Year),
@@ -370,18 +372,28 @@ ggplot(k6_ind,
   geom_line() +
   geom_point() +
   geom_errorbar(aes(ymin=lci,ymax=uci),width=.1) +
+  geom_hline(
+  yintercept = k6_national_avg,
+  linetype = "dashed",
+  colour = "black"
+) +
   facet_wrap(~Group) +
   scale_colour_manual(values = c("blue","red")) +
   theme_minimal() +
   labs(
     title="K6 – Retail vs Transport",
-    y="Mean K6 (95% CI)",
-    colour="Year"
-  )
+    x = "Quarter",
+  y = "Mean K6 (95% CI)",
+  colour = "Year",
+  caption = "Note. Higher K6 scores indicate higher levels of psychological distress. Error bars represent 95% CI."
+)
+
 
 ```
 
-The Retail trajectory shows a dramatic and concerning pattern: 2025 distress levels consistently exceed 2024 levels across all quarters, with the gap widening as the year progresses. The Q2 peak is amplified in Retail for 2025, representing a clinically meaningful increase. Transport shows remarkable stability with nearly overlapping 2024 and 2025 trajectories, and distress levels actually appear slightly lower in 2025 for Q3 and Q4. The confidence intervals for Retail expand noticeably in later quarters, indicating growing disparity in worker experiences - some Retail workers may be maintaining while others are deteriorating sharply. The cross-over pattern in Transport, 2025 slightly below 2024 in later quarters suggests this industry may have implemented effective supports or that its workforce characteristics buffer against the national deterioration trend. Retail's vulnerability likely reflects cumulative exposure to customer facing stress, understaffing pressures, and precarious employment arrangements that compound over time.
+The Retail industry shows greater variation in psychological distress across quarters compared with Transport. In Retail, distress increases from Q1 to Q2 in both years, with Q2 representing the highest mean levels of distress. Distress then declines in Q3 and Q4 of 2025, while remaining relatively elevated in 2024. Notably, mean K6 scores in Retail appear higher in Q3 and Q4 of 2024 compared with the same quarters in 2025. In contrast, Transport shows relatively stable distress levels across quarters in both years, with smaller changes between adjacent quarters.
+
+Inferential testing indicates that several sequential quarter comparisons in Retail show statistically significant changes, particularly between Q1 and Q2. However, most quarter-to-quarter differences in Transport are not statistically significant, indicating a relatively stable pattern over time. Overall, these results suggest that psychological distress fluctuated more across quarters in Retail than in Transport, although the magnitude and statistical significance of changes varied by quarter.
 
 **Burnout**
 
@@ -410,13 +422,15 @@ ggplot(bat_ind,
   theme_minimal() +
   labs(
     title="Burnout (BAT-12) – Retail vs Transport",
+    x = "Quarter",
     y="Mean BAT-12 (95% CI)",
-    colour="Year"
+    colour="Year",
+     caption = "Note. Higher BAT-12 scores indicate higher levels of psychological distress. Error bars represent 95% CI."
   )
 
 ```
 
-Retail shows a clear and concerning pattern of escalating burnout across both years, with 2025 levels consistently exceeding 2024 levels in every quarter. The Q2 peak phenomenon is particularly pronounced in Retail, with both years showing sharp increases from Q1 to Q2. Transport displays greater stability, with 2024 and 2025 trajectories nearly overlapping and smaller confidence intervals suggesting more consistent experiences across workers. The widening gap between Retail and Transport by late 2025 indicates sector specific factors driving deterioration. The confidence intervals for Retail expand in later quarters, suggesting increasing variability in worker experiences some may be coping while others deteriorate rapidly. This divergence between sectors strengthens the case for targeted interventions in Retail rather than one size fits all national approaches.
+Retail shows moderate variation in burnout scores across quarters in both years. In Retail, burnout increases from Q1 to Q2 in both 2024 and 2025, followed by a decline in Q3 before rising slightly again in Q4. In several quarters, particularly Q3, mean burnout levels appear higher in 2024 than in 2025. Transport shows a comparatively stable pattern, with mean BAT-12 scores remaining within a relatively narrow range across quarters in both years. Confidence intervals overlap substantially across quarters and between years, suggesting that many of the observed differences are relatively small. Overall, the figure indicates modest fluctuations in burnout across quarters, with somewhat greater variability in Retail compared with Transport.
 
 ```{r}
 itw_national <- itw_national |>
