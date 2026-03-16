@@ -1,0 +1,343 @@
+---
+title: "Financial and Insurance Industry"
+format: html
+editor: visual
+---
+
+## Introduction
+This section examines trends in mental health and workplace conditions among employees in the Financial and Insurance Services industry across 2024 and 2025. Using quarterly survey waves, the analysis explores patterns in psychological distress (K6), burnout (BAT-12), SuperFriend domains and psychosocial hazards. Visualisations and statistical tests are used to assess whether these indicators changed across the study period. The aim is to provide a clear overview of workforce mental health within this industry and identify whether notable shifts occurred across the survey waves.
+
+```{r}
+
+library(tidyverse)
+library(haven)
+library(forcats)
+library(effsize)  
+library(broom)
+library(dplyr)
+
+# Load SPSS files
+itw_2024 <- read_sav("data/ITW_2024.sav") |> zap_labels()
+itw_2025 <- read_sav("data/ITW_2025.sav") |> zap_labels()
+
+# Harmonise variable names
+itw_2025 <- itw_2025 |> rename(K6score = k6score)
+
+# Combine datasets
+itw_all <- bind_rows(itw_2024, itw_2025) |>
+  mutate(
+    Year = as.integer(as.character(Year)),
+    Year = ifelse(is.na(Year), 2025L, Year),
+    Wave = as.integer(as.character(Wave)),
+
+    Quarter = factor(
+      paste0("Q", Wave),
+      levels = c("Q1","Q2","Q3","Q4"),
+      ordered = TRUE
+    ),
+
+    Quarter_num = as.numeric(Quarter)
+  )
+
+# Save clean dataset
+saveRDS(itw_all, "data/itw_all_clean.rds")
+
+
+```
+
+
+```{r}
+## FINANCE & INSURANCE SERVICES INDUSTRY
+
+finance_code <- 11
+
+itw_finance <- itw_all |>
+  mutate(
+    Group = case_when(
+      a6 == 11 ~ "Financial and Insurance Services",
+      TRUE ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(Group)) |>
+  mutate(
+    Quarter = factor(Quarter, levels = c("Q1","Q2","Q3","Q4"), ordered = TRUE),
+    Quarter_num = as.numeric(Quarter)
+  )
+```
+
+
+## K6 
+```{r}
+k6_fin <- itw_finance |>
+  group_by(Year, Quarter) |>
+  summarise(
+    mean = mean(K6score, na.rm = TRUE),
+    se   = sd(K6score, na.rm = TRUE) / sqrt(sum(!is.na(K6score))),
+    lci  = mean - 1.96 * se,
+    uci  = mean + 1.96 * se,
+    .groups = "drop"
+  )
+
+ggplot(k6_fin, aes(x = Quarter, y = mean,
+                   colour = factor(Year),
+                   group = Year)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = lci, ymax = uci), width = 0.1) +
+  scale_colour_manual(values = c("blue","red")) +
+  theme_minimal() +
+  labs(
+    title = "Psychological Distress (K6) – Financial and Insurance Services",
+    x = "Quarter",
+    y = "Mean K6 (95% CI)",
+    colour = "Year"
+  )
+```
+Psychological distress levels show a generally stable pattern across quarters in both 2024 and 2025. In both years, distress increases slightly from Q1 to Q2, suggesting a mild mid year rise. After Q2, levels gradually decline toward Q4, indicating some improvement later in the year. The patterns for 2024 and 2025 are very similar overall, although distress appears slightly higher in 2025 during the first half of the year. The confidence intervals overlap across most quarters, suggesting that differences between years are relatively small. Overall, the results indicate moderate and fairly consistent levels of psychological distress across the study period, with only minimal quarter to quarter variation.
+
+## Burnout
+```{r}
+bat_fin <- itw_finance |>
+  group_by(Year, Quarter) |>
+  summarise(
+    mean = mean(BAT12_total, na.rm = TRUE),
+    se   = sd(BAT12_total, na.rm = TRUE) / sqrt(sum(!is.na(BAT12_total))),
+    lci  = mean - 1.96 * se,
+    uci  = mean + 1.96 * se,
+    .groups = "drop"
+  )
+
+ggplot(bat_fin, aes(x = Quarter, y = mean,
+                    colour = factor(Year),
+                    group = Year)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = lci, ymax = uci), width = 0.1) +
+  scale_colour_manual(values = c("blue","red")) +
+  theme_minimal() +
+  labs(
+    title = "Burnout (BAT-12) – Financial and Insurance Services",
+    x = "Quarter",
+    y = "Mean BAT-12 (95% CI)",
+    colour = "Year"
+  )
+```
+Burnout levels remain relatively stable across quarters for workers. In 2024, burnout decreases slightly from Q1 to Q2, increases in Q3, and then declines again in Q4. In contrast, 2025 shows a small decrease in burnout from Q2 to Q3 followed by a slight increase in Q4. Despite these minor fluctuations, the overall range of scores remains narrow across both years. Confidence intervals overlap across most quarters, suggesting that many of the observed differences are small. Overall, burnout levels appear steady over time, indicating a consistent experience of work related exhaustion across the two year period.
+
+
+```{r}
+## SCORE DOMAINS AND HAZARDS
+
+
+# SuperFriend items
+connectedness_items <- paste0("b1_", 1:10)
+leadership_items    <- paste0("b2_", 1:10)
+
+safety_items <- c(
+  "b3x1_1",
+  paste0("b3x2_", 1:3),
+  paste0("b3x3_", 1:3),
+  paste0("b3x4_", 1:3)
+)
+
+work_design_items <- c(
+  paste0("b4x1_", 1:3),
+  paste0("b4x2_", 1:4),
+  paste0("b4x3_", 1:3)
+)
+
+capability_items <- paste0("b5_", 1:7)
+
+score_sf <- function(df, items) {
+  m <- rowMeans(df[, items], na.rm = TRUE)
+  s <- (m - 1) * 25
+  s[is.nan(m)] <- NA
+  s
+}
+
+# Hazard items
+mgmt_support_items <- c("b2_1","b2_2","b2_3","b2_4","b2_5")
+workload_items     <- c("b4x1_1","b4x1_2","b4x1_3")
+recognition_items  <- c("b2_6","b2_7","b2_8","b2_9","b2_10")
+
+score_hazard <- function(df, items){
+  m <- rowMeans(df[, items], na.rm = TRUE)
+  s <- m * 20
+  s[is.nan(m)] <- NA
+  s
+}
+
+# Apply scores
+itw_finance <- itw_finance |>
+  mutate(
+    Connectedness = score_sf(itw_finance, connectedness_items),
+    Leadership    = score_sf(itw_finance, leadership_items),
+    Safety        = score_sf(itw_finance, safety_items),
+    Work_Design   = score_sf(itw_finance, work_design_items),
+    Capability    = score_sf(itw_finance, capability_items),
+    Hazard_Management_Support = score_hazard(itw_finance, mgmt_support_items),
+    Hazard_Workload           = score_hazard(itw_finance, workload_items),
+    Hazard_Recognition        = score_hazard(itw_finance, recognition_items)
+  )
+
+numeric_vars <- c(
+  "K6score","BAT12_total",
+  "Connectedness","Leadership","Safety","Work_Design","Capability",
+  "Hazard_Management_Support","Hazard_Workload","Hazard_Recognition"
+)
+
+itw_finance <- itw_finance |>
+  mutate(across(all_of(numeric_vars), as.numeric)) |>
+  mutate(K6_modsev = ifelse(K6score >= 13, 1, 0))
+```
+
+
+## Superfriend domains
+```{r}
+sf_domains <- c("Connectedness","Leadership","Safety","Work_Design","Capability")
+
+sf_fin <- itw_finance |>
+  select(Year, Quarter, all_of(sf_domains)) |>
+  pivot_longer(
+    -c(Year, Quarter),
+    names_to = "Domain",
+    values_to = "Score"
+  ) |>
+  group_by(Year, Quarter, Domain) |>
+  summarise(
+    mean = mean(Score, na.rm = TRUE),
+    se   = sd(Score, na.rm = TRUE) / sqrt(sum(!is.na(Score))),
+    lci  = mean - 1.96 * se,
+    uci  = mean + 1.96 * se,
+    .groups = "drop"
+  )
+
+ggplot(sf_fin,
+       aes(Quarter, mean,
+           colour = factor(Year),
+           group = Year)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = lci, ymax = uci), width = .1) +
+  facet_wrap(~Domain, ncol = 3) +
+  scale_colour_manual(values = c("blue","red")) +
+  theme_minimal() +
+  labs(
+    title = "SuperFriend Domains – Financial and Insurance Services",
+    y = "Mean (95% CI)",
+    colour = "Year"
+  )
+```
+The SuperFriend domains show generally stable patterns across quarters in the Financial and Insurance Services industry. Connectedness remains consistently high in both years, indicating strong social relationships and a sense of belonging within workplaces. Leadership scores show a small improvement from Q1 to Q2 followed by relatively stable levels through the remaining year. Safety perceptions remain steady across quarters, suggesting that employees generally feel supported and safe at work. Capability and Work Design also display only minor changes across quarters, with scores remaining within a narrow range. Overall, the domain results suggest that the organisational environment in this industry remained relatively consistent across 2024 and 2025.
+
+## Psychosocial hazards
+```{r}
+haz_vars <- c(
+  "Hazard_Management_Support",
+  "Hazard_Workload",
+  "Hazard_Recognition"
+)
+
+haz_fin <- itw_finance |>
+  select(Year, Quarter, all_of(haz_vars)) |>
+  pivot_longer(
+    -c(Year, Quarter),
+    names_to = "Hazard",
+    values_to = "Score"
+  ) |>
+  group_by(Year, Quarter, Hazard) |>
+  summarise(
+    mean = mean(Score, na.rm = TRUE),
+    se   = sd(Score, na.rm = TRUE) / sqrt(sum(!is.na(Score))),
+    lci  = mean - 1.96 * se,
+    uci  = mean + 1.96 * se,
+    .groups = "drop"
+  )
+
+ggplot(haz_fin,
+       aes(Quarter, mean,
+           colour = factor(Year),
+           group = Year)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = lci, ymax = uci), width = .1) +
+  facet_wrap(~Hazard) +
+  scale_colour_manual(values = c("blue","red")) +
+  theme_minimal() +
+  labs(
+    title = "Psychosocial Hazards – Financial and Insurance Services",
+    y = "Mean Score",
+    colour = "Year"
+  )
+```
+Psychosocial hazard indicators also show relatively stable patterns across quarters for workers. Management Support and Recognition display modest fluctuations throughout the year, with slight increases around Q2 followed by small changes in later quarters. Workload scores remain fairly consistent across both years, suggesting that perceived task demands did not change substantially over time. Confidence intervals overlap across most quarters, indicating that many differences are small and should be interpreted cautiously. Overall, the hazard results suggest that workplace conditions in this industry remained relatively steady across the study period, with only minor variations in relational workplace factors.
+
+
+## Inferential test
+```{r}
+run_pairwise_ttests <- function(df, outcome) {
+  df <- df |>
+    select(Quarter, all_of(outcome)) |>
+    drop_na()
+
+  means_tbl <- df |>
+    group_by(Quarter) |>
+    summarise(mean_value = mean(.data[[outcome]]), .groups = "drop")
+
+  pw <- pairwise.t.test(
+    x = df[[outcome]],
+    g = df$Quarter,
+    p.adjust.method = "none"
+  ) |>
+    broom::tidy()
+
+  pw <- pw |>
+    rowwise() |>
+    mutate(
+      estimate =
+        means_tbl$mean_value[means_tbl$Quarter == group2] -
+        means_tbl$mean_value[means_tbl$Quarter == group1]
+    ) |>
+    ungroup() |>
+    mutate(outcome = outcome)
+
+  pw
+}
+
+outcomes <- c(
+  "K6score","BAT12_total",
+  "Connectedness","Leadership","Safety",
+  "Work_Design","Capability",
+  "Hazard_Management_Support","Hazard_Workload","Hazard_Recognition"
+)
+
+ttest_finance_all <- bind_rows(
+  lapply(c(2024, 2025), function(yr){
+    bind_rows(
+      lapply(outcomes, function(out){
+        run_pairwise_ttests(
+          filter(itw_finance, Year == yr),
+          out
+        ) |>
+          mutate(Year = yr)
+      })
+    )
+  })
+)
+
+ttest_finance_all <- ttest_finance_all |>
+  group_by(Year, outcome) |>
+  mutate(
+    p_adj = p.adjust(p.value, method = "bonferroni"),
+    significant = p_adj < 0.05
+  ) |>
+  ungroup()
+
+ttest_finance_all
+```
+
+Pairwise quarter to quarter comparisons for Financial and Insurance Services does not show strong evidence of statistically significant differences after Bonferroni correction, suggesting that scores were generally stable across waves.
+
+
+## Conclusion
+Overall, the results indicate that mental health and workplace conditions in the Financial and Insurance Services industry remained relatively stable across the 2024–2025 period. Psychological distress and burnout showed only minimal variation across quarters, with similar patterns observed in both years. Organisational climate domains, including Connectedness, Leadership, Safety, Capability and Work Design, also remained generally consistent across waves. Psychosocial hazards such as Management Support, Recognition and Workload displayed small fluctuations but did not show strong changes over time. So, the findings suggest that workforce experiences in this industry remained broadly steady during the study period, with only minor quarter to quarter variation across the key mental health and organisational indicators.
