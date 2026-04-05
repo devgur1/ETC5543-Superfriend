@@ -120,6 +120,7 @@ ggplot(phase2_dataset, aes(x = quarter)) +
   ) +
   theme_minimal()
 ```
+
 ```{r}
 cor_test_national <- cor.test(
   phase2_dataset$mean_f10,
@@ -178,6 +179,7 @@ ggplot(age_phase2, aes(x = quarter, group = 1)) +
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   )
 ```
+
 ```{r}
 age_cor <- age_phase2 |>
   group_by(age_group) |>
@@ -189,6 +191,58 @@ age_cor <- age_phase2 |>
 age_cor
 ```
 
-according to low and financial stress separate graph
-percentage in the high stress category
-bargraph or trend line
+```{r}
+financial_stress_summary <- itw_all |>
+  filter(!is.na(financial_stress)) |>
+  group_by(quarter) |>
+  summarise(
+    high_stress_pct = mean(financial_stress == 2, na.rm = TRUE) * 100,
+    low_stress_pct  = mean(financial_stress == 1, na.rm = TRUE) * 100,
+    n = n(),
+    .groups = "drop"
+  )
+
+financial_stress_summary
+```
+```{r}
+ggplot(financial_stress_summary, aes(x = quarter)) +
+  geom_line(aes(y = high_stress_pct, group = 1), color = "red", linewidth = 1.2) +
+  geom_point(aes(y = high_stress_pct), color = "red", size = 3) +
+  labs(
+    title = "Percentage of Workers with High Financial Stress Over Time",
+    x = "Quarter",
+    y = "Percentage (%)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+```
+```{r}
+financial_stress_long <- financial_stress_summary |>
+  select(quarter, high_stress_pct, low_stress_pct) |>
+  pivot_longer(
+    cols = c(high_stress_pct, low_stress_pct),
+    names_to = "category",
+    values_to = "percentage"
+  )
+
+ggplot(financial_stress_long, aes(x = quarter, y = percentage, colour = category, group = category)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2) +
+  scale_colour_manual(values = c("high_stress_pct" = "red", "low_stress_pct" = "blue"),
+                      labels = c("High Stress", "Low Stress")) +
+  labs(
+    title = "Financial Stress Levels Over Time",
+    x = "Quarter",
+    y = "Percentage (%)",
+    colour = ""
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+```
+
+
+
