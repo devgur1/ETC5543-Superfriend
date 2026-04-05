@@ -3,11 +3,12 @@ title: "Tracking the mental health of Australian workforce 2024-25"
 author: Dev Gur
 format: html
 editor: visual
+code-fold: true
 ---
 
 ## Introduction
 
-Workplace mental health represents a complex interaction between individual psychological symptoms and the broader organisational environment in which employees operate. As Australian workers face evolving pressures in the post-pandemic landscape, understanding how psychological distress, burnout, and organisational climate factors fluctuate over time has become critical for developing effective intervention strategies. This analysis examines quarterly trends across 2024 and 2025 to determine whether psychological distress (K6), burnout (BAT-12), SuperFriend organisational climate domains, and psychosocial hazards have shifted systematically over this two-year period. Particular attention is given to the Retail and Transport industries to assess whether sector-specific deterioration is evident, as these industries face distinct operational pressures and workforce compositions. To ensure robust inference, three complementary approaches are triangulated: all possible quarter-to-quarter comparisons with Bonferroni correction to control Type I error, linear regression models assessing gradual temporal trends, and chi-square tests evaluating changes in the proportion of workers meeting clinical distress thresholds. This multi-method approach strengthens confidence in observed patterns and provides a comprehensive evidence base for organisational and policy responses.
+Workplace mental health represents a complex interaction between individual psychological symptoms and the broader organisational environment in which employees operate. As Australian workers face evolving pressures in the post-pandemic landscape, understanding how psychological distress, burnout, and organisational climate factors fluctuate over time has become critical for developing effective intervention strategies. This analysis examines quarterly trends across 2024 and 2025 to determine whether psychological distress (K6), burnout (BAT-12), SuperFriend domains, and psychosocial hazards have shifted systematically over this two-year period. Particular attention is given to the Retail and Transport industries to assess whether sector-specific change is evident, as these industries face distinct operational pressures and workforce compositions. To ensure robust inference, three complementary approaches are triangulated: all possible quarter-to-quarter comparisons with Bonferroni correction to control Type I error, linear regression models assessing gradual temporal trends, and chi-square tests evaluating changes in the proportion of workers meeting clinical distress thresholds. This multi-method approach strengthens confidence in observed patterns and provides a comprehensive evidence base for organisational and policy responses.
 
 ```{r message=FALSE}
 library(tidyverse)
@@ -228,9 +229,9 @@ ggplot(k6_nat, aes(x = Quarter, y = mean,
 
 ```
 
-2025 shows slightly lower distress levels across Q1, Q2, Q3, and Q4 compared to 2024, indicating some improvement, distress never returns to the exceptionally low Q1 baseline, remaining elevated throughout the remainder of both years. The confidence intervals tighten in later quarters, suggesting that as distress rises, worker experiences become more consistent rather than more variable.
+2025 shows marginally lower distress levels across the year compared to 2024, indicating some improvement, distress never returns to the exceptionally low Q1 baseline, remaining elevated throughout the remainder of both years. The confidence intervals tighten in later quarters, suggesting that as distress rises, worker experiences become more consistent rather than more variable.
 
-**Is there any seasonal affect for psychological distress for 2024 and 2025?** There is evidence suggestive of a seasonal pattern. In both 2024 and 2025, psychological distress peaks in Q2, with lower levels observed in Q1. This recurring mid year elevation indicates a potential seasonal effect. However, patterns diverge in the second half of the year. While distress declines gradually after Q2 in 2024, 2025 shows a sharper drop in Q3 followed by a slight increase in Q4. Because the late year trajectories differ between years, the seasonal effect appears partial rather than fully consistent. Overall, the data indicate a recurring Q2 peak in psychological distress, but not a perfectly stable seasonal cycle across all quarters.
+**Is there any seasonal affect for psychological distress for 2024 and 2025?** There is evidence suggestive of a seasonal pattern. In both 2024 and 2025, psychological distress peaks in Q2, with lower levels observed in Q1. This recurring mid year elevation indicates a potential seasonal effect. However, patterns diverge in the second half of the year. While distress declines gradually after Q2 in 2024, 2025 shows a sharper drop in Q3 followed by a slight increase in Q4. Because the late year trajectories differ between years, the data indicate a recurring Q2 peak in psychological distress, but not a perfectly stable seasonal cycle across all quarters.
 
 **Burnout**
 
@@ -256,7 +257,7 @@ ggplot(bat_nat, aes(x = Quarter, y = mean,
 
 ```
 
-Unlike psychological distress, burnout demonstrates remarkable stability across all quarters, with mean scores fluctuating within a narrow range between 2.46 and 2.53 across both years. This stability indicates that burnout represents a chronic, accumulated condition that changes slowly over time, unlike the acute, reactive nature of psychological distress. The near identical trajectories for 2024 and 2025 suggest that underlying exhaustion and disengagement remained constant despite the dramatic fluctuations in momentary distress, implying organisations face both chronic and acute challenges requiring different intervention strategies.
+Burnout levels in the national workforce show a relatively stable pattern across quarters in both 2024 and 2025. Mean BAT-12 scores vary within a narrow range across the calendar year, indicating only minimal changes in overall burnout levels. In both years, burnout increases slightly from Q1 to Q2. In 2024, levels continue to rise in Q3 before declining slightly in Q4, while in 2025 burnout decreases in Q3 and then increases again in Q4. Although these patterns show some variation across the second half of the year, the overall differences between quarters remain small. Because this figure represents the overall BAT-12 score, it reflects general burnout levels and does not distinguish between individual components of burnout. Overall, the results suggest that national burnout levels remained broadly consistent across the study period, with only minimal quarter to quarter variation.
 
 **Superfriend domains- National**
 
@@ -304,7 +305,7 @@ ggplot(
 
 ```
 
-The five organisational climate domains present a mixed picture, Leadership shows a slightly downward trajectory across quarters, while Safety, Work Design, Connectedness, and Capability remain relatively consistent across both years. Overall, the results suggest that organisational climate indicators were largely stable over time, with no substantial shifts in domain scores across quarters.
+The five Domains of a Thriving Workplace present a mixed picture, Leadership shows a slightly downward trajectory across quarters, while Safety, Work Design, Connectedness, and Capability remain relatively consistent across both years. Overall, the results suggest that the Domains were largely stable over time, with no substantial shifts in domain scores across quarters.
 
 **Psychosocial Hazards**
 
@@ -346,7 +347,7 @@ ggplot(haz_nat,
 
 ```
 
-The most revealing finding is the dissociation between stable workload and deteriorating relational factors: Management Support and Recognition show broadly similar trajectories across quarters, with both domains peaking at Q2, there is considerable linear deterioration through to Q4. However, the magnitude of these changes is relatively small and should be interpreted cautiously. While some sequential quarter-to-quarter comparisons show statistically significant differences, most changes remain within a narrow range, suggesting that psychosocial hazard scores were relatively stable over time. Workload shows little variation across quarters in either year, reinforcing the pattern that perceived task demands remained largely constant. Overall, the results indicate modest fluctuations in relational aspects of the workplace environment, rather than large or consistent deterioration across the study period.
+Psychosocial hazard indicators show similar patterns across quarters for Management Support and Recognition. In both for both of these hazards, scores increase from Q1 to Q2 and then gradually decline through to Q4, indicating a consistent mid year peak followed by a steady decrease. This pattern is observed in both 2024 and 2025, suggesting a comparable trend across years. While some sequential quarter to quarter comparisons show statistically significant differences, these changes are relatively modest in size and should be interpreted cautiously. In contrast, Workload remains relatively stable across quarters in both years, with only small fluctuations over time. Overall, the results indicate that psychosocial hazard scores show moderate and consistent patterns across quarters, with some modest gradual changes and relatively little variation in Workload across the national workforce.
 
 ## Industry Plots
 
@@ -393,7 +394,6 @@ ggplot(k6_ind,
 
 The Retail industry shows greater variation in psychological distress across quarters compared with Transport. In Retail, distress increases from Q1 to Q2 in both years, with Q2 representing the highest mean levels of distress. Distress then declines in Q3 and Q4 of 2025, while remaining relatively elevated in 2024. Notably, mean K6 scores in Retail appear higher in Q3 and Q4 of 2024 compared with the same quarters in 2025. In contrast, Transport shows relatively stable distress levels across quarters in both years, with smaller changes between adjacent quarters.
 
-Inferential testing indicates that several sequential quarter comparisons in Retail show statistically significant changes, particularly between Q1 and Q2. However, most quarter-to-quarter differences in Transport are not statistically significant, indicating a relatively stable pattern over time. Overall, these results suggest that psychological distress fluctuated more across quarters in Retail than in Transport, although the magnitude and statistical significance of changes varied by quarter.
 
 **Burnout**
 

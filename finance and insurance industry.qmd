@@ -1,13 +1,15 @@
 ---
 title: "Financial and Insurance Industry"
+author: Dev Gur
 format: html
 editor: visual
+code-fold: true
 ---
 
 ## Introduction
 This section examines trends in mental health and workplace conditions among employees in the Financial and Insurance Services industry across 2024 and 2025. Using quarterly survey waves, the analysis explores patterns in psychological distress (K6), burnout (BAT-12), SuperFriend domains and psychosocial hazards. Visualisations and statistical tests are used to assess whether these indicators changed across the study period. The aim is to provide a clear overview of workforce mental health within this industry and identify whether notable shifts occurred across the survey waves.
 
-```{r}
+```{r message=FALSE}
 
 library(tidyverse)
 library(haven)

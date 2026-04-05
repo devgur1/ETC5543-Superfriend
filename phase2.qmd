@@ -7,7 +7,7 @@ editor: visual
 
 ## 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(haven)
 library(janitor)
@@ -43,7 +43,8 @@ itw_all <- bind_rows(itw_2024, itw_2025)
 itw_all <- itw_all |>
   mutate(
     year = if_else(is.na(year) & wave == 4, 2025, year),
-    quarter = paste(year, paste0("Q", wave))
+    quarter = paste(year, paste0("Q", wave)),
+    age_group = as_factor(age)
   )
 
 # Check counts
@@ -103,7 +104,7 @@ colSums(is.na(phase2_dataset))
 
 ### Mapping the cost of living data with financial distress
 
-```{r}
+```{r warning=FALSE}
 
 
 ggplot(phase2_dataset, aes(x = quarter)) +
@@ -119,4 +120,75 @@ ggplot(phase2_dataset, aes(x = quarter)) +
   ) +
   theme_minimal()
 ```
+```{r}
+cor_test_national <- cor.test(
+  phase2_dataset$mean_f10,
+  phase2_dataset$employee_lci
+)
 
+cor_test_national
+```
+
+```{r}
+age_summary <- itw_all |>
+  filter(!is.na(age_group)) |>
+  group_by(quarter, age_group) |>
+  summarise(
+    mean_f10 = mean(f10_1, na.rm = TRUE),
+    n = sum(!is.na(f10_1)),
+    .groups = "drop"
+  )
+
+age_summary
+```
+
+```{r}
+age_phase2 <- age_summary |>
+  left_join(abs_lci_2425, by = "quarter")
+
+age_phase2
+```
+
+```{r}
+age_phase2 <- age_phase2 |>
+  group_by(age_group) |>
+  mutate(
+    f10_z = scale(mean_f10)[,1],
+    lci_z = scale(employee_lci)[,1]
+  ) |>
+  ungroup()
+```
+
+```{r}
+ggplot(age_phase2, aes(x = quarter, group = 1)) +
+  geom_line(aes(y = f10_z, colour = "Financial Distress"), linewidth = 1.1) +
+  geom_point(aes(y = f10_z, colour = "Financial Distress"), size = 2) +
+  geom_line(aes(y = lci_z, colour = "Living Cost Index"), linewidth = 1.1) +
+  geom_point(aes(y = lci_z, colour = "Living Cost Index"), size = 2) +
+  facet_wrap(~age_group) +
+  scale_colour_manual(values = c("Financial Distress" = "blue", "Living Cost Index" = "red")) +
+  labs(
+    title = "Financial Distress and Living Cost Index by Age Group",
+    x = "Quarter",
+    y = "Standardised Score (z)",
+    colour = ""
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+```
+```{r}
+age_cor <- age_phase2 |>
+  group_by(age_group) |>
+  summarise(
+    correlation = cor(mean_f10, employee_lci, use = "complete.obs"),
+    .groups = "drop"
+  )
+
+age_cor
+```
+
+according to low and financial stress separate graph
+percentage in the high stress category
+bargraph or trend line
