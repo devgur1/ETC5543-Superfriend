@@ -204,6 +204,7 @@ financial_stress_summary <- itw_all |>
 
 financial_stress_summary
 ```
+
 ```{r}
 ggplot(financial_stress_summary, aes(x = quarter)) +
   geom_line(aes(y = high_stress_pct, group = 1), color = "red", linewidth = 1.2) +
@@ -218,6 +219,7 @@ ggplot(financial_stress_summary, aes(x = quarter)) +
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   )
 ```
+
 ```{r}
 financial_stress_long <- financial_stress_summary |>
   select(quarter, high_stress_pct, low_stress_pct) |>
@@ -244,5 +246,32 @@ ggplot(financial_stress_long, aes(x = quarter, y = percentage, colour = category
   )
 ```
 
+```{r}
+#| label: lag-calc
+phase2_lagged <- phase2_dataset %>%
+  mutate(lci_lag1 = lag(employee_lci))
 
+# Correlation with 1-quarter lag
+cor_lag <- cor.test(phase2_lagged$mean_f10, phase2_lagged$lci_lag1, use = "complete.obs")
+```
+
+
+```{r}
+#| label: psych-vs-fin
+ggplot(phase2_dataset, aes(x = mean_f10, y = mean_k6)) +
+  geom_point(aes(size = n), color = "darkgreen", alpha = 0.6) +
+  geom_smooth(method = "lm", color = "black", linetype = "dashed") +
+  labs(
+    title = "Correlation: Financial vs. Psychological Distress",
+    subtitle = "National Average 2024-2025",
+    x = "Mean Financial Distress (F10)",
+    y = "Mean Psychological Distress (K6)"
+  ) +
+  theme_minimal()
+
+# Calculate Pearson correlation
+cor_psych <- cor(phase2_dataset$mean_f10, phase2_dataset$mean_k6)
+```
+
+The chart shows strong positive relationship. The data indicates that financial and psychological distress are highly synchronized. An increase in the national average of financial distress is associated with a measurable rise in psychological distress. This suggests that the Living Cost crisis is also a Mental Health crisis for the workers.
 
