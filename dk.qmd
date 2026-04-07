@@ -6,7 +6,9 @@ editor: visual
 ---
 
 ## Introduction
+
 Workplace mental health represents a complex interaction between individual psychological symptoms and the broader organisational environment in which employees operate. As Australian workers face evolving pressures in the post-pandemic landscape, understanding how psychological distress, burnout, and organisational climate factors fluctuate over time has become critical for developing effective intervention strategies. This analysis examines quarterly trends across 2024 and 2025 to determine whether psychological distress (K6), burnout (BAT-12), SuperFriend organisational climate domains, and psychosocial hazards have shifted systematically over this two-year period. Particular attention is given to the Retail and Transport industries to assess whether sector-specific deterioration is evident, as these industries face distinct operational pressures and workforce compositions. To ensure robust inference, three complementary approaches are triangulated: all possible quarter-to-quarter comparisons with Bonferroni correction to control Type I error, linear regression models assessing gradual temporal trends, and chi-square tests evaluating changes in the proportion of workers meeting clinical distress thresholds. This multi-method approach strengthens confidence in observed patterns and provides a comprehensive evidence base for organisational and policy responses.
+
 ```{r message=FALSE}
 library(tidyverse)
 library(haven)
@@ -44,7 +46,6 @@ saveRDS(itw_all, "data/itw_all_clean.rds")
 
 ```
 
-
 ```{r include=FALSE}
 # NATIONAL DATASET 
 itw_national <- itw_all |>
@@ -64,8 +65,8 @@ itw_industry <- itw_all |>
 itw_industry |> count(Group)
 ```
 
-
 ### Superfriend domain scores
+
 ```{r}
 connectedness_items <- paste0("b1_", 1:10)
 leadership_items    <- paste0("b2_", 1:10)
@@ -136,7 +137,8 @@ itw_industry <- itw_industry |>
 
 ```
 
-###  Psychological hazards
+### Psychological hazards
+
 ```{r}
 mgmt_support_items <- c("b2_1","b2_2","b2_3","b2_4","b2_5")
 workload_items     <- c("b4x1_1","b4x1_2","b4x1_3")
@@ -152,8 +154,8 @@ itw_national <- itw_national |>
   )
 ```
 
-
 ### Aggregation helper
+
 ```{r}
 agg_qtr_year <- function(df, var){
   df |>
@@ -201,6 +203,7 @@ itw_industry <- itw_industry |> mutate(across(all_of(numeric_vars), as.numeric))
 ```
 
 ## National Plots
+
 **K6**
 
 ```{r}
@@ -223,16 +226,13 @@ ggplot(k6_nat, aes(x = Quarter, y = mean,
 
 
 ```
+
 2025 shows slightly lower distress levels across Q1, Q2, Q3, and Q4 compared to 2024, indicating some improvement, distress never returns to the exceptionally low Q1 baseline, remaining elevated throughout the remainder of both years. The confidence intervals tighten in later quarters, suggesting that as distress rises, worker experiences become more consistent rather than more variable.
 
-
-**Is there any seasonal affect for psychological distress for 2024 and 2025?**
-There is evidence suggestive of a seasonal pattern. In both 2024 and 2025, psychological distress peaks in Q2, with lower levels observed in Q1. This recurring mid year elevation indicates a potential seasonal effect.
-However, patterns diverge in the second half of the year. While distress declines gradually after Q2 in 2024, 2025 shows a sharper drop in Q3 followed by a slight increase in Q4. Because the late year trajectories differ between years, the seasonal effect appears partial rather than fully consistent.
-Overall, the data indicate a recurring Q2 peak in psychological distress, but not a perfectly stable seasonal cycle across all quarters.
-
+**Is there any seasonal affect for psychological distress for 2024 and 2025?** There is evidence suggestive of a seasonal pattern. In both 2024 and 2025, psychological distress peaks in Q2, with lower levels observed in Q1. This recurring mid year elevation indicates a potential seasonal effect. However, patterns diverge in the second half of the year. While distress declines gradually after Q2 in 2024, 2025 shows a sharper drop in Q3 followed by a slight increase in Q4. Because the late year trajectories differ between years, the seasonal effect appears partial rather than fully consistent. Overall, the data indicate a recurring Q2 peak in psychological distress, but not a perfectly stable seasonal cycle across all quarters.
 
 **Burnout**
+
 ```{r}
 bat_nat <- agg_qtr_year(itw_national, "BAT12_total")
 
@@ -253,9 +253,11 @@ ggplot(bat_nat, aes(x = Quarter, y = mean,
 
 
 ```
+
 Unlike psychological distress, burnout demonstrates remarkable stability across all quarters, with mean scores fluctuating within a narrow range between 2.46 and 2.53 across both years. This stability indicates that burnout represents a chronic, accumulated condition that changes slowly over time, unlike the acute, reactive nature of psychological distress. The near identical trajectories for 2024 and 2025 suggest that underlying exhaustion and disengagement remained constant despite the dramatic fluctuations in momentary distress, implying organisations face both chronic and acute challenges requiring different intervention strategies.
 
 **Superfriend domains- National**
+
 ```{r}
 sf_domains <- c("Connectedness","Leadership","Safety",
                 "Work_Design","Capability")
@@ -292,11 +294,11 @@ ggplot(sf_nat,
 
 
 ```
+
 The five organisational climate domains present a mixed picture, Leadership shows a concerning downward trajectory across quarters, while Safety and Work Design demonstrate modest improvements in 2025, suggesting structural workplace adjustments may be taking effect. Connectedness remains remarkably stable throughout, indicating social bonds at work resist deterioration even as leadership quality erodes. This divergence structural factors improving while relational factors decline suggests organisations are addressing policies and procedures but failing to maintain the quality of day to day leadership interactions.
 
-
-
 **Psychosocial Hazards**
+
 ```{r}
 haz_vars <- c(
   "Hazard_Management_Support",
@@ -334,10 +336,13 @@ ggplot(haz_nat,
   )
 
 ```
+
 The most revealing finding is the dissociation between stable workload and deteriorating relational factors: Management Support and Recognition show significant declines across quarters, while Workload remains virtually flat, indicating the problem is not how much work employees do but how they are treated while doing it. Recognition proves most volatile, with steepest declines occurring in Q1-to-Q2 and Q2-to-Q3 comparisons, precisely mirroring the distress peaks observed in the K6 data. This pattern confirms that deteriorating psychosocial safety stems from eroded managerial relationships and feeling undervalued, not increased task demands, pointing interventions toward leadership development and recognition programs rather than workload reduction.
 
 ## Industry Plots
+
 **K6**
+
 ```{r}
 k6_ind <- itw_industry |>
   group_by(Group, Year, Quarter) |>
@@ -366,8 +371,8 @@ ggplot(k6_ind,
   )
 
 ```
-The Retail trajectory shows a dramatic and concerning pattern: 2025 distress levels consistently exceed 2024 levels across all quarters, with the gap widening as the year progresses. The Q2 peak is amplified in Retail for 2025, representing a clinically meaningful increase. Transport shows remarkable stability with nearly overlapping 2024 and 2025 trajectories, and distress levels actually appear slightly lower in 2025 for Q3 and Q4. The confidence intervals for Retail expand noticeably in later quarters, indicating growing disparity in worker experiences - some Retail workers may be maintaining while others are deteriorating sharply. The cross-over pattern in Transport, 2025 slightly below 2024 in later quarters suggests this industry may have implemented effective supports or that its workforce characteristics buffer against the national deterioration trend. Retail's vulnerability likely reflects cumulative exposure to customer facing stress, understaffing pressures, and precarious employment arrangements that compound over time.
 
+The Retail trajectory shows a dramatic and concerning pattern: 2025 distress levels consistently exceed 2024 levels across all quarters, with the gap widening as the year progresses. The Q2 peak is amplified in Retail for 2025, representing a clinically meaningful increase. Transport shows remarkable stability with nearly overlapping 2024 and 2025 trajectories, and distress levels actually appear slightly lower in 2025 for Q3 and Q4. The confidence intervals for Retail expand noticeably in later quarters, indicating growing disparity in worker experiences - some Retail workers may be maintaining while others are deteriorating sharply. The cross-over pattern in Transport, 2025 slightly below 2024 in later quarters suggests this industry may have implemented effective supports or that its workforce characteristics buffer against the national deterioration trend. Retail's vulnerability likely reflects cumulative exposure to customer facing stress, understaffing pressures, and precarious employment arrangements that compound over time.
 
 **Burnout**
 
@@ -401,8 +406,8 @@ ggplot(bat_ind,
   )
 
 ```
-Retail shows a clear and concerning pattern of escalating burnout across both years, with 2025 levels consistently exceeding 2024 levels in every quarter. The Q2 peak phenomenon is particularly pronounced in Retail, with both years showing sharp increases from Q1 to Q2. Transport displays greater stability, with 2024 and 2025 trajectories nearly overlapping and smaller confidence intervals suggesting more consistent experiences across workers. The widening gap between Retail and Transport by late 2025 indicates sector specific factors driving deterioration. The confidence intervals for Retail expand in later quarters, suggesting increasing variability in worker experiences some may be coping while others deteriorate rapidly. This divergence between sectors strengthens the case for targeted interventions in Retail rather than one size fits all national approaches.
 
+Retail shows a clear and concerning pattern of escalating burnout across both years, with 2025 levels consistently exceeding 2024 levels in every quarter. The Q2 peak phenomenon is particularly pronounced in Retail, with both years showing sharp increases from Q1 to Q2. Transport displays greater stability, with 2024 and 2025 trajectories nearly overlapping and smaller confidence intervals suggesting more consistent experiences across workers. The widening gap between Retail and Transport by late 2025 indicates sector specific factors driving deterioration. The confidence intervals for Retail expand in later quarters, suggesting increasing variability in worker experiences some may be coping while others deteriorate rapidly. This divergence between sectors strengthens the case for targeted interventions in Retail rather than one size fits all national approaches.
 
 ```{r}
 itw_national <- itw_national |>
@@ -413,8 +418,8 @@ itw_industry <- itw_industry |>
 
 ```
 
-
 ### Chi square test industry
+
 ```{r include=FALSE}
 chi_results <- itw_industry |>
   group_by(Group) |>
@@ -437,13 +442,12 @@ chi_results <- itw_industry |>
 chi_results
 
 ```
-**Retail:** There was a statistically significant change in moderate to severe psychological distress across quarters in Retail χ² p < 0.001, with a significant upward linear trend p = 0.0003.
+
+**Retail:** There was a statistically significant change in moderate to severe psychological distress across quarters in Retail χ² p \< 0.001, with a significant upward linear trend p = 0.0003.
 
 **Transport:** No significant change in psychological distress across quarters was observed in Transport (p = 0.901).
 
-
-
-### NATIONAL t-test 
+### NATIONAL t-test
 
 ```{r include=FALSE}
 itw_national <- itw_national |> 
@@ -524,7 +528,6 @@ ttest_nat_all
 
 ### Mental Health Outcomes (K6 + BAT12)
 
-
 ```{r}
 mh_vars <- c("K6score","BAT12_total")
 
@@ -548,8 +551,8 @@ ggplot(
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-The bar chart reveals that most significant differences in mental health outcomes occur when comparing later quarters to Q1, particularly in 2024. Psychological distress K6 shows consistent positive mean differences when comparing Q2, Q3, and Q4 against Q1, indicating distress accumulates and peaks as the year progresses. Burnout (BAT12) follows a similar pattern but with smaller magnitude changes. Notably, 2025 shows fewer significant quarter to quarter differences, suggesting a potential stabilisation or plateau in mental health deterioration during the second year. The consistent pattern of positive differences confirms that both distress and burnout are significantly higher in later quarters compared to Q1, supporting the presence of a cumulative effect across the working year.
 
+The bar chart reveals that most significant differences in mental health outcomes occur when comparing later quarters to Q1, particularly in 2024. Psychological distress K6 shows consistent positive mean differences when comparing Q2, Q3, and Q4 against Q1, indicating distress accumulates and peaks as the year progresses. Burnout (BAT12) follows a similar pattern but with smaller magnitude changes. Notably, 2025 shows fewer significant quarter to quarter differences, suggesting a potential stabilisation or plateau in mental health deterioration during the second year. The consistent pattern of positive differences confirms that both distress and burnout are significantly higher in later quarters compared to Q1, supporting the presence of a cumulative effect across the working year.
 
 ### SuperFriend Domains
 
@@ -577,8 +580,8 @@ ggplot(
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-Leadership emerges as the most dynamic domain, showing multiple significant quarter-to-quarter fluctuations. The largest positive difference appears in Q4 vs Q2 comparisons for Leadership, suggesting some late-year improvement in leadership perceptions, though this follows earlier declines. Connectedness shows smaller but significant variations, primarily in mid year comparisons. Work Design improvements appear predominantly in 2025, indicating potential structural workplace adjustments taking effect in the second year. The absence of Safety from significant comparisons is noteworthy - this domain remained remarkably stable across all quarters, suggesting safety perceptions may be more resistant to short term fluctuations or that safety protocols are consistently maintained regardless of other organisational changes.
 
+Leadership emerges as the most dynamic domain, showing multiple significant quarter-to-quarter fluctuations. The largest positive difference appears in Q4 vs Q2 comparisons for Leadership, suggesting some late-year improvement in leadership perceptions, though this follows earlier declines. Connectedness shows smaller but significant variations, primarily in mid year comparisons. Work Design improvements appear predominantly in 2025, indicating potential structural workplace adjustments taking effect in the second year. The absence of Safety from significant comparisons is noteworthy - this domain remained remarkably stable across all quarters, suggesting safety perceptions may be more resistant to short term fluctuations or that safety protocols are consistently maintained regardless of other organisational changes.
 
 ### Psychosocial Hazards
 
@@ -607,9 +610,8 @@ ggplot(
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 Recognition and Management Support show the most volatile patterns, with significant negative differences in mid year comparisons Q2 vs Q1, Q3 vs Q2 indicating deterioration in these critical supervisory domains during the first three quarters. The y-axis scales across facets reveal that Hazard_Workload shows virtually no significant quarter to quarter variation, reinforcing the regression finding that workload remained stable while relational factors deteriorated. Interestingly, 2025 shows fewer significant fluctuations in hazards, which may indicate either adaptation or resignation to sustained poor conditions. The pattern suggests that organisational culture factors recognition, support are more seasonally variable than operational demands workload, which remain relatively constant throughout the year.
-
-
 
 ### Industry t-test
 
@@ -658,7 +660,6 @@ ttest_industry_all <- ttest_industry_all |>
 ttest_industry_all
 ```
 
-
 ```{r warning=FALSE}
 
 ggplot(
@@ -682,10 +683,11 @@ ggplot(
   )
 
 ```
+
 Retail shows substantially more significant quarter to quarter variations than Transport, with Burnout dominating the significant comparisons. Retail demonstrates significant differences, confirming the cumulative deterioration pattern identified in the regression analysis. Safety appears as a significant domain only in Retail, suggesting this industry experiences meaningful fluctuations in perceived psychological safety that Transport workers do not. The concentration of significant findings in Retail confirms this sector's particular vulnerability to temporal fluctuations in workforce mental health.
 
-
 ### Time series regression National
+
 ```{r include=FALSE}
 run_lm_trend <- function(df,outcome){
 
@@ -708,11 +710,13 @@ mh_nat <- bind_rows(
 mh_nat
 
 ```
+
 **K6:** Psychological distress increased significantly over time nationally β = 0.099 per quarter, p = 0.001.
 
 **Burnout:** Burnout scores also increased significantly across quarters β = 0.013, p = 0.002.
 
 ### Domain scores regression
+
 ```{r include=FALSE}
 sf_nat_reg <- bind_rows(
 
@@ -727,11 +731,11 @@ sf_nat_reg <- bind_rows(
 sf_nat_reg
 
 ```
-Only Leadership showed a statistically meaningful change.
-Linear regression analysis showed a significant decline in Leadership domain scores over time β = −0.259 per quarter, p = 0.018, indicating worsening perceptions of leadership support across 2024–2025. No statistically significant time trends were observed for Connectedness, Safety, or Work Design since p > 0.05. Capability showed a non-significant upward trend p = 0.093.
 
+Only Leadership showed a statistically meaningful change. Linear regression analysis showed a significant decline in Leadership domain scores over time β = −0.259 per quarter, p = 0.018, indicating worsening perceptions of leadership support across 2024–2025. No statistically significant time trends were observed for Connectedness, Safety, or Work Design since p \> 0.05. Capability showed a non-significant upward trend p = 0.093.
 
 ### Psychosocial hazards regression
+
 ```{r include=FALSE}
 haz_nat_reg <- bind_rows(
 
@@ -744,6 +748,7 @@ haz_nat_reg <- bind_rows(
 haz_nat_reg
 
 ```
+
 Management Support scores declined significantly over time β = −0.193, p = 0.033, as did Recognition scores β = −0.0111, p = 0.014, suggesting worsening psychosocial working conditions nationally. No significant change was observed for Workload p = 0.709.
 
 ### Industry regression
@@ -766,13 +771,11 @@ mh_industry <- bind_rows(
 mh_industry
 
 ```
+
 **Retail:** Psychological distress increased significantly over time in Retail β = 0.358, p = 0.001.
 
 **Transport:** No significant time trend was observed in Transport p = 0.298.
 
-
 ## Conclusion
 
-
 Across 2024–2025, this analysis reveals a consistent and concerning pattern of deteriorating workforce mental health in Australia, driven primarily by relational and organisational factors rather than task demands. Psychological distress increased significantly nationally, with a pronounced seasonal peak in Q2 of both years from Q1 baseline that suggests predictable mid year crisis points aligned with end of financial year pressures. Burnout followed a similar upward trend but showed remarkable stability across quarters, indicating chronic exhaustion that changes slowly despite acute distress fluctuations. Critically, while workload remained constant, leadership perceptions declined significantly, accompanied by deteriorating management support and recognition. This dissociation between stable task demands and worsening relational factors confirms that the deterioration stems from how workers are treated, not how much work they perform. Industry comparisons revealed stark disparities- Retail workers experienced significant distress increases and multiple significant quarter to quarter fluctuations, while Transport workers remained stable throughout, suggesting sector specific vulnerabilities related to customer facing stress, understaffing, and precarious employment arrangements. The convergence of pairwise testing, regression modelling, and categorical trend analysis provides consistent evidence that workforce mental health deterioration is both real and targeted worsening overall but concentrated in specific sectors and driven by manageable organisational factors. These findings point clearly toward interventions focused on leadership development, recognition programs, and Q2 specific support, particularly within the Retail sector, rather than simplistic workload reduction strategies.
-

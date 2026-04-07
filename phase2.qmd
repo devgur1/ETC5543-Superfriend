@@ -161,23 +161,27 @@ age_phase2 <- age_phase2 |>
 ```
 
 ```{r}
-ggplot(age_phase2, aes(x = quarter, group = 1)) +
-  geom_line(aes(y = f10_z, colour = "Financial Distress"), linewidth = 1.1) +
-  geom_point(aes(y = f10_z, colour = "Financial Distress"), size = 2) +
-  geom_line(aes(y = lci_z, colour = "Living Cost Index"), linewidth = 1.1) +
-  geom_point(aes(y = lci_z, colour = "Living Cost Index"), size = 2) +
+ggplot(age_phase2, aes(x = quarter, group = age_group)) +
+  # Real 1-10 Distress Score
+  geom_line(aes(y = mean_f10, colour = "Financial Distress"), linewidth = 1.1) +
+  geom_point(aes(y = mean_f10, colour = "Financial Distress"), size = 2) +
+  
+  # LCI divided by 20 (The "Giant to Ant" fix)
+  geom_line(aes(y = employee_lci/20, colour = "Living Cost Index (scaled)"), 
+            linewidth = 1.1, linetype = "dashed") +
+  
   facet_wrap(~age_group) +
-  scale_colour_manual(values = c("Financial Distress" = "blue", "Living Cost Index" = "red")) +
+  scale_colour_manual(values = c("Financial Distress" = "blue", 
+                                 "Living Cost Index (scaled)" = "red")) +
   labs(
     title = "Financial Distress and Living Cost Index by Age Group",
+    subtitle = "LCI scaled by factor of 20 for visual comparison",
     x = "Quarter",
-    y = "Standardised Score (z)",
+    y = "Score / Scaled Index",
     colour = ""
   ) +
   theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  )
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
 
 ```{r}
@@ -274,4 +278,100 @@ cor_psych <- cor(phase2_dataset$mean_f10, phase2_dataset$mean_k6)
 ```
 
 The chart shows strong positive relationship. The data indicates that financial and psychological distress are highly synchronized. An increase in the national average of financial distress is associated with a measurable rise in psychological distress. This suggests that the Living Cost crisis is also a Mental Health crisis for the workers.
+
+## Blue collar vs White collar
+```{r}
+# RQ#5: Blue Collar (2) vs White Collar (1)
+occupational_summary <- itw_all |>
+  filter(!is.na(a18), a18 %in% c(1, 2)) |>
+  mutate(worker_type = if_else(a18 == 2, "Blue Collar", "White Collar")) |>
+  group_by(quarter, worker_type) |>
+  summarise(
+    mean_f10 = mean(f10_1, na.rm = TRUE),
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  left_join(abs_lci_2425, by = "quarter")
+```
+
+```{r}
+worker_correlations <- occupational_summary |>
+  group_by(worker_type) |>
+  summarise(
+    f10_lci_cor = cor(mean_f10, employee_lci, use = "complete.obs"),
+    .groups = "drop"
+  )
+
+print(worker_correlations)
+```
+White collar has strong negative relation which means that as cost of living rise, their distress actually fell.
+For Blue collar, it has much weaker correlation, their distress doesn't drop when there is shift in the economy.
+
+```{r}
+ggplot(occupational_summary, aes(x = quarter, group = worker_type)) +
+  # Real 1-10 Distress Score
+  geom_line(aes(y = mean_f10, color = "Financial Distress"), linewidth = 1.2) +
+  geom_point(aes(y = mean_f10), color = "blue", size = 2) +
+  
+  # LCI divided by 20
+  geom_line(aes(y = employee_lci/20, color = "Living Cost Index (scaled)"), 
+            linewidth = 1.2, linetype = "dashed") +
+  
+  facet_wrap(~worker_type) +
+  scale_color_manual(values = c("Financial Distress" = "blue", 
+                                "Living Cost Index (scaled)" = "red")) +
+  labs(
+    title = "Living Costs vs Financial Distress: Blue vs White Collar",
+    subtitle = "Distress (1-10) vs. LCI (scaled by /20)",
+    x = "Quarter",
+    y = "Financial distress"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+f8_summary <- itw_all |>
+  select(quarter, f8_1, f8_2, f8_3) |>
+  pivot_longer(cols = starts_with("f8"), 
+               names_to = "category", 
+               values_to = "rating") |>
+  filter(!is.na(rating)) |>
+  mutate(
+    category = case_when(
+      category == "f8_1" ~ "Housing (Rent/Mortgage)",
+      category == "f8_2" ~ "Utilities",
+      category == "f8_3" ~ "Food"
+    ),
+    # Convert numeric 1-5 to readable labels
+    rating_label = factor(rating, 
+                          levels = 1:5, 
+                          labels = c("1 - Very Difficult", "2", "3", "4", "5 - Very Easy"))
+  ) |>
+  group_by(quarter, category, rating_label) |>
+  summarise(count = n(), .groups = "drop") |>
+  group_by(quarter, category) |>
+  mutate(pct = (count / sum(count)) * 100)
+```
+
+```{r}
+ggplot(f8_summary, aes(x = quarter, y = pct, fill = rating_label)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_wrap(~category) +
+  scale_fill_brewer(palette = "RdYlGn") + # Red (Difficult) to Green (Easy)
+  labs(
+    title = "Ease of Meeting Essential Living Costs",
+    subtitle = "Comparing Housing, Utilities, and Food across 2024-2025",
+    x = "Quarter",
+    y = "Percentage of Workers (%)",
+    fill = "Ease of Payment"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  ) +
+  scale_y_continuous(labels = scales::percent_format())
+```
 
