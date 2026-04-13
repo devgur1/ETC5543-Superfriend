@@ -341,7 +341,7 @@ f8_summary <- itw_all |>
   mutate(
     category = case_when(
       category == "f8_1" ~ "Housing (Rent/Mortgage)",
-      category == "f8_2" ~ "Utilities",
+      category == "f8_2" ~ "Utilities(Electricity/Gas/Water)",
       category == "f8_3" ~ "Food"
     ),
     # Convert numeric 1-5 to readable labels
@@ -373,5 +373,46 @@ ggplot(f8_summary, aes(x = quarter, y = pct, fill = rating_label)) +
     legend.position = "bottom"
   ) +
   scale_y_continuous(labels = scales::percent_format())
+```
+## RBA Interest rates
+```{r}
+# Create RBA Cash Rate data for 2024-2025
+rba_rates <- tibble(
+  quarter = c("2024 Q1", "2024 Q2", "2024 Q3", "2024 Q4", 
+              "2025 Q1", "2025 Q2", "2025 Q3", "2025 Q4"),
+  cash_rate = c(4.35, 4.35, 4.35, 4.35, 4.10, 3.85, 3.60, 3.60)
+)
+
+# Merge with your existing phase 2 data
+phase2_with_rba <- phase2_dataset |>
+  left_join(rba_rates, by = "quarter")
+```
+
+```{r}
+ggplot(phase2_with_rba, aes(x = quarter)) +
+  # 1. Financial Distress (Raw 1-10)
+  geom_line(aes(y = mean_f10, group = 1, color = "Financial Distress"), linewidth = 1.2) +
+  geom_point(aes(y = mean_f10), color = "blue", size = 3) +
+  
+  # 2. RBA Cash Rate 
+  
+  geom_line(aes(y = cash_rate, group = 2, color = "RBA Cash Rate (%)"), 
+            linewidth = 1.2, linetype = "dashed") +
+  geom_point(aes(y = cash_rate), color = "orange", size = 3) +
+  
+  scale_color_manual(values = c("Financial Distress" = "blue", "RBA Cash Rate (%)" = "orange")) +
+  
+  labs(
+    title = "Financial Distress vs RBA Interest Rates",
+    subtitle = "Comparing Workforce Sentiment with Monetary Policy",
+    x = "Quarter",
+    y = "Score",
+    color = "Indicator"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
 ```
 
