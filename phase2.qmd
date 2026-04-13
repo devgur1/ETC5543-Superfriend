@@ -231,6 +231,9 @@ ggplot(financial_stress_summary, aes(x = quarter)) +
 ```
 The trend in high financial stress provides a focused view of workforce vulnerability. Peaks in early 2024 highlight periods of heightened pressure, followed by a gradual decline into 2025. This suggests that workers are adapting over time and that financial stress is responsive to broader economic conditions, demonstrating improving stability in later periods.
 
+
+## Financial Stress Categories (Low vs High)
+
 ```{r}
 financial_stress_long <- financial_stress_summary |>
   select(quarter, high_stress_pct, low_stress_pct) |>
@@ -258,6 +261,8 @@ ggplot(financial_stress_long, aes(x = quarter, y = percentage, colour = category
 ```
 The distribution of financial stress levels shows a clear and encouraging pattern over time. While a substantial proportion of workers report low financial stress, the percentage experiencing high financial stress fluctuates but remains manageable. The stability of the low-stress group indicates overall resilience within the workforce, while short-term increases in high stress reflect temporary economic pressures rather than sustained deterioration.
 
+
+## Psychological vs Financial Distress
 ```{r}
 #| label: lag-calc
 phase2_lagged <- phase2_dataset %>%
@@ -287,7 +292,7 @@ cor_psych <- cor(phase2_dataset$mean_f10, phase2_dataset$mean_k6)
 
 The relationship between financial and psychological distress shows a clear and consistent positive association. Higher financial distress aligns with increased psychological distress, reinforcing the close connection between economic conditions and mental wellbeing. This highlights the importance of addressing financial challenges as part of broader workforce mental health strategies.
 
-## Blue collar vs White collar
+## Occupational Differences- Blue collar vs White collar
 ```{r}
 # RQ#5: Blue Collar (2) vs White Collar (1)
 occupational_summary <- itw_all |>
@@ -340,6 +345,8 @@ ggplot(occupational_summary, aes(x = quarter, group = worker_type)) +
 ```
 The comparison across occupational groups reveals distinct and insightful patterns. Blue-collar workers experience slightly higher and more variable financial distress, indicating greater sensitivity to economic changes. White-collar workers show more stable trends, suggesting stronger buffering against cost pressures. These differences highlight how job type influences financial wellbeing and the importance of tailored workplace support
 
+
+## Cost of Living Pressures (Housing, Food, Utilities)
 ```{r}
 f8_summary <- itw_all |>
   select(quarter, f8_1, f8_2, f8_3) |>
@@ -386,7 +393,7 @@ ggplot(f8_summary, aes(x = quarter, y = pct, fill = rating_label)) +
 The breakdown of essential living costs provides a comprehensive view of everyday financial experiences. Across all categories, a substantial proportion of workers report moderate to high ease of payment, reflecting a degree of financial adaptability. However, housing consistently shows greater difficulty compared to food and utilities, reinforcing its role as the primary financial pressure point for households.
 
 
-## RBA Interest rates
+## RBA Interest rates Comparison
 ```{r}
 # Create RBA Cash Rate data for 2024-2025
 rba_rates <- tibble(

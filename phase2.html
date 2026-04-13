@@ -253,6 +253,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>The national trend highlights a clear and meaningful relationship between financial distress and living costs over time. While the Living Cost Index shows a steady upward movement, financial distress exhibits moderate fluctuations, suggesting that workers are actively adjusting to ongoing economic pressures. The alignment between the two series indicates that cost of living changes are an important contextual factor influencing workforce financial wellbeing.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>cor_test_national <span class="ot">&lt;-</span> <span class="fu">cor.test</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  phase2_dataset<span class="sc">$</span>mean_f10,</span>
@@ -274,6 +275,7 @@ sample estimates:
 -0.5146544 </code></pre>
 </div>
 </div>
+<p>The correlation between financial distress and the living cost index is negative and not statistically significant (p &gt; 0.05). This suggests that there is no strong linear relationship at the national level over this time period.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>age_summary <span class="ot">&lt;-</span> itw_all <span class="sc">|&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(age_group)) <span class="sc">|&gt;</span></span>
@@ -363,6 +365,7 @@ sample estimates:
 </div>
 </div>
 </div>
+<p>The age based analysis provides valuable insight into how different demographic groups experience financial pressure. Younger and working-age groups (18–44 years) consistently show higher levels of financial distress and greater variation over time, reflecting their stronger exposure to housing costs, debt and economic changes. In contrast, older age groups display more stable and lower distress levels, indicating greater financial resilience. This highlights the importance of targeted support for younger workers.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>age_cor <span class="ot">&lt;-</span> age_phase2 <span class="sc">|&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(age_group) <span class="sc">|&gt;</span></span>
@@ -431,6 +434,11 @@ sample estimates:
 </div>
 </div>
 </div>
+<p>The trend in high financial stress provides a focused view of workforce vulnerability. Peaks in early 2024 highlight periods of heightened pressure, followed by a gradual decline into 2025. This suggests that workers are adapting over time and that financial stress is responsive to broader economic conditions, demonstrating improving stability in later periods.</p>
+</section>
+</section>
+<section id="financial-stress-categories-low-vs-high" class="level2">
+<h2 class="anchored" data-anchor-id="financial-stress-categories-low-vs-high">Financial Stress Categories (Low vs High)</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>financial_stress_long <span class="ot">&lt;-</span> financial_stress_summary <span class="sc">|&gt;</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(quarter, high_stress_pct, low_stress_pct) <span class="sc">|&gt;</span></span>
@@ -463,6 +471,10 @@ sample estimates:
 </div>
 </div>
 </div>
+<p>The distribution of financial stress levels shows a clear and encouraging pattern over time. While a substantial proportion of workers report low financial stress, the percentage experiencing high financial stress fluctuates but remains manageable. The stability of the low-stress group indicates overall resilience within the workforce, while short-term increases in high stress reflect temporary economic pressures rather than sustained deterioration.</p>
+</section>
+<section id="psychological-vs-financial-distress" class="level2">
+<h2 class="anchored" data-anchor-id="psychological-vs-financial-distress">Psychological vs Financial Distress</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>phase2_lagged <span class="ot">&lt;-</span> phase2_dataset <span class="sc">%&gt;%</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lci_lag1 =</span> <span class="fu">lag</span>(employee_lci))</span>
@@ -494,11 +506,10 @@ sample estimates:
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Pearson correlation</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>cor_psych <span class="ot">&lt;-</span> <span class="fu">cor</span>(phase2_dataset<span class="sc">$</span>mean_f10, phase2_dataset<span class="sc">$</span>mean_k6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The chart shows strong positive relationship. The data indicates that financial and psychological distress are highly synchronized. An increase in the national average of financial distress is associated with a measurable rise in psychological distress. This suggests that the Living Cost crisis is also a Mental Health crisis for the workers.</p>
+<p>The relationship between financial and psychological distress shows a clear and consistent positive association. Higher financial distress aligns with increased psychological distress, reinforcing the close connection between economic conditions and mental wellbeing. This highlights the importance of addressing financial challenges as part of broader workforce mental health strategies.</p>
 </section>
-</section>
-<section id="blue-collar-vs-white-collar" class="level2">
-<h2 class="anchored" data-anchor-id="blue-collar-vs-white-collar">Blue collar vs White collar</h2>
+<section id="occupational-differences--blue-collar-vs-white-collar" class="level2">
+<h2 class="anchored" data-anchor-id="occupational-differences--blue-collar-vs-white-collar">Occupational Differences- Blue collar vs White collar</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RQ#5: Blue Collar (2) vs White Collar (1)</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>occupational_summary <span class="ot">&lt;-</span> itw_all <span class="sc">|&gt;</span></span>
@@ -560,6 +571,10 @@ sample estimates:
 </div>
 </div>
 </div>
+<p>The comparison across occupational groups reveals distinct and insightful patterns. Blue-collar workers experience slightly higher and more variable financial distress, indicating greater sensitivity to economic changes. White-collar workers show more stable trends, suggesting stronger buffering against cost pressures. These differences highlight how job type influences financial wellbeing and the importance of tailored workplace support</p>
+</section>
+<section id="cost-of-living-pressures-housing-food-utilities" class="level2">
+<h2 class="anchored" data-anchor-id="cost-of-living-pressures-housing-food-utilities">Cost of Living Pressures (Housing, Food, Utilities)</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>f8_summary <span class="ot">&lt;-</span> itw_all <span class="sc">|&gt;</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(quarter, f8_1, f8_2, f8_3) <span class="sc">|&gt;</span></span>
@@ -609,9 +624,10 @@ sample estimates:
 </div>
 </div>
 </div>
+<p>The breakdown of essential living costs provides a comprehensive view of everyday financial experiences. Across all categories, a substantial proportion of workers report moderate to high ease of payment, reflecting a degree of financial adaptability. However, housing consistently shows greater difficulty compared to food and utilities, reinforcing its role as the primary financial pressure point for households.</p>
 </section>
-<section id="rba-interest-rates" class="level2">
-<h2 class="anchored" data-anchor-id="rba-interest-rates">RBA Interest rates</h2>
+<section id="rba-interest-rates-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="rba-interest-rates-comparison">RBA Interest rates Comparison</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create RBA Cash Rate data for 2024-2025</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>rba_rates <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
@@ -658,6 +674,7 @@ sample estimates:
 </div>
 </div>
 </div>
+<p>The comparison between financial distress and RBA interest rates reveals as interest rates begin to ease in 2025, financial distress levels also stabilise and slightly decline. This parallel movement suggests that monetary policy plays a meaningful role in shaping financial wellbeing, with improvements in economic conditions reflected in workforce sentiment.</p>
 </section>
 
 </main>
