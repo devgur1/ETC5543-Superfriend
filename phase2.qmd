@@ -1,11 +1,20 @@
 ---
-title: "Phase2"
+title: "Analysis of Psychological and Financial distress in the Australian Workforce"
 author: Dev Gur
 format: html
 editor: visual
+code-fold: true
 ---
 
-## 
+## Introduction
+
+This analysis examines how financial distress among Australian workers relates to broader economic conditions by integrating external macroeconomic indicators with survey data. In particular, the study incorporates the Australian Bureau of Statistics (ABS) Living Cost Index (LCI) and the Reserve Bank of Australia (RBA) cash rate to explore whether changes in financial wellbeing align with shifts in cost of living and monetary policy over time.
+
+The ABS Living Cost Index, sourced from the official ABS publication Living Cost Indexes for Selected Household Types, measures changes in the cost of maintaining a constant standard of living for different household groups. This analysis uses the Employee households LCI, as it most closely reflects the financial pressures experienced by working Australians. The index captures variations in essential expenses such as housing, utilities, and food, providing a more targeted measure of household cost pressures compared to broader inflation indicators.
+
+In addition, the RBA cash rate, obtained from the Reserve Bank of Australia’s official data releases, represents a key monetary policy instrument that influences borrowing costs, mortgage repayments, and overall household financial conditions. Changes in interest rates can therefore have direct implications for financial stress, particularly among working age individuals with debt or housing commitments.
+
+Both datasets were aligned with the survey data on a quarterly basis for the period 2024–2025, enabling direct comparison with financial distress measures derived from the ITW dataset. By combining these sources, the analysis aims to assess whether financial distress trends correspond with changes in living costs and interest rates, and to identify how these relationships vary across different demographic and occupational groups.
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -120,8 +129,8 @@ ggplot(phase2_dataset, aes(x = quarter)) +
   ) +
   theme_minimal()
 ```
-The national trend highlights a clear and meaningful relationship between financial distress and living costs over time. While the Living Cost Index shows a steady upward movement, financial distress exhibits moderate fluctuations, suggesting that workers are actively adjusting to ongoing economic pressures. The alignment between the two series indicates that cost of living changes are an important contextual factor influencing workforce financial wellbeing.
 
+The national trend highlights a clear and meaningful relationship between financial distress and living costs over time. While the Living Cost Index shows a steady upward movement, financial distress exhibits moderate fluctuations, suggesting that workers are actively adjusting to ongoing economic pressures. The alignment between the two series indicates that cost of living changes are an important contextual factor influencing workforce financial wellbeing.
 
 ```{r}
 cor_test_national <- cor.test(
@@ -131,8 +140,8 @@ cor_test_national <- cor.test(
 
 cor_test_national
 ```
-The correlation between financial distress and the living cost index is negative and not statistically significant (p > 0.05). This suggests that there is no strong linear relationship at the national level over this time period.
 
+The correlation between financial distress and the living cost index is negative and not statistically significant (p \> 0.05). This suggests that there is no strong linear relationship at the national level over this time period.
 
 ```{r}
 age_summary <- itw_all |>
@@ -187,8 +196,8 @@ ggplot(age_phase2, aes(x = quarter, group = age_group)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
-The age based analysis provides valuable insight into how different demographic groups experience financial pressure. Younger and working-age groups (18–44 years) consistently show higher levels of financial distress and greater variation over time, reflecting their stronger exposure to housing costs, debt and economic changes. In contrast, older age groups display more stable and lower distress levels, indicating greater financial resilience. This highlights the importance of targeted support for younger workers.
 
+The age based analysis provides valuable insight into how different demographic groups experience financial pressure. Younger and working age groups (18–44 years) consistently show higher levels of financial distress and greater variation over time, reflecting their stronger exposure to housing costs, debt and economic changes. In contrast, older age groups display more stable and lower distress levels, indicating greater financial resilience. This highlights the importance of targeted support for younger workers.
 
 ```{r}
 age_cor <- age_phase2 |>
@@ -201,6 +210,8 @@ age_cor <- age_phase2 |>
 age_cor
 ```
 
+
+## High Financial stress category
 ```{r}
 financial_stress_summary <- itw_all |>
   filter(!is.na(financial_stress)) |>
@@ -229,40 +240,12 @@ ggplot(financial_stress_summary, aes(x = quarter)) +
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   )
 ```
+
 The trend in high financial stress provides a focused view of workforce vulnerability. Peaks in early 2024 highlight periods of heightened pressure, followed by a gradual decline into 2025. This suggests that workers are adapting over time and that financial stress is responsive to broader economic conditions, demonstrating improving stability in later periods.
 
 
-## Financial Stress Categories (Low vs High)
-
-```{r}
-financial_stress_long <- financial_stress_summary |>
-  select(quarter, high_stress_pct, low_stress_pct) |>
-  pivot_longer(
-    cols = c(high_stress_pct, low_stress_pct),
-    names_to = "category",
-    values_to = "percentage"
-  )
-
-ggplot(financial_stress_long, aes(x = quarter, y = percentage, colour = category, group = category)) +
-  geom_line(linewidth = 1.2) +
-  geom_point(size = 2) +
-  scale_colour_manual(values = c("high_stress_pct" = "red", "low_stress_pct" = "blue"),
-                      labels = c("High Stress", "Low Stress")) +
-  labs(
-    title = "Financial Stress Levels Over Time",
-    x = "Quarter",
-    y = "Percentage (%)",
-    colour = ""
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  )
-```
-The distribution of financial stress levels shows a clear and encouraging pattern over time. While a substantial proportion of workers report low financial stress, the percentage experiencing high financial stress fluctuates but remains manageable. The stability of the low-stress group indicates overall resilience within the workforce, while short-term increases in high stress reflect temporary economic pressures rather than sustained deterioration.
-
-
 ## Psychological vs Financial Distress
+
 ```{r}
 #| label: lag-calc
 phase2_lagged <- phase2_dataset %>%
@@ -272,6 +255,26 @@ phase2_lagged <- phase2_dataset %>%
 cor_lag <- cor.test(phase2_lagged$mean_f10, phase2_lagged$lci_lag1, use = "complete.obs")
 ```
 
+```{r warning=FALSE}
+ggplot(phase2_lagged, aes(x = lci_lag1, y = mean_f10)) +
+  geom_point(color = "purple", size = 3) +
+  geom_smooth(method = "lm", color = "black") +
+  labs(
+    title = "Time-Lagged Effect: Costs vs Distress",
+    subtitle = "Does last quarter's cost predict this quarter's stress?",
+    x = "Living Cost Index (Previous Quarter)", 
+    y = "Mean Financial Distress (Current Quarter)"
+  ) +
+  theme_minimal()
+```
+It visually confirms that what   correlation test were hinting at, it's a negative relationship. The downward sloping line suggests that as the Living Cost Index (LCI) from the previous quarter increases, the Mean Financial Distress in the current quarter actually appears to trend downward.
+There could be a few possibilities here-
+
+- Distress often peaks when a crisis is new (uncertainty), rather than when it is at its highest point (reality).
+
+- Many Australian workers received pay rises or adjusted their tax brackets in late 2024/early 2025, which may have "buffered" the rising costs.
+
+
 
 ```{r}
 #| label: psych-vs-fin
@@ -279,7 +282,7 @@ ggplot(phase2_dataset, aes(x = mean_f10, y = mean_k6)) +
   geom_point(aes(size = n), color = "darkgreen", alpha = 0.6) +
   geom_smooth(method = "lm", color = "black", linetype = "dashed") +
   labs(
-    title = "Correlation: Financial vs. Psychological Distress",
+    title = "Correlation: Financial vs Psychological Distress",
     subtitle = "National Average 2024-2025",
     x = "Mean Financial Distress (F10)",
     y = "Mean Psychological Distress (K6)"
@@ -293,6 +296,7 @@ cor_psych <- cor(phase2_dataset$mean_f10, phase2_dataset$mean_k6)
 The relationship between financial and psychological distress shows a clear and consistent positive association. Higher financial distress aligns with increased psychological distress, reinforcing the close connection between economic conditions and mental wellbeing. This highlights the importance of addressing financial challenges as part of broader workforce mental health strategies.
 
 ## Occupational Differences- Blue collar vs White collar
+
 ```{r}
 # RQ#5: Blue Collar (2) vs White Collar (1)
 occupational_summary <- itw_all |>
@@ -318,8 +322,8 @@ worker_correlations <- occupational_summary |>
 
 print(worker_correlations)
 ```
-White collar has strong negative relation which means that as cost of living rise, their distress actually fell.
-For Blue collar, it has much weaker correlation, their distress doesn't drop when there is shift in the economy.
+
+White collar has strong negative relation which means that as cost of living rise, their distress actually fell. For Blue collar, it has much weaker correlation, their distress doesn't drop when there is shift in the economy.
 
 ```{r}
 ggplot(occupational_summary, aes(x = quarter, group = worker_type)) +
@@ -343,10 +347,11 @@ ggplot(occupational_summary, aes(x = quarter, group = worker_type)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-The comparison across occupational groups reveals distinct and insightful patterns. Blue-collar workers experience slightly higher and more variable financial distress, indicating greater sensitivity to economic changes. White-collar workers show more stable trends, suggesting stronger buffering against cost pressures. These differences highlight how job type influences financial wellbeing and the importance of tailored workplace support
 
+The comparison across occupational groups reveals distinct and insightful patterns. Blue collar workers experience slightly higher and more variable financial distress, indicating greater sensitivity to economic changes. White collar workers show more stable trends, suggesting stronger buffering against cost pressures. These differences highlight how job type influences financial wellbeing and the importance of tailored workplace support
 
 ## Cost of Living Pressures (Housing, Food, Utilities)
+
 ```{r}
 f8_summary <- itw_all |>
   select(quarter, f8_1, f8_2, f8_3) |>
@@ -363,7 +368,7 @@ f8_summary <- itw_all |>
     # Convert numeric 1-5 to readable labels
     rating_label = factor(rating, 
                           levels = 1:5, 
-                          labels = c("1 - Very Difficult", "2", "3", "4", "5 - Very Easy"))
+                          labels = c("1 - Very Difficult", "2 - Difficult", "3 - Neutral", "4 - Easy", "5 - Very Easy"))
   ) |>
   group_by(quarter, category, rating_label) |>
   summarise(count = n(), .groups = "drop") |>
@@ -390,10 +395,11 @@ ggplot(f8_summary, aes(x = quarter, y = pct, fill = rating_label)) +
   ) +
   scale_y_continuous(labels = scales::percent_format())
 ```
-The breakdown of essential living costs provides a comprehensive view of everyday financial experiences. Across all categories, a substantial proportion of workers report moderate to high ease of payment, reflecting a degree of financial adaptability. However, housing consistently shows greater difficulty compared to food and utilities, reinforcing its role as the primary financial pressure point for households.
 
+The breakdown of essential living costs provides a comprehensive view of everyday financial experiences. Across all categories, a substantial proportion of workers report moderate to high ease of payment, reflecting a degree of financial adaptability. However, housing consistently shows somewhat greater difficulty compared to food and utilities, reinforcing its role as the primary financial pressure point for households.
 
 ## RBA Interest rates Comparison
+
 ```{r}
 # Create RBA Cash Rate data for 2024-2025
 rba_rates <- tibble(
@@ -434,4 +440,31 @@ ggplot(phase2_with_rba, aes(x = quarter)) +
     legend.position = "bottom"
   )
 ```
+
 The comparison between financial distress and RBA interest rates reveals as interest rates begin to ease in 2025, financial distress levels also stabilise and slightly decline. This parallel movement suggests that monetary policy plays a meaningful role in shaping financial wellbeing, with improvements in economic conditions reflected in workforce sentiment.
+
+```{r}
+# Calculate correlation between Financial Distress and RBA Cash Rate
+cor_rba <- cor.test(
+  phase2_with_rba$mean_f10, 
+  phase2_with_rba$cash_rate, 
+  use = "complete.obs"
+)
+
+# Print the result
+cor_rba
+```
+The analysis reveals a strong positive directional trend. While the cost of living (ABS) showed a complex, adaptive relationship with workers, the RBA interest rates shows a much more direct impact. We found a strong 0.62 correlation, suggesting that the cost of debt is perhaps a more immediate driver of workforce anxiety than the general rise in grocery or utility prices.
+
+
+## Conclusion
+
+Overall, the analysis provides a clear and insightful view of how financial distress among Australian workers evolves in relation to broader economic conditions. At the national level, financial distress shows moderate variation over time, while the Living Cost Index demonstrates a steady upward trend. Although the direct statistical relationship between these variables is not strong, the visual patterns suggest that financial distress responds to changing economic conditions in a dynamic and adaptive manner.
+
+The comparison with RBA interest rates further highlights the influence of macroeconomic factors, with financial distress stabilising as interest rates begin to ease in 2025. This indicates that improvements in economic conditions may be reflected in workforce financial wellbeing over time.
+
+Disaggregated analysis reveals meaningful differences across population groups. Younger and working age individuals, particularly those aged 25–44 years, display greater sensitivity to cost of living changes, reflecting their higher exposure to housing costs and financial commitments. In contrast, older age groups show more stable trends, suggesting greater financial resilience. Similarly, differences across occupational groups indicate that financial experiences are not uniform, with some groups exhibiting greater variability in response to economic pressures.
+
+The analysis of financial stress categories shows that the majority of workers remain in the low stress group, while fluctuations in high financial stress appear to be short term and responsive rather than persistent. Additionally, the strong alignment between financial and psychological distress highlights the close connection between economic conditions and overall wellbeing.
+
+In summary, the findings suggest that while cost of living pressures and interest rate changes influence financial distress, the Australian workforce demonstrates resilience and adaptability over time. The variation observed across age groups, occupations, and stress levels underscores the importance of targeted, data driven approaches to supporting financial and mental wellbeing in different segments of the workforce.
