@@ -191,7 +191,8 @@ ggplot(age_phase2, aes(x = quarter, group = age_group)) +
     subtitle = "LCI scaled by factor of 20 for visual comparison",
     x = "Quarter",
     y = "Score / Scaled Index",
-    colour = ""
+    colour = "",
+    caption = "Higher F10 scores indicate greater financial distress."
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
@@ -285,7 +286,8 @@ ggplot(phase2_dataset, aes(x = mean_f10, y = mean_k6)) +
     title = "Correlation: Financial vs Psychological Distress",
     subtitle = "National Average 2024-2025",
     x = "Mean Financial Distress (F10)",
-    y = "Mean Psychological Distress (K6)"
+    y = "Mean Psychological Distress (K6)",
+    caption = "Higher F10 and K6 scores indicate greater distress. Line represents linear regression"
   ) +
   theme_minimal()
 
@@ -456,6 +458,71 @@ cor_rba
 ```
 The analysis reveals a strong positive directional trend. While the cost of living (ABS) showed a complex, adaptive relationship with workers, the RBA interest rates shows a much more direct impact. We found a strong 0.62 correlation, suggesting that the cost of debt is perhaps a more immediate driver of workforce anxiety than the general rise in grocery or utility prices.
 
+```{r}
+library(dplyr)
+# Merge age summary with RBA rates
+age_rba_analysis <- age_summary |>
+  left_join(rba_rates, by = "quarter")
+
+# Quick check to ensure cash_rate is present
+head(age_rba_analysis)
+```
+```{r}
+ggplot(age_rba_analysis, aes(x = quarter, group = age_group)) +
+  # 1. Financial Distress by Age (Blue Line)
+  geom_line(aes(y = mean_f10, color = "Financial Distress"), linewidth = 1.1) +
+  geom_point(aes(y = mean_f10, color = "Financial Distress"), size = 2) +
+  
+  # 2. RBA Cash Rate Benchmark (Orange Dashed Line)
+  geom_line(aes(y = cash_rate, color = "RBA Cash Rate (%)"), 
+            linewidth = 1, linetype = "dashed") +
+  
+  facet_wrap(~age_group) +
+  
+  # 3. Colors and Labels
+  scale_color_manual(values = c("Financial Distress" = "blue", 
+                                 "RBA Cash Rate (%)" = "orange")) +
+  labs(
+    title = "Age-Based Financial Distress vs. RBA Interest Rates",
+    subtitle = "Comparing generational sentiment against the national cost of debt",
+    x = "Quarter",
+    y = "Score / Percentage",
+    color = "Indicator",
+    caption = "Note. F10 (Distress) and RBA (%) are raw scores. Data: ITW & RBA (2024-2025)."
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold") # Makes age group titles pop
+  )
+```
+
+```{r}
+# 1. Create the Org Size summary
+org_summary <- itw_all |>
+  filter(!is.na(a5)) |>
+  mutate(org_size = as_factor(a5)) |> # Ensure a5 is a readable factor
+  group_by(quarter, org_size) |>
+  summarise(mean_f10 = mean(f10_1, na.rm = TRUE), .groups = "drop")
+
+# 2. Join with RBA rates
+org_rba_analysis <- org_summary |>
+  left_join(rba_rates, by = "quarter")
+
+# 3. Plot it
+ggplot(org_rba_analysis, aes(x = quarter, group = org_size)) +
+  geom_line(aes(y = mean_f10, color = "Financial Distress"), linewidth = 1.1) +
+  geom_line(aes(y = cash_rate, color = "RBA Cash Rate (%)"), linetype = "dashed") +
+  facet_wrap(~org_size) +
+  scale_color_manual(values = c("Financial Distress" = "blue", "RBA Cash Rate (%)" = "orange")) +
+  theme_minimal() +
+  labs(title = "Financial Distress vs. RBA Rates by Org Size",
+       caption = "Note. F10 and RBA are raw scores. Data: ITW & RBA (2024-25).") +
+   theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+   )
+```
 
 ## Conclusion
 
@@ -468,3 +535,5 @@ Disaggregated analysis reveals meaningful differences across population groups. 
 The analysis of financial stress categories shows that the majority of workers remain in the low stress group, while fluctuations in high financial stress appear to be short term and responsive rather than persistent. Additionally, the strong alignment between financial and psychological distress highlights the close connection between economic conditions and overall wellbeing.
 
 In summary, the findings suggest that while cost of living pressures and interest rate changes influence financial distress, the Australian workforce demonstrates resilience and adaptability over time. The variation observed across age groups, occupations, and stress levels underscores the importance of targeted, data driven approaches to supporting financial and mental wellbeing in different segments of the workforce.
+
+
