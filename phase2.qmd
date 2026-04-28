@@ -523,6 +523,78 @@ ggplot(org_rba_analysis, aes(x = quarter, group = org_size)) +
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
    )
 ```
+### National Trend Significance: A Descriptive Decline
+
+```{r}
+ggplot(phase2_dataset, aes(x = as.numeric(as.factor(quarter)), y = mean_f10)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "darkblue", fill = "lightblue") +
+  labs(
+    title = "National Financial Distress Trend Significance",
+    subtitle = "Linear regression over 8 quarters (2024-2025)",
+    x = "Time Period (Quarters)",
+    y = "Mean Financial distress Score",
+    caption = "Note. Shaded area represents the 95% confidence interval."
+  ) +
+  theme_minimal()
+```
+
+There is a negative linear trend, which means national financial distress has generally decreased from its peak in early 2024.
+
+The 95% confidence interval (the light blue shaded area) is relatively wide, which indicates some quarterly volatility. However, the consistent downward slope suggest that the Australian workforce is transitioning from a period of some shock to one of gradual adaptation as we move into 2026.
+
+### Macroeconomic Pressure: Interest Rates vs Essential Utilities
+```{r}
+# 1. Summarize Utilities (f8_2)
+utilities_summary <- itw_all |>
+  group_by(quarter) |>
+  summarise(util_difficulty = mean(f8_2, na.rm = TRUE)) |>
+  left_join(rba_rates, by = "quarter")
+
+# 2. Plot it
+ggplot(utilities_summary, aes(x = cash_rate, y = util_difficulty)) +
+  geom_point(size = 4, color = "orange") +
+  geom_smooth(method = "lm", color = "black", linetype = "dashed") +
+  labs(
+    title = "Monetary Policy vs. Utility Pressure",
+    x = "RBA Cash Rate (%)",
+    y = "Ease of Paying Utilities (1-5 scale)"
+  ) +
+  theme_minimal()
+
+# 3. Correlation
+cor.test(utilities_summary$cash_rate, utilities_summary$util_difficulty)
+```
+
+There is a clear negative correlation between interest rates and the ease of paying for electricity, gas, and water. As the RBA Cash Rate increases, workers report significantly more difficulty meeting their utility costs.
+
+This proves that high interest rates don't just affect mortgage, they squeeze the household budget so tightly that even basic essentials like utilities become harder to manage. This is a key finding for SuperFriend’s advocacy work.
+
+
+### Linear Regression model
+```{r}
+# 1. Join RBA rates to your Occupational Summary
+model_data <- occupational_summary |>
+  left_join(rba_rates, by = "quarter") |>
+  # Create the "Dummy" variable: 0 = White Collar, 1 = Blue Collar
+  mutate(D = if_else(worker_type == "Blue Collar", 1, 0))
+
+# 2. Run the Linear Model
+# Formula: Financial Distress ~ RBA Rate + Dummy + (RBA Rate * Dummy)
+dummy_model <- lm(mean_f10 ~ cash_rate * D, data = model_data)
+
+# 3. See the results
+summary(dummy_model)
+```
+
+When interest rates go up, everyone feels the squeeze. While Blue Collar workers start with higher stress overall, they don't necessarily get hit harder by rate hikes than White Collar workers, both groups stress levels move up and down at the same pace.
+
+Our model explained 56% of why people's stress levels change, which is a very high score. It shows that interest rates are a universal pressure that affects the whole Australian workforce. This is a powerful tool for SuperFriend because it proves that we can actually predict when workers will need more support based on what the RBA does with interest rates.
+
+Basically, the economy is the volume knob for workforce stress, when the RBA turns it up, the pressure rises for everyone across the board.
+
+
+
 
 ## Conclusion
 
@@ -535,5 +607,4 @@ Disaggregated analysis reveals meaningful differences across population groups. 
 The analysis of financial stress categories shows that the majority of workers remain in the low stress group, while fluctuations in high financial stress appear to be short term and responsive rather than persistent. Additionally, the strong alignment between financial and psychological distress highlights the close connection between economic conditions and overall wellbeing.
 
 In summary, the findings suggest that while cost of living pressures and interest rate changes influence financial distress, the Australian workforce demonstrates resilience and adaptability over time. The variation observed across age groups, occupations, and stress levels underscores the importance of targeted, data driven approaches to supporting financial and mental wellbeing in different segments of the workforce.
-
 

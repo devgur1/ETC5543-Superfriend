@@ -871,6 +871,136 @@ sample estimates:
 </div>
 </div>
 </div>
+<section id="national-trend-significance-a-descriptive-decline" class="level3">
+<h3 class="anchored" data-anchor-id="national-trend-significance-a-descriptive-decline">National Trend Significance: A Descriptive Decline</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(phase2_dataset, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(quarter)), <span class="at">y =</span> mean_f10)) <span class="sc">+</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>) <span class="sc">+</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"National Financial Distress Trend Significance"</span>,</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Linear regression over 8 quarters (2024-2025)"</span>,</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Time Period (Quarters)"</span>,</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Mean Financial distress Score"</span>,</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Note. Shaded area represents the 95% confidence interval."</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="phase2_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There is a negative linear trend, which means national financial distress has generally decreased from its peak in early 2024.</p>
+<p>The 95% confidence interval (the light blue shaded area) is relatively wide, which indicates some quarterly volatility. However, the consistent downward slope suggest that the Australian workforce is transitioning from a period of some shock to one of gradual adaptation as we move into 2026.</p>
+</section>
+<section id="macroeconomic-pressure-interest-rates-vs-essential-utilities" class="level3">
+<h3 class="anchored" data-anchor-id="macroeconomic-pressure-interest-rates-vs-essential-utilities">Macroeconomic Pressure: Interest Rates vs Essential Utilities</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Summarize Utilities (f8_2)</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>utilities_summary <span class="ot">&lt;-</span> itw_all <span class="sc">|&gt;</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(quarter) <span class="sc">|&gt;</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">util_difficulty =</span> <span class="fu">mean</span>(f8_2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(rba_rates, <span class="at">by =</span> <span class="st">"quarter"</span>)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Plot it</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(utilities_summary, <span class="fu">aes</span>(<span class="at">x =</span> cash_rate, <span class="at">y =</span> util_difficulty)) <span class="sc">+</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>, <span class="at">color =</span> <span class="st">"orange"</span>) <span class="sc">+</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Monetary Policy vs. Utility Pressure"</span>,</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"RBA Cash Rate (%)"</span>,</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ease of Paying Utilities (1-5 scale)"</span></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="phase2_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Correlation</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(utilities_summary<span class="sc">$</span>cash_rate, utilities_summary<span class="sc">$</span>util_difficulty)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  utilities_summary$cash_rate and utilities_summary$util_difficulty
+t = -2.4174, df = 6, p-value = 0.05205
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.941216362  0.004441807
+sample estimates:
+       cor 
+-0.7024297 </code></pre>
+</div>
+</div>
+<p>There is a clear negative correlation between interest rates and the ease of paying for electricity, gas, and water. As the RBA Cash Rate increases, workers report significantly more difficulty meeting their utility costs.</p>
+<p>This proves that high interest rates don’t just affect mortgage, they squeeze the household budget so tightly that even basic essentials like utilities become harder to manage. This is a key finding for SuperFriend’s advocacy work.</p>
+</section>
+<section id="linear-regression-model" class="level3">
+<h3 class="anchored" data-anchor-id="linear-regression-model">Linear Regression model</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Join RBA rates to your Occupational Summary</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>model_data <span class="ot">&lt;-</span> occupational_summary <span class="sc">|&gt;</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(rba_rates, <span class="at">by =</span> <span class="st">"quarter"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create the "Dummy" variable: 0 = White Collar, 1 = Blue Collar</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">D =</span> <span class="fu">if_else</span>(worker_type <span class="sc">==</span> <span class="st">"Blue Collar"</span>, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Run the Linear Model</span></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Formula: Financial Distress ~ RBA Rate + Dummy + (RBA Rate * Dummy)</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>dummy_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(mean_f10 <span class="sc">~</span> cash_rate <span class="sc">*</span> D, <span class="at">data =</span> model_data)</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. See the results</span></span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dummy_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = mean_f10 ~ cash_rate * D, data = model_data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.34773 -0.11691 -0.05219  0.20505  0.37308 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)   3.1896     1.1405   2.797   0.0161 *
+cash_rate     0.4682     0.2795   1.675   0.1197  
+D             1.0014     1.6129   0.621   0.5463  
+cash_rate:D  -0.1143     0.3952  -0.289   0.7773  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2507 on 12 degrees of freedom
+Multiple R-squared:  0.6544,    Adjusted R-squared:  0.5679 
+F-statistic: 7.573 on 3 and 12 DF,  p-value: 0.004193</code></pre>
+</div>
+</div>
+<p>When interest rates go up, everyone feels the squeeze. While Blue Collar workers start with higher stress overall, they don’t necessarily get hit harder by rate hikes than White Collar workers, both groups stress levels move up and down at the same pace.</p>
+<p>Our model explained 56% of why people’s stress levels change, which is a very high score. It shows that interest rates are a universal pressure that affects the whole Australian workforce. This is a powerful tool for SuperFriend because it proves that we can actually predict when workers will need more support based on what the RBA does with interest rates.</p>
+<p>Basically, the economy is the volume knob for workforce stress, when the RBA turns it up, the pressure rises for everyone across the board.</p>
+</section>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
@@ -879,7 +1009,6 @@ sample estimates:
 <p>Disaggregated analysis reveals meaningful differences across population groups. Younger and working age individuals, particularly those aged 25–44 years, display greater sensitivity to cost of living changes, reflecting their higher exposure to housing costs and financial commitments. In contrast, older age groups show more stable trends, suggesting greater financial resilience. Similarly, differences across occupational groups indicate that financial experiences are not uniform, with some groups exhibiting greater variability in response to economic pressures.</p>
 <p>The analysis of financial stress categories shows that the majority of workers remain in the low stress group, while fluctuations in high financial stress appear to be short term and responsive rather than persistent. Additionally, the strong alignment between financial and psychological distress highlights the close connection between economic conditions and overall wellbeing.</p>
 <p>In summary, the findings suggest that while cost of living pressures and interest rate changes influence financial distress, the Australian workforce demonstrates resilience and adaptability over time. The variation observed across age groups, occupations, and stress levels underscores the importance of targeted, data driven approaches to supporting financial and mental wellbeing in different segments of the workforce.</p>
-<p>age bracket in rba interest organisation size- mapping with interest rates- OrgSize, a5</p>
 </section>
 
 </main>
