@@ -566,9 +566,9 @@ ggplot(utilities_summary, aes(x = cash_rate, y = util_difficulty)) +
 cor.test(utilities_summary$cash_rate, utilities_summary$util_difficulty)
 ```
 
-There is a clear negative correlation between interest rates and the ease of paying for electricity, gas, and water. As the RBA Cash Rate increases, workers report significantly more difficulty meeting their utility costs.
+There is a clear negative correlation ($R^2 = 0.49$, representing a large effect size) between interest rates and the ease of paying for electricity, gas, and water. As the RBA Cash Rate increases, workers report significantly more difficulty meeting their utility costs.
 
-This proves that high interest rates don't just affect mortgage, they squeeze the household budget so tightly that even basic essentials like utilities become harder to manage. This is a key finding for SuperFriend’s advocacy work.
+This statistically supports the finding that high interest rates don't just affect mortgages,  they squeeze the household budget so tightly that even basic essentials like utilities become harder to manage. This is a key insight for SuperFriend’s advocacy work."
 
 
 ### Linear Regression model
@@ -587,11 +587,11 @@ dummy_model <- lm(mean_f10 ~ cash_rate * D, data = model_data)
 summary(dummy_model)
 ```
 
-When interest rates go up, everyone feels the squeeze. While Blue Collar workers start with higher stress overall, they don't necessarily get hit harder by rate hikes than White Collar workers, both groups stress levels move up and down at the same pace.
+When interest rates go up, everyone feels the squeeze. While Blue Collar workers start with higher financial stress overall, they don't necessarily get hit harder by rate hikes than White Collar workers, both groups financial stress levels move up and down at the same pace.
 
-Our model explained 56% of why people's stress levels change, which is a very high score. It shows that interest rates are a universal pressure that affects the whole Australian workforce. This is a powerful tool for SuperFriend because it proves that we can actually predict when workers will need more support based on what the RBA does with interest rates.
+Our model explained 56% of why people's financial stress levels change, which is a very high score. It shows that interest rates are a universal pressure that affects the whole Australian workforce. This is a powerful tool for SuperFriend because now we can actually predict when workers will need more support based on what the RBA does with interest rates.
 
-Basically, the economy is the volume knob for workforce stress, when the RBA turns it up, the pressure rises for everyone across the board.
+Basically, the economy is the volume knob for workforce financial stress, when the RBA turns it up, the pressure rises for everyone across the board.
 
 
 
