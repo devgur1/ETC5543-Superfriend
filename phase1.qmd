@@ -394,7 +394,6 @@ ggplot(k6_ind,
 
 The Retail industry shows greater variation in psychological distress across quarters compared with Transport. In Retail, distress increases from Q1 to Q2 in both years, with Q2 representing the highest mean levels of distress. Distress then declines in Q3 and Q4 of 2025, while remaining relatively elevated in 2024. Notably, mean K6 scores in Retail appear higher in Q3 and Q4 of 2024 compared with the same quarters in 2025. In contrast, Transport shows relatively stable distress levels across quarters in both years, with smaller changes between adjacent quarters.
 
-
 **Burnout**
 
 ```{r}
