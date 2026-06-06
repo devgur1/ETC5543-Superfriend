@@ -31,6 +31,7 @@ execute:
 ---
 
 ```{r setup}
+# Load packages used for data cleaning, visualisation, modelling and reporting
 library(tidyverse)
 library(haven)
 library(janitor)
@@ -44,6 +45,7 @@ library(kableExtra)
 
 options(dplyr.summarise.inform = FALSE)
 
+# Reusable table styling function for consistent PDF/HTML output
 style_report_table <- function(x, caption = NULL, font_size = 8, widths = NULL) {
   
   names(x) <- stringr::str_replace_all(names(x), "_", " ")
@@ -289,6 +291,8 @@ itw_all <- bind_rows(itw_2024, itw_2025)
 # 2. Helper functions
 # ------------------------------------------------------------
 
+# Select the first available numeric variable from a list of possible names.
+# This makes the code more robust if variable names differ slightly across files.
 pick_num <- function(df, possible_names) {
   selected_name <- possible_names[possible_names %in% names(df)][1]
   
@@ -299,6 +303,8 @@ pick_num <- function(df, possible_names) {
   as.numeric(df[[selected_name]])
 }
 
+# Select the first available labelled/categorical variable from possible names.
+# This is useful for variables such as industry or demographic groups.
 pick_factor <- function(df, possible_names) {
   selected_name <- possible_names[possible_names %in% names(df)][1]
   
@@ -309,6 +315,9 @@ pick_factor <- function(df, possible_names) {
   as.character(as_factor(df[[selected_name]]))
 }
 
+# Convert SuperFriend domain items to a 0-100 score.
+# The formula assumes original items are measured on a 1-5 scale.
+# Higher scores indicate stronger workplace performance or better management.
 score_domain <- function(df, item_names) {
   item_names <- intersect(item_names, names(df))
   
@@ -322,6 +331,9 @@ score_domain <- function(df, item_names) {
   s
 }
 
+# Convert selected psychosocial hazard management items to a 0-100 score.
+# The same 1-5 to 0-100 transformation is used for consistency with domain scores.
+# Higher scores indicate better management of psychosocial hazards.
 score_hazard <- function(df, item_names) {
   item_names <- intersect(item_names, names(df))
   
@@ -335,6 +347,8 @@ score_hazard <- function(df, item_names) {
   s
 }
 
+# Calculate group means and approximate 95% confidence intervals.
+# These summaries are used in plots to show both average scores and uncertainty.
 mean_ci <- function(df, variable, group_vars) {
   df |>
     group_by(across(all_of(group_vars))) |>
@@ -349,6 +363,8 @@ mean_ci <- function(df, variable, group_vars) {
     )
 }
 
+# Safely calculate correlations only when there are enough complete observations.
+# This avoids errors when a variable has too many missing values.
 safe_cor <- function(x, y) {
   complete <- complete.cases(x, y)
   if (sum(complete) < 3) {
@@ -361,6 +377,8 @@ safe_cor <- function(x, y) {
 # 3. Core variables
 # ------------------------------------------------------------
 
+# Extract year and wave information before creating standard quarter labels.
+# These labels allow 2024 and 2025 survey waves to be compared consistently.
 year_raw <- pick_num(itw_all, c("year"))
 wave_raw <- pick_num(itw_all, c("wave", "quarter", "timepoint"))
 
@@ -445,6 +463,8 @@ itw_all <- itw_all |>
 # 4. SuperFriend domain scores
 # ------------------------------------------------------------
 
+# Define item groups used to construct the five SuperFriend workplace domains.
+# Each domain score is calculated from the relevant survey items.
 connectedness_items <- paste0("b1_", 1:10)
 leadership_items <- paste0("b2_", 1:10)
 
@@ -476,6 +496,8 @@ itw_all <- itw_all |>
 # 5. Psychosocial hazard management scores
 # ------------------------------------------------------------
 
+# Define item groups used to create selected psychosocial hazard management scores.
+# These scores help connect wellbeing outcomes with workplace conditions.
 management_support_items <- c("b2_1", "b2_2", "b2_3", "b2_4", "b2_5")
 recognition_items <- c("b2_6", "b2_7", "b2_8", "b2_9", "b2_10")
 workload_items <- c("b4x1_1", "b4x1_2", "b4x1_3")
@@ -491,6 +513,8 @@ itw_all <- itw_all |>
 # 6. Summary datasets
 # ------------------------------------------------------------
 
+# Create summary datasets used for figures and statistical interpretation.
+# These summaries keep the plotting code simpler and ensure consistent calculations.
 k6_national <- mean_ci(itw_all, "k6_score", c("year", "quarter"))
 
 burnout_national <- mean_ci(itw_all, "bat12_total", c("year", "quarter"))
@@ -541,6 +565,8 @@ hazard_summary <- itw_all |>
     .groups = "drop"
   )
 
+# Create quarterly financial distress summaries and combine them with mean K6.
+# This dataset supports the economic-context section of the report.
 phase2_financial <- itw_all |>
   group_by(quarter_full) |>
   summarise(
@@ -551,6 +577,8 @@ phase2_financial <- itw_all |>
     .groups = "drop"
   )
 
+# Summarise financial distress by age group and quarter for the heatmap.
+# This helps identify whether financial pressure is concentrated in younger or older groups.
 age_financial <- itw_all |>
   filter(!is.na(age_group), !is.na(financial_distress)) |>
   group_by(quarter_full, age_group) |>
@@ -560,6 +588,8 @@ age_financial <- itw_all |>
     .groups = "drop"
   )
 
+# Summarise financial distress by occupation type and quarter.
+# This helps compare blue-collar and white-collar worker patterns.
 worker_financial <- itw_all |>
   filter(!is.na(worker_type), !is.na(financial_distress)) |>
   group_by(quarter_full, worker_type) |>
@@ -570,6 +600,7 @@ worker_financial <- itw_all |>
     .groups = "drop"
   )
 
+# Use consistent colours for 2024 and 2025 across all figures.
 year_cols <- c("2024" = "#1E40FF", "2025" = "#E31A1C")
 ```
 
@@ -603,20 +634,27 @@ Statistical testing was used to support the visual analysis and reduce the risk 
 # 1. Independent quarter comparisons with Bonferroni correction
 # ------------------------------------------------------------
 
+# Function to compare quarterly means for one outcome within one year.
+# The comparisons are independent because the same workers are not followed over time.
 run_quarter_comparisons <- function(df, outcome) {
-  
+ 
+ # Keep only the quarter and outcome variable, then remove missing values. 
   df2 <- df |>
     select(quarter, all_of(outcome)) |>
     drop_na()
   
+  # If fewer than two quarters are available, no comparison can be made.
   if (n_distinct(df2$quarter) < 2) {
     return(tibble())
   }
   
+  # Calculate quarter means so the direction and size of pairwise differences can be reported
   means_tbl <- df2 |>
     group_by(quarter) |>
     summarise(mean_value = mean(.data[[outcome]], na.rm = TRUE), .groups = "drop")
   
+  # Run pairwise t-tests between quarters.
+  # p-values are adjusted later within each year-outcome group using Bonferroni correction.
   pairwise.t.test(
     x = df2[[outcome]],
     g = df2$quarter,
@@ -624,6 +662,7 @@ run_quarter_comparisons <- function(df, outcome) {
   ) |>
     broom::tidy() |>
     rowwise() |>
+     # Estimate is calculated as the difference between quarter means.
     mutate(
       estimate = means_tbl$mean_value[means_tbl$quarter == group2] -
         means_tbl$mean_value[means_tbl$quarter == group1],
@@ -632,12 +671,15 @@ run_quarter_comparisons <- function(df, outcome) {
     ungroup()
 }
 
+# Outcomes tested across quarters.
+# These include mental health outcomes, workplace domains and psychosocial hazard measures.
 outcomes <- c(
   "k6_score", "bat12_total",
   "Connectedness", "Leadership", "Safety", "Work_Design", "Capability",
   "Management_Support", "Recognition", "Workload"
 )
 
+# Apply the quarter comparison function separately for each year and each outcome.
 quarter_tests <- bind_rows(
   lapply(c(2024, 2025), function(yr) {
     bind_rows(
@@ -652,6 +694,7 @@ quarter_tests <- bind_rows(
   })
 ) |>
   group_by(year, outcome) |>
+   # Bonferroni correction reduces false positives from multiple quarter comparisons.
   mutate(
     p_adj = p.adjust(p.value, method = "bonferroni"),
     significant = p_adj < 0.05
@@ -662,6 +705,8 @@ quarter_tests <- bind_rows(
 # 2. Linear trend models across eight waves
 # ------------------------------------------------------------
 
+# Function to test whether an outcome shows a linear increase or decrease
+# across the ordered 2024-2025 quarterly survey waves.
 run_trend_model <- function(df, outcome) {
   lm(as.formula(paste(outcome, "~ time_index")), data = df) |>
     tidy() |>
@@ -669,6 +714,8 @@ run_trend_model <- function(df, outcome) {
     mutate(outcome = outcome)
 }
 
+# Run the trend model for each main outcome.
+# These models are used as supporting evidence, not as causal models.
 trend_results <- bind_rows(
   lapply(outcomes, function(out) {
     run_trend_model(itw_all, out)
@@ -679,6 +726,8 @@ trend_results <- bind_rows(
 # 3. K6 >= 13 threshold tests
 # ------------------------------------------------------------
 
+# Test whether the proportion of workers above the K6 >= 13 threshold
+# differs across all survey waves at the national level.
 k6_threshold_tests <- itw_all |>
   filter(!is.na(k6_high), !is.na(quarter_full)) |>
   summarise(
@@ -693,6 +742,8 @@ k6_threshold_tests <- itw_all |>
     }
   )
 
+# Repeat the K6 threshold tests separately for Retail and Transport.
+# This checks whether the high-distress group behaves differently by industry.
 industry_threshold_tests <- itw_all |>
   filter(!is.na(industry_focus), !is.na(k6_high), !is.na(quarter_full)) |>
   group_by(industry_focus) |>
@@ -771,6 +822,9 @@ Through this work, I strengthened skills in data cleaning, survey data analysis,
 ## Psychological distress across quarters
 
 ```{r fig-k6-national, fig.cap="Quarterly mean K6 psychological distress scores with 95% confidence intervals. Lines connect repeated cross-sectional group means for visual clarity only. Higher K6 scores indicate greater psychological distress", fig.width=7, fig.height=4.3}
+
+# Plot quarterly mean K6 psychological distress scores.
+# Error bars show 95% confidence intervals around each quarterly mean
 ggplot(
   k6_national,
   aes(x = quarter, y = mean, colour = factor(year), group = year)
@@ -801,6 +855,10 @@ The statistical checks in Appendix A provide additional support for interpreting
 ## Distribution of psychological distress
 
 ```{r fig-k6-distribution, fig.cap="Distribution of K6 psychological distress scores by quarter and year. The dashed line shows K6 >= 13, the moderate-to-severe psychological distress threshold. Higher values indicate greater psychological distress", fig.width=7, fig.height=4.4}
+
+
+# Show the full distribution of K6 scores by quarter and year.
+# This helps identify whether high distress is concentrated in a smaller group.
 violin_data <- itw_all |>
   filter(!is.na(k6_score), !is.na(quarter), !is.na(year)) |>
   mutate(year = factor(year))
@@ -850,6 +908,9 @@ The K6 threshold tests in Appendix A provide additional statistical context for 
 ## Burnout across quarters
 
 ```{r fig-burnout-national, fig.cap="Quarterly mean BAT-12 burnout scores with 95% confidence intervals. Lines connect group means for visual clarity only. Higher BAT-12 scores indicate greater burnout", fig.width=7, fig.height=4.3}
+
+
+# Plot quarterly mean BAT-12 burnout scores to compare burnout with K6 distress.
 ggplot(
   burnout_national,
   aes(x = quarter, y = mean, colour = factor(year), group = year)
@@ -891,6 +952,8 @@ These explanations are used as contextual interpretation only. The quarterly ITW
 ## Retail and Transport: psychological distress
 
 ```{r fig-retail-transport-k6, fig.cap="K6 psychological distress in Retail and Transport. Error bars show 95% confidence intervals.", fig.width=7, fig.height=4.4}
+# Compare industry-specific mean K6 scores for Retail and Transport.
+# These are subgroup summaries, so confidence intervals are important.
 ggplot(
   industry_k6,
   aes(x = quarter, y = mean, colour = factor(year), group = year)
@@ -920,6 +983,7 @@ The graph also demonstrates why confidence intervals are important in subgroup a
 ## Retail and Transport: burnout
 
 ```{r fig-retail-transport-burnout, fig.cap="BAT-12 burnout in Retail and Transport. Error bars show 95% confidence intervals.", fig.width=7, fig.height=4.4}
+# Compare industry-specific BAT-12 burnout patterns for Retail and Transport.
 ggplot(
   industry_burnout,
   aes(x = quarter, y = mean, colour = factor(year), group = year)
@@ -947,6 +1011,10 @@ Burnout by industry also helps answer a question that can arise from looking onl
 ## High psychological distress by industry
 
 ```{r fig-high-k6-industry, fig.cap="Percentage of workers with K6 >= 13 in Retail and Transport. K6 >= 13 is used as a moderate-to-severe psychological distress threshold.", fig.width=7, fig.height=4.4}
+
+# Calculate the percentage of workers above the K6 >= 13 threshold
+# separately for Retail and Transport in each quarter and year.
+# This focuses on the higher-risk group rather than only average K6 scores.
 high_k6_industry <- itw_all |>
   filter(!is.na(industry_focus), !is.na(k6_high)) |>
   group_by(industry_focus, year, quarter) |>
@@ -956,6 +1024,8 @@ high_k6_industry <- itw_all |>
     .groups = "drop"
   )
 
+# Plot the high-distress percentage over quarters by industry.
+# Lines connect repeated cross-sectional group summaries for visual clarity only.
 ggplot(
   high_k6_industry,
   aes(x = quarter, y = high_k6_pct, colour = factor(year), group = year)
@@ -994,6 +1064,8 @@ This analysis strengthens the practical value of the industry comparison. Means 
 ## Financial distress by age group
 
 ```{r fig-age-financial, fig.cap="Mean financial distress by age group and quarter. Financial distress is measured on a 1-10 scale. Higher values indicate greater financial distress.", fig.width=7.5, fig.height=4.8}
+# Create a heatmap of mean financial distress by age group and quarter.
+# This shows whether financial pressure is concentrated in particular age groups.
 ggplot(
   age_financial,
   aes(x = quarter_full, y = fct_rev(age_group), fill = mean_f10)
@@ -1024,6 +1096,8 @@ This result also links financial wellbeing to workforce mental health. Financial
 ## Financial distress by occupation type
 
 ```{r fig-worker-financial, fig.cap="Mean financial distress by occupation type. Lines connect repeated cross-sectional group means for visual clarity", fig.width=7, fig.height=4.3}
+# Compare mean financial distress for blue-collar and white-collar workers.
+# Lines connect repeated cross-sectional group means for visual clarity only.
 ggplot(
   worker_financial,
   aes(x = quarter_full, y = mean_f10, colour = worker_type, group = worker_type)
@@ -1057,6 +1131,8 @@ This graph also responds to the practical question of who may need support. If f
 ## SuperFriend workplace domains
 
 ```{r fig-domains, fig.cap="SuperFriend workplace domain scores on a 0-100 scale. Higher scores indicate stronger workplace performance or better management.", fig.width=7.5, fig.height=4.8}
+# Summarise SuperFriend workplace domains on a 0-100 scale.
+# Higher values indicate stronger workplace performance or better management.
 domain_plot <- domain_summary |>
   mutate(
     domain = fct_reorder(domain, mean_score, .fun = base::mean, na.rm = TRUE)
@@ -1096,6 +1172,8 @@ The trend model results in Appendix A provide additional statistical context for
 ## Psychosocial hazard management
 
 ```{r fig-hazards, fig.cap="Psychosocial hazard management scores on a 0-100 scale. Higher scores indicate better management of psychosocial hazards.", fig.width=7.5, fig.height=4.3}
+# Summarise psychosocial hazard management scores on a 0-100 scale.
+# Higher values indicate better management of psychosocial hazards.
 hazard_plot <- hazard_summary |>
   mutate(
     hazard = fct_relevel(hazard, "Management Support", "Recognition", "Workload")
@@ -1139,6 +1217,7 @@ The trend model results in Appendix A also provide statistical context for the p
 # ABS Living Cost Index
 # ------------------------------------------------------------
 
+# Read ABS Employee households Living Cost Index data
 abs_file <- list.files(
   path = "data",
   pattern = "allgroupsbyhouseholds\\.xlsx$",
@@ -1158,6 +1237,7 @@ abs_raw <- read_excel(
 ) |>
   clean_names()
 
+# Convert ABS date values to quarterly labels so they can be joined to ITW waves
 abs_lci <- abs_raw |>
   slice(11:n()) |>
   transmute(
@@ -1181,6 +1261,7 @@ abs_lci <- abs_raw |>
 # RBA cash rate
 # ------------------------------------------------------------
 
+# Enter RBA cash rate values by quarter for macroeconomic context
 rba_rates <- tibble(
   quarter_full = factor(
     c(
@@ -1193,10 +1274,12 @@ rba_rates <- tibble(
   cash_rate = c(4.35, 4.35, 4.35, 4.35, 4.10, 3.85, 3.60, 3.60)
 )
 
+# Join financial distress summaries with ABS LCI and RBA cash rate data
 phase2_dataset <- phase2_financial |>
   left_join(abs_lci, by = "quarter_full") |>
   left_join(rba_rates, by = "quarter_full")
 
+# Calculate simple correlations for descriptive contextual analysis
 cor_fin_k6 <- safe_cor(
   phase2_dataset$mean_f10,
   phase2_dataset$mean_k6
@@ -1220,6 +1303,10 @@ The economic indicators are included because financial distress does not occur i
 ## Financial distress and psychological distress
 
 ```{r fig-financial-k6, fig.cap="Association between quarterly mean financial distress and quarterly mean psychological distress. Each point represents one quarterly workforce level summary. The line shows association, not causation.", fig.width=7, fig.height=4.4}
+
+# Plot the relationship between quarterly mean financial distress and
+# quarterly mean psychological distress.
+# Each point represents one quarter, not an individual worker.
 ggplot(
   phase2_dataset,
   aes(x = mean_f10, y = mean_k6)
@@ -1248,9 +1335,14 @@ For SuperFriend, this has practical significance. Workplace mental health strate
 ## Living costs and financial distress
 
 ```{r fig-lci-financial, fig.cap="Financial distress compared with ABS Employee households Living Cost Index. The LCI is divided by 20 only for visual comparison.", fig.width=7, fig.height=4.4}
+
+# Scale the ABS Living Cost Index so it can be plotted on a similar visual range
+# as the financial distress score. This scaling is for visual comparison only.
 phase2_lci_plot <- phase2_dataset |>
   mutate(lci_scaled = employee_lci / 20)
 
+# Compare quarterly financial distress with the scaled ABS Living Cost Index.
+# The two lines show broad movement over time, not a causal relationship.
 ggplot(phase2_lci_plot, aes(x = quarter_full)) +
   geom_line(
     aes(y = mean_f10, group = 1, colour = "Financial distress"),
@@ -1295,6 +1387,9 @@ This finding is useful because it prevents an overly simple explanation. It woul
 ## RBA cash rate and financial distress
 
 ```{r fig-rba-financial, fig.cap="Financial distress compared with the RBA cash rate. Both are shown as raw values because they are on a similar visual scale.", fig.width=7, fig.height=4.4}
+# Convert the quarterly financial distress and RBA cash-rate columns
+# into long format so both indicators can be plotted in one figure.
+# This is used for visual comparison only, not causal modelling.
 phase2_rba_long <- phase2_dataset |>
   select(quarter_full, mean_f10, cash_rate) |>
   pivot_longer(
@@ -1309,6 +1404,9 @@ phase2_rba_long <- phase2_dataset |>
     )
   )
 
+# Plot financial distress and RBA cash rate over the same quarters.
+# The graph shows whether broad movements align over time,
+# but it does not prove that interest rates caused financial distress.
 ggplot(
   phase2_rba_long,
   aes(x = quarter_full, y = value, colour = indicator, group = indicator)
@@ -1342,6 +1440,9 @@ For SuperFriend, the practical implication is that economic monitoring may help 
 ## Essential costs: housing, utilities and food
 
 ```{r fig-essential-costs, fig.cap="Reported ease or difficulty of meeting essential living costs across quarters.", fig.width=7.5, fig.height=4.8}
+# Reshape essential cost variables from wide to long format.
+# f8_1, f8_2 and f8_3 represent housing, utilities and food.
+# This allows the three cost categories to be shown in one faceted plot.
 essential_costs <- itw_all |>
   select(quarter_full, f8_1, f8_2, f8_3) |>
   pivot_longer(
@@ -1350,12 +1451,15 @@ essential_costs <- itw_all |>
     values_to = "rating"
   ) |>
   filter(!is.na(rating)) |>
+   # Rename survey item codes so the plot is easier to interpret.
   mutate(
     category = case_when(
       category == "f8_1" ~ "Housing",
       category == "f8_2" ~ "Utilities",
       category == "f8_3" ~ "Food"
     ),
+     # Convert numeric response codes into ordered response labels.
+    # Lower values indicate more difficulty meeting essential costs.
     rating_label = factor(
       rating,
       levels = 1:5,
@@ -1374,6 +1478,8 @@ essential_costs <- itw_all |>
   mutate(pct = count / sum(count)) |>
   ungroup()
 
+# Plot the distribution of ease/difficulty ratings for each essential cost.
+# Stacked percentages show how responses are distributed within each quarter.
 ggplot(
   essential_costs,
   aes(x = quarter_full, y = pct, fill = rating_label)
