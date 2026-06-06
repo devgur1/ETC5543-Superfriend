@@ -1,0 +1,1532 @@
+---
+title: "Analysis of Financial and Psychological Distress in the Australian Workforce"
+subtitle: "Tracking workforce mental health, financial pressure, living costs and interest rates"
+author: "Dev Gur"
+date: "25 May 2026"
+
+title-slide-attributes:
+  data-background-gradient: "linear-gradient(135deg, #071A2C 0%, #173A59 50%, #00A7C8 100%)"
+
+format:
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    code-fold: true
+    width: 1400
+    height: 800
+    css: styles.css
+    center-title-slide: false
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(haven)
+library(janitor)
+library(forcats)
+library(scales)
+library(readxl)
+library(lubridate)
+```
+
+```{r data-prep, include=FALSE}
+# ------------------------------------------------------------
+# 1. Find your ITW 2024 and 2025 .sav files
+# ------------------------------------------------------------
+
+all_sav_files <- list.files(
+  path = ".",
+  pattern = "\\.sav$",
+  recursive = TRUE,
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+file_2024 <- all_sav_files[str_detect(all_sav_files, "2024")][1]
+file_2025 <- all_sav_files[str_detect(all_sav_files, "2025")][1]
+
+if (is.na(file_2024) | is.na(file_2025)) {
+  stop("Could not find both 2024 and 2025 .sav files. Put them in this project folder or a data folder.")
+}
+
+# ------------------------------------------------------------
+# 2. Helper functions
+# ------------------------------------------------------------
+
+read_itw <- function(path, year_value) {
+  read_sav(path) |>
+    clean_names() |>
+    mutate(year = year_value)
+}
+
+pick_num <- function(df, possible_names) {
+  selected_name <- possible_names[possible_names %in% names(df)][1]
+  
+  if (is.na(selected_name)) {
+    return(rep(NA_real_, nrow(df)))
+  }
+  
+  as.numeric(df[[selected_name]])
+}
+
+score_mean_100 <- function(df, item_names) {
+  item_names <- intersect(item_names, names(df))
+  
+  if (length(item_names) == 0) {
+    return(rep(NA_real_, nrow(df)))
+  }
+  
+  mean_score <- rowMeans(
+    as.data.frame(lapply(df[item_names], as.numeric)),
+    na.rm = TRUE
+  )
+  
+  score_100 <- (mean_score - 1) * 25
+  score_100[is.nan(mean_score)] <- NA_real_
+  
+  score_100
+}
+
+ci_summary <- function(df, variable, group_vars) {
+  df |>
+    group_by(across(all_of(group_vars))) |>
+    summarise(
+      mean = mean(.data[[variable]], na.rm = TRUE),
+      sd = sd(.data[[variable]], na.rm = TRUE),
+      n = sum(!is.na(.data[[variable]])),
+      se = sd / sqrt(n),
+      lower = mean - 1.96 * se,
+      upper = mean + 1.96 * se,
+      .groups = "drop"
+    )
+}
+
+# ------------------------------------------------------------
+# 3. Read and combine data
+# ------------------------------------------------------------
+
+itw_2024 <- read_itw(file_2024, 2024)
+itw_2025 <- read_itw(file_2025, 2025)
+
+itw_all <- bind_rows(itw_2024, itw_2025)
+
+# ------------------------------------------------------------
+# 4. Create variables used in slides
+# ------------------------------------------------------------
+
+itw_all <- itw_all |>
+  mutate(
+    wave = pick_num(cur_data(), c("wave", "quarter", "timepoint")),
+    quarter = factor(
+      paste0("Q", wave),
+      levels = c("Q1", "Q2", "Q3", "Q4"),
+      ordered = TRUE
+    ),
+    
+    k6_score = pick_num(cur_data(), c("k6score", "k6_score", "k6_total")),
+    bat12_total = pick_num(cur_data(), c("bat12_total", "bat_12_total", "burnout")),
+    financial_distress = pick_num(cur_data(), c("f10_1", "financial_distress")),
+    
+    industry_number = pick_num(cur_data(), c("a6", "industry")),
+    industry_label = if ("a6" %in% names(itw_all)) {
+      as.character(as_factor(a6))
+    } else {
+      as.character(industry_number)
+    },
+    
+    industry_focus = case_when(
+      str_detect(industry_label, regex("retail", ignore_case = TRUE)) | industry_number == 7 ~ "Retail",
+      str_detect(industry_label, regex("transport", ignore_case = TRUE)) | industry_number == 9 ~ "Transport",
+      TRUE ~ NA_character_
+    ),
+    
+    moderate_severe_k6 = if_else(k6_score >= 13, 1, 0, missing = NA_real_)
+  )
+
+# ------------------------------------------------------------
+# 5. Domain and hazard scores
+# ------------------------------------------------------------
+
+itw_all <- itw_all |>
+  mutate(
+    Connectedness = score_mean_100(cur_data(), paste0("b1_", 1:10)),
+    Leadership = score_mean_100(cur_data(), paste0("b2_", 1:10)),
+    Safety = score_mean_100(cur_data(), c(
+      "b3x1_1",
+      paste0("b3x2_", 1:3),
+      paste0("b3x3_", 1:3),
+      paste0("b3x4_", 1:3)
+    )),
+    Work_Design = score_mean_100(cur_data(), c(
+      paste0("b4x1_", 1:3),
+      paste0("b4x2_", 1:4),
+      paste0("b4x3_", 1:3)
+    )),
+    Capability = score_mean_100(cur_data(), paste0("b5_", 1:7)),
+    
+    Management_Support = score_mean_100(cur_data(), paste0("b2_", 1:5)),
+    Recognition = score_mean_100(cur_data(), paste0("b2_", 6:10)),
+    Workload = score_mean_100(cur_data(), paste0("b4x1_", 1:3))
+  )
+
+# ------------------------------------------------------------
+# 6. Graph summaries
+# ------------------------------------------------------------
+
+k6_national <- ci_summary(
+  itw_all,
+  variable = "k6_score",
+  group_vars = c("year", "quarter")
+)
+
+burnout_national <- ci_summary(
+  itw_all,
+  variable = "bat12_total",
+  group_vars = c("year", "quarter")
+)
+
+industry_k6 <- itw_all |>
+  filter(!is.na(industry_focus)) |>
+  ci_summary(
+    variable = "k6_score",
+    group_vars = c("industry_focus", "year", "quarter")
+  )
+
+domain_summary <- itw_all |>
+  select(year, quarter, Connectedness, Safety, Leadership, Work_Design, Capability) |>
+  pivot_longer(
+    cols = c(Connectedness, Safety, Leadership, Work_Design, Capability),
+    names_to = "domain",
+    values_to = "score"
+  ) |>
+  mutate(domain = str_replace_all(domain, "_", " ")) |>
+  group_by(year, domain) |>
+  summarise(mean_score = mean(score, na.rm = TRUE), .groups = "drop")
+
+hazard_summary <- itw_all |>
+  select(year, quarter, Management_Support, Recognition, Workload) |>
+  pivot_longer(
+    cols = c(Management_Support, Recognition, Workload),
+    names_to = "hazard",
+    values_to = "score"
+  ) |>
+  mutate(hazard = str_replace_all(hazard, "_", " ")) |>
+  group_by(year, quarter, hazard) |>
+  summarise(mean_score = mean(score, na.rm = TRUE), .groups = "drop")
+
+financial_summary <- itw_all |>
+  group_by(year, quarter) |>
+  summarise(
+    mean_financial_distress = mean(financial_distress, na.rm = TRUE),
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+year_cols <- c("2024" = "#00A7C8", "2025" = "#C31861")
+```
+
+```{r phase2-prep, include=FALSE}
+# ------------------------------------------------------------
+# Phase 2 prep: financial distress, age, worker type, utilities, ABS LCI, RBA
+# ------------------------------------------------------------
+
+quarter_order <- c(
+  "2024 Q1", "2024 Q2", "2024 Q3", "2024 Q4",
+  "2025 Q1", "2025 Q2", "2025 Q3", "2025 Q4"
+)
+
+itw_phase2 <- itw_all |>
+  mutate(
+    quarter_full = factor(
+      paste(year, quarter),
+      levels = quarter_order,
+      ordered = TRUE
+    ),
+    quarter_label = str_replace(as.character(quarter_full), " ", "\n"),
+    age_group = if ("age" %in% names(itw_all)) {
+      as.character(as_factor(age))
+    } else {
+      NA_character_
+    },
+    worker_code = if ("a18" %in% names(itw_all)) {
+      as.numeric(a18)
+    } else {
+      NA_real_
+    },
+    worker_type = case_when(
+      worker_code == 2 ~ "Blue collar",
+      worker_code == 1 ~ "White collar",
+      TRUE ~ NA_character_
+    )
+  )
+
+phase2_financial <- itw_phase2 |>
+  group_by(quarter_full, quarter_label, year, quarter) |>
+  summarise(
+    mean_f10 = mean(financial_distress, na.rm = TRUE),
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    high_financial_pct = mean(financial_distress >= 8, na.rm = TRUE) * 100,
+    n = sum(!is.na(financial_distress)),
+    .groups = "drop"
+  )
+
+age_financial <- itw_phase2 |>
+  filter(!is.na(age_group), !is.na(financial_distress)) |>
+  group_by(quarter_full, quarter_label, age_group) |>
+  summarise(
+    mean_f10 = mean(financial_distress, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+worker_financial <- itw_phase2 |>
+  filter(!is.na(worker_type), !is.na(financial_distress)) |>
+  group_by(quarter_full, quarter_label, worker_type) |>
+  summarise(
+    mean_f10 = mean(financial_distress, na.rm = TRUE),
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+cost_pressure <- itw_phase2 |>
+  select(year, quarter, quarter_full, quarter_label, f8_1, f8_2, f8_3) |>
+  pivot_longer(
+    cols = c(f8_1, f8_2, f8_3),
+    names_to = "cost_type",
+    values_to = "rating"
+  ) |>
+  filter(!is.na(rating)) |>
+  mutate(
+    cost_type = case_when(
+      cost_type == "f8_1" ~ "Housing",
+      cost_type == "f8_2" ~ "Utilities",
+      cost_type == "f8_3" ~ "Food"
+    ),
+    rating_num = as.numeric(rating),
+    difficult = rating_num <= 2
+  ) |>
+  group_by(quarter_full, quarter_label, cost_type) |>
+  summarise(
+    difficulty_pct = mean(difficult, na.rm = TRUE) * 100,
+    n = n(),
+    .groups = "drop"
+  )
+
+# ABS Living Cost Index: Employee households
+abs_file <- list.files(
+  path = ".",
+  pattern = "allgroupsbyhouseholds\\.xlsx$",
+  recursive = TRUE,
+  full.names = TRUE,
+  ignore.case = TRUE
+)[1]
+
+if (is.na(abs_file)) {
+  stop("Could not find allgroupsbyhouseholds.xlsx. Put it in your project folder or data folder.")
+}
+
+abs_raw <- read_excel(
+  abs_file,
+  sheet = "Data1",
+  col_names = FALSE
+) |>
+  clean_names()
+
+abs_lci_2425 <- abs_raw |>
+  slice(11:n()) |>
+  transmute(
+    date_raw = suppressWarnings(as.numeric(x1)),
+    employee_lci = suppressWarnings(as.numeric(x3))
+  ) |>
+  filter(!is.na(date_raw), !is.na(employee_lci)) |>
+  mutate(
+    date = as.Date(date_raw, origin = "1899-12-30"),
+    quarter_full = factor(
+      paste(format(date, "%Y"), paste0("Q", quarter(date))),
+      levels = quarter_order,
+      ordered = TRUE
+    ),
+    quarter_label = str_replace(as.character(quarter_full), " ", "\n")
+  ) |>
+  filter(!is.na(quarter_full)) |>
+  group_by(quarter_full, quarter_label) |>
+  summarise(
+    employee_lci = mean(employee_lci, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+phase2_lci <- phase2_financial |>
+  left_join(abs_lci_2425, by = c("quarter_full", "quarter_label"))
+  
+# RBA cash rate data
+rba_rates <- tibble(
+  quarter_full = factor(
+    c("2024 Q1", "2024 Q2", "2024 Q3", "2024 Q4",
+      "2025 Q1", "2025 Q2", "2025 Q3", "2025 Q4"),
+    levels = quarter_order,
+    ordered = TRUE
+  ),
+  cash_rate = c(4.35, 4.35, 4.35, 4.35, 4.10, 3.85, 3.60, 3.60)
+) |>
+  mutate(
+    quarter_label = str_replace(as.character(quarter_full), " ", "\n")
+  )
+
+phase2_rba <- phase2_financial |>
+  left_join(rba_rates, by = c("quarter_full", "quarter_label"))
+
+rba_cor <- cor(
+  phase2_rba$mean_f10,
+  phase2_rba$cash_rate,
+  use = "complete.obs"
+)
+```
+
+
+
+
+
+# About SuperFriend
+
+<div class="insight-row">
+
+<div class="insight-card">
+<div class="kicker">Organisation</div>
+<div class="value">Not-for-profit</div>
+<div class="text">SuperFriend works to improve workplace mental health across Australia.</div>
+</div>
+
+<div class="insight-card magenta">
+<div class="kicker">Mission</div>
+<div class="value">Mentally healthy workplaces</div>
+<div class="text">The organisation helps workplaces move from awareness to practical action.</div>
+</div>
+
+<div class="insight-card orange">
+<div class="kicker">Research base</div>
+<div class="value">ITW survey</div>
+<div class="text">The Indicators of a Thriving Workplace survey tracks workplace mental health and wellbeing nationally.</div>
+</div>
+
+</div>
+
+<div class="takeaway">
+<strong>In simple terms:</strong> SuperFriend uses workplace mental health research to help organisations understand risk, improve workplace conditions and support workers before problems become severe.
+</div>
+
+# Problem and project aim
+
+<div class="insight-row">
+
+<div class="insight-card">
+<div class="kicker">Problem</div>
+<div class="value">Meaningful change</div>
+<div class="text">SuperFriend needed to measure whether changes in ITW variables over time were real and meaningful.</div>
+</div>
+
+<div class="insight-card magenta">
+<div class="kicker">Why I was required</div>
+<div class="value">External expertise</div>
+<div class="text">The project needed an intern to help develop the methodology and build internal capability.</div>
+</div>
+
+<div class="insight-card orange">
+<div class="kicker">Aim</div>
+<div class="value">Repeatable method</div>
+<div class="text">Create an analysis approach SuperFriend could apply independently to future ITW survey waves.</div>
+</div>
+
+</div>
+
+<div class="takeaway">
+<strong>Project focus:</strong> Develop a repeatable time-series style methodology to track psychological distress, burnout, workplace domains and psychosocial hazards across quarterly ITW waves in 2024 and 2025.
+</div>
+
+<div class="chart-note">
+<strong>Important limitation:</strong> The data is cross-sectional, not longitudinal. This means the analysis tracks population-level change across seasonal waves, but does not follow the same individual workers over time.
+</div>
+
+# My role and methods
+
+<div class="role-banner">
+<div class="role-title">From raw survey data to decision-ready insights</div>
+<div class="role-text">
+My role was to build a repeatable analysis workflow that could help SuperFriend track workforce mental health changes across repeated ITW survey waves.
+</div>
+</div>
+
+<div class="method-grid">
+
+<div class="method-step">
+<div class="stepno">Step 1</div>
+<div class="method-title">Clean + combine</div>
+<div class="method-text">Prepared the 2024 and 2025 ITW survey files and created consistent quarterly variables.</div>
+</div>
+
+<div class="method-step magenta">
+<div class="stepno">Step 2</div>
+<div class="method-title">Track change</div>
+<div class="method-text">Analysed distress, burnout, workplace domains and psychosocial hazards across quarters.</div>
+</div>
+
+<div class="method-step orange">
+<div class="stepno">Step 3</div>
+<div class="method-title">Test evidence</div>
+<div class="method-text">Used quarter comparisons, regression and chi-square tests to avoid overclaiming visual patterns.</div>
+</div>
+
+<div class="method-step teal">
+<div class="stepno">Step 4</div>
+<div class="method-title">Compare industries</div>
+<div class="method-text">Focused on Retail and Transport to see whether risk was sector-specific.</div>
+</div>
+
+<div class="method-step">
+<div class="stepno">Step 5</div>
+<div class="method-title">Visualise insights</div>
+<div class="method-text">Used violin, bubble, scatter, ranked bars and heatmap charts to communicate findings clearly.</div>
+</div>
+
+</div>
+
+<div class="chart-note">
+<strong>Method note:</strong> Because the data is repeated cross-sectional rather than longitudinal, the analysis tracks population-level change across waves, not the same workers over time.
+</div>
+
+# Statistical tests used 
+
+<div class="test-grid">
+
+<div class="test-card">
+<div class="kicker">Quarter differences</div>
+<div class="test-title">Pairwise t-tests</div>
+<div class="test-text">Compared quarters to identify where distress, burnout, domains and hazards were meaningfully different.</div>
+<div class="test-why">Why: shows which quarters changed, not just whether a trend exists.</div>
+</div>
+
+<div class="test-card magenta">
+<div class="kicker">Multiple testing</div>
+<div class="test-title">Bonferroni correction</div>
+<div class="test-text">Adjusted p-values because many quarter comparisons were tested.</div>
+<div class="test-why">Why: reduces the chance of false significant results.</div>
+</div>
+
+<div class="test-card orange">
+<div class="kicker">Trend over time</div>
+<div class="test-title">Linear regression</div>
+<div class="test-text">Tested whether outcomes increased or decreased across quarterly waves.</div>
+<div class="test-why">Why: confirms whether visual trends are statistically supported.</div>
+</div>
+
+<div class="test-card teal">
+<div class="kicker">High-risk group</div>
+<div class="test-title">Chi-square + trend test</div>
+<div class="test-text">Tested whether the proportion of workers with K6 ≥ 13 changed across quarters.</div>
+<div class="test-why">Why: focuses on clinically meaningful distress risk.</div>
+</div>
+
+<div class="test-card">
+<div class="kicker">Economic links</div>
+<div class="test-title">Correlation tests</div>
+<div class="test-text">Checked relationships between financial distress, psychological distress, ABS LCI and RBA rates.</div>
+<div class="test-why">Why: connects worker wellbeing with economic pressure.</div>
+</div>
+
+<div class="test-card magenta">
+<div class="kicker">Group differences</div>
+<div class="test-title">Interaction regression</div>
+<div class="test-text">Compared whether blue-collar and white-collar workers responded differently to interest-rate pressure.</div>
+<div class="test-why">Why: shows whether financial pressure affects worker groups differently.</div>
+</div>
+
+</div>
+
+<div class="takeaway">
+<strong>Overall purpose:</strong> These tests helped separate meaningful workforce signals from normal quarterly variation and explain why some groups may need more targeted support.
+</div>
+
+
+# Psychological distress peaks around Q2
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r k6-trend-line-final, fig.width=8.6, fig.height=4.8}
+k6_trend <- k6_national |>
+  mutate(year = factor(year))
+
+p_trend <- ggplot(
+  k6_trend,
+  aes(x = quarter, y = mean, group = year, colour = year, fill = year)
+) +
+  annotate(
+    "rect",
+    xmin = 1.65,
+    xmax = 2.35,
+    ymin = -Inf,
+    ymax = Inf,
+    fill = "#F49E22",
+    alpha = .14
+  ) +
+  geom_ribbon(
+    aes(ymin = lower, ymax = upper),
+    alpha = .16,
+    colour = NA
+  ) +
+  geom_line(linewidth = 2.2, lineend = "round") +
+  geom_point(size = 5.5) +
+  geom_point(
+    data = k6_trend |> filter(quarter == "Q2"),
+    shape = 21,
+    size = 9,
+    stroke = 2.3,
+    fill = "white"
+  ) +
+  annotate(
+    "label",
+    x = 2,
+    y = max(k6_trend$upper, na.rm = TRUE) + .18,
+    label = "Q2 pressure point",
+    fill = "#173A59",
+    colour = "white",
+    fontface = "bold",
+    size = 3.8
+  ) +
+  scale_colour_manual(values = year_cols) +
+  scale_fill_manual(values = year_cols) +
+  labs(
+    subtitle = "Mean Psychological distress score by quarter with 95% confidence interval",
+    x = NULL,
+    y = "Mean psychological distress score"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title.y = element_text(face = "bold", colour = "#173A59"),
+    axis.text = element_text(colour = "#16212F"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p_trend
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Main trend</div>
+<div class="number">Q2 peak</div>
+<div class="label">Psychological distress rises around the middle of the year, suggesting a predictable pressure point for prevention.</div>
+</div>
+
+</div>
+
+# Distress distribution by quarter
+
+<div class="insight-row">
+
+<div class="insight-card">
+<div class="kicker">View</div>
+<div class="value">Distribution</div>
+<div class="text">Shows the full spread of Psychological distress scores, not only the average.</div>
+</div>
+
+<div class="insight-card magenta">
+<div class="kicker">Risk line</div>
+<div class="value">Psychological distress ≥ 13</div>
+<div class="text">Marks the moderate-to-severe psychological distress threshold.</div>
+</div>
+
+<div class="insight-card orange">
+<div class="kicker">Message</div>
+<div class="value">High-risk tail</div>
+<div class="text">The upper tail highlights workers reporting much higher distress.</div>
+</div>
+
+</div>
+
+<div class="chart-frame">
+
+```{r k6-violin-fancy, fig.width=11, fig.height=4.2}
+violin_data <- itw_all |>
+  filter(!is.na(k6_score), !is.na(quarter), !is.na(year)) |>
+  mutate(year = factor(year))
+
+p1 <- ggplot(
+  violin_data,
+  aes(x = quarter, y = k6_score, fill = year)
+) +
+  geom_violin(
+    position = position_dodge(width = .82),
+    alpha = .55,
+    trim = TRUE,
+    colour = NA
+  ) +
+  geom_boxplot(
+    position = position_dodge(width = .82),
+    width = .13,
+    outlier.alpha = .06,
+    alpha = .88,
+    colour = "#173A59",
+    linewidth = .55
+  ) +
+  geom_hline(
+    yintercept = 13,
+    linetype = "dashed",
+    linewidth = 1.1,
+    colour = "#C31861"
+  ) +
+  annotate(
+    "label",
+    x = 3.55,
+    y = 14.4,
+    label = "K6 ≥ 13 threshold",
+    fill = "#C31861",
+    colour = "white",
+    fontface = "bold",
+    size = 3.8
+  ) +
+  scale_fill_manual(values = year_cols) +
+  labs(
+    subtitle = "Violin width shows where workers are concentrated",
+    x = "Quarter",
+    y = "Psychological distress score"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title.y = element_text(face = "bold", colour = "#173A59"),
+    axis.text = element_text(colour = "#16212F"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p1
+```
+
+</div>
+
+# Distress and burnout tell different stories
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r k6-burnout-bubble-fancy, fig.width=8.6, fig.height=4.8}
+bubble_data <- itw_all |>
+  group_by(year, quarter) |>
+  summarise(
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    mean_burnout = mean(bat12_total, na.rm = TRUE),
+    n = sum(!is.na(k6_score) & !is.na(bat12_total)),
+    .groups = "drop"
+  ) |>
+  mutate(
+    year = factor(year),
+    quarter_label = as.character(quarter)
+  )
+
+k6_mid <- mean(bubble_data$mean_k6, na.rm = TRUE)
+burnout_mid <- mean(bubble_data$mean_burnout, na.rm = TRUE)
+
+p2 <- ggplot(
+  bubble_data,
+  aes(
+    x = mean_burnout,
+    y = mean_k6,
+    size = n,
+    colour = year
+  )
+) +
+  annotate(
+    "rect",
+    xmin = burnout_mid,
+    xmax = Inf,
+    ymin = k6_mid,
+    ymax = Inf,
+    fill = "#C31861",
+    alpha = .07
+  ) +
+  annotate(
+    "rect",
+    xmin = -Inf,
+    xmax = burnout_mid,
+    ymin = -Inf,
+    ymax = k6_mid,
+    fill = "#00A7C8",
+    alpha = .06
+  ) +
+  geom_vline(
+    xintercept = burnout_mid,
+    linetype = "dashed",
+    linewidth = .9,
+    colour = "#64748B"
+  ) +
+  geom_hline(
+    yintercept = k6_mid,
+    linetype = "dashed",
+    linewidth = .9,
+    colour = "#64748B"
+  ) +
+  geom_point(alpha = .82) +
+  geom_text(
+    aes(label = quarter_label),
+    colour = "white",
+    fontface = "bold",
+    size = 4.2
+  ) +
+  scale_colour_manual(values = year_cols) +
+  scale_size(range = c(12, 22), guide = "none") +
+  labs(
+    subtitle = "Each bubble is one quarter; size reflects sample size",
+    x = "Mean burnout",
+    y = "Mean psychological distress"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title = element_text(face = "bold", colour = "#173A59"),
+    axis.text = element_text(colour = "#16212F"),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p2
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Interpretation</div>
+<div class="number">2 signals</div>
+<div class="label">Psychological distress captures sharper distress, while burnout reflects slower accumulated strain.</div>
+</div>
+
+</div>
+
+# Retail and Transport have different risk profiles
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r industry-profile-scatter-fancy, fig.width=8.6, fig.height=4.8}
+industry_profile <- itw_all |>
+  filter(!is.na(industry_focus)) |>
+  group_by(industry_focus, year, quarter) |>
+  summarise(
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    mean_burnout = mean(bat12_total, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  mutate(year = factor(year))
+
+p4 <- ggplot(
+  industry_profile,
+  aes(
+    x = mean_burnout,
+    y = mean_k6,
+    colour = industry_focus,
+    shape = year
+  )
+) +
+  annotate(
+    "rect",
+    xmin = median(industry_profile$mean_burnout, na.rm = TRUE),
+    xmax = Inf,
+    ymin = median(industry_profile$mean_k6, na.rm = TRUE),
+    ymax = Inf,
+    fill = "#C31861",
+    alpha = .07
+  ) +
+  geom_point(size = 6, alpha = .9) +
+  geom_text(
+    aes(label = quarter),
+    vjust = -1,
+    fontface = "bold",
+    colour = "#173A59",
+    size = 3.7
+  ) +
+  scale_colour_manual(values = c("Retail" = "#C31861", "Transport" = "#00A7C8")) +
+  labs(
+    subtitle = "Each point is an industry-quarter average",
+    x = "Mean burnout",
+    y = "Mean psychological distress"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title = element_text(face = "bold", colour = "#173A59"),
+    axis.text = element_text(colour = "#16212F"),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p4
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Industry view</div>
+<div class="number">Retail risk</div>
+<div class="label">Retail tends to sit higher on distress, supporting industry-specific workplace action.</div>
+</div>
+
+</div>
+
+# Workplace domains show strengths and gaps
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r domain-strength-gap-final, fig.width=8.6, fig.height=4.8}
+domain_rank <- domain_summary |>
+  mutate(year = as.character(year)) |>
+  select(year, domain, mean_score) |>
+  pivot_wider(names_from = year, values_from = mean_score) |>
+  mutate(
+    change = `2025` - `2024`,
+    change_label = paste0(if_else(change >= 0, "+", ""), round(change, 1)),
+    domain = fct_reorder(domain, `2025`)
+  )
+
+p5 <- ggplot(domain_rank, aes(y = domain)) +
+  geom_segment(
+    aes(x = 55, xend = `2025`, yend = domain),
+    linewidth = 13,
+    colour = "#C31861",
+    alpha = .18,
+    lineend = "round"
+  ) +
+  geom_segment(
+    aes(x = `2024`, xend = `2025`, yend = domain),
+    linewidth = 3.2,
+    colour = "#173A59",
+    alpha = .35,
+    lineend = "round"
+  ) +
+  geom_point(
+    aes(x = `2024`),
+    size = 5.8,
+    colour = "#00A7C8",
+    alpha = .95
+  ) +
+  geom_point(
+    aes(x = `2025`),
+    size = 7.2,
+    colour = "#C31861",
+    alpha = .95
+  ) +
+  geom_text(
+    aes(x = `2025` + .7, label = round(`2025`, 1)),
+    colour = "#173A59",
+    fontface = "bold",
+    size = 4.2,
+    hjust = 0
+  ) +
+  geom_label(
+    aes(x = 80.5, label = change_label),
+    fill = "white",
+    colour = "#173A59",
+    fontface = "bold",
+    size = 3.7,
+    label.size = 0
+  ) +
+  annotate(
+    "text",
+    x = 56.4,
+    y = length(unique(domain_rank$domain)) + .55,
+    label = "2024",
+    colour = "#00A7C8",
+    fontface = "bold",
+    size = 4.2
+  ) +
+  annotate(
+    "text",
+    x = 60.2,
+    y = length(unique(domain_rank$domain)) + .55,
+    label = "2025",
+    colour = "#C31861",
+    fontface = "bold",
+    size = 4.2
+  ) +
+  annotate(
+    "text",
+    x = 80.5,
+    y = length(unique(domain_rank$domain)) + .55,
+    label = "change",
+    colour = "#173A59",
+    fontface = "bold",
+    size = 4.2
+  ) +
+  labs(
+    subtitle = "0–100 scale: higher scores indicate stronger workplace performance / better management",
+    x = "Mean domain score / 100",
+    y = NULL
+  ) +
+  coord_cartesian(xlim = c(55, 83), clip = "off") +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title.x = element_text(face = "bold", colour = "#173A59"),
+    axis.text.y = element_text(face = "bold", colour = "#173A59"),
+    axis.text.x = element_text(colour = "#16212F"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.margin = margin(6, 45, 2, 10)
+  )
+
+p5
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Workplace levers</div>
+<div class="number">Strengths + Gaps</div>
+<div class="label">Connectedness and Safety are stronger areas, while Capability, Work Design and Leadership show where support can be improved.</div>
+</div>
+
+</div>
+
+# Psychosocial hazards highlight workplace pressure
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r hazard-clean-heatmap, fig.width=8.6, fig.height=4.8}
+hazard_tile_data <- hazard_summary |>
+  mutate(
+    year = factor(year),
+    hazard = fct_relevel(hazard, "Management Support", "Recognition", "Workload"),
+    label = round(mean_score, 1)
+  )
+
+p6 <- ggplot(
+  hazard_tile_data,
+  aes(x = quarter, y = hazard, fill = mean_score)
+) +
+  geom_tile(colour = "white", linewidth = 1.5) +
+  geom_text(
+    aes(label = label),
+    colour = "white",
+    fontface = "bold",
+    size = 4.5
+  ) +
+  facet_wrap(~ year, nrow = 1) +
+  scale_fill_gradientn(
+    colours = c("#C31861", "#F49E22", "#17B8A6", "#00A7C8"),
+    name = "Score"
+  ) +
+  labs(
+    subtitle = "0–100 scale: higher scores indicate better management of psychosocial hazards",
+    x = NULL,
+    y = NULL
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.text.y = element_text(face = "bold", colour = "#173A59"),
+    axis.text.x = element_text(colour = "#16212F"),
+    strip.text = element_text(face = "bold", colour = "#173A59", size = 14),
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold", colour = "#173A59"),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p6
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Main message</div>
+<div class="number">Not just Workload</div>
+<div class="label">Support, recognition and leadership quality are central workplace levers.</div>
+</div>
+
+</div>
+
+# Financial distress and economic pressure
+
+<div class="phase-band">
+<p>Exploring how financial distress connects with psychological distress, living costs, age, occupation, essential costs and RBA interest rates.</p>
+</div>
+
+<div class="insight-row" style="margin-top:24px;">
+
+<div class="insight-card">
+<div class="kicker">Focus</div>
+<div class="value">Financial distress</div>
+<div class="text">How workers experience cost-of-living and money pressure.</div>
+</div>
+
+<div class="insight-card magenta">
+<div class="kicker">Groups</div>
+<div class="value">Age + occupation</div>
+<div class="text">Compare financial pressure across age and blue/white collar workers.</div>
+</div>
+
+<div class="insight-card orange">
+<div class="kicker">Context</div>
+<div class="value">LCI + RBA</div>
+<div class="text">Connect worker distress with living costs and interest rates.</div>
+</div>
+
+</div>
+
+# Financial pressure links to distress
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r financial-k6-scatter-fancy, fig.width=8.6, fig.height=4.8}
+scatter_data <- itw_all |>
+  filter(!is.na(financial_distress), !is.na(k6_score), !is.na(year)) |>
+  sample_n(size = min(3500, n())) |>
+  mutate(year = factor(year))
+
+mean_by_finance <- itw_all |>
+  filter(!is.na(financial_distress), !is.na(k6_score), !is.na(year)) |>
+  group_by(year, financial_distress) |>
+  summarise(
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  mutate(year = factor(year))
+
+p3 <- ggplot() +
+  geom_jitter(
+    data = scatter_data,
+    aes(
+      x = financial_distress,
+      y = k6_score,
+      colour = year
+    ),
+    alpha = .10,
+    size = 1.8,
+    width = .16,
+    height = .18
+  ) +
+  geom_smooth(
+    data = scatter_data,
+    aes(
+      x = financial_distress,
+      y = k6_score,
+      colour = year
+    ),
+    method = "lm",
+    se = TRUE,
+    linewidth = 1.6,
+    alpha = .18
+  ) +
+  geom_point(
+    data = mean_by_finance,
+    aes(
+      x = financial_distress,
+      y = mean_k6,
+      colour = year,
+      size = n
+    ),
+    alpha = .95
+  ) +
+  geom_line(
+    data = mean_by_finance,
+    aes(
+      x = financial_distress,
+      y = mean_k6,
+      colour = year,
+      group = year
+    ),
+    linewidth = 1.4
+  ) +
+  geom_hline(
+    yintercept = 13,
+    linetype = "dashed",
+    linewidth = 1,
+    colour = "#C31861"
+  ) +
+  annotate(
+    "label",
+    x = max(scatter_data$financial_distress, na.rm = TRUE) * .72,
+    y = 14.3,
+    label = "K6 ≥ 13 threshold",
+    fill = "#C31861",
+    colour = "white",
+    fontface = "bold",
+    size = 3.6
+  ) +
+  scale_colour_manual(values = year_cols) +
+  scale_size(range = c(4, 11), guide = "none") +
+  labs(
+    subtitle = "Faint dots are workers, large points show average K6 at each financial distress level",
+    x = "Financial distress score",
+    y = "Psychological distress score"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title = element_text(face = "bold", colour = "#173A59"),
+    axis.text = element_text(colour = "#16212F"),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p3
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Phase 2 link</div>
+<div class="number">Positive Trend</div>
+<div class="label">Higher financial distress is associated with higher psychological distress.</div>
+</div>
+
+</div>
+
+# Living costs provide economic context
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r abs-lci-financial-distress, fig.width=8.6, fig.height=4.8}
+phase2_lci_plot <- phase2_lci |>
+  mutate(
+    lci_scaled = employee_lci / 20
+  )
+
+p_lci <- ggplot(phase2_lci_plot, aes(x = quarter_full)) +
+  geom_line(
+    aes(y = mean_f10, group = 1, colour = "Financial distress"),
+    linewidth = 1.8,
+    lineend = "round"
+  ) +
+  geom_point(
+    aes(y = mean_f10, colour = "Financial distress"),
+    size = 4
+  ) +
+  geom_line(
+    aes(y = lci_scaled, group = 1, colour = "ABS Living Cost Index (scaled ÷20)"),
+    linewidth = 1.8,
+    lineend = "round"
+  ) +
+  geom_point(
+    aes(y = lci_scaled, colour = "ABS Living Cost Index (scaled ÷20)"),
+    size = 4
+  ) +
+  scale_colour_manual(
+    values = c(
+      "Financial distress" = "#1E40FF",
+      "ABS Living Cost Index (scaled ÷20)" = "#E31A1C"
+    )
+  ) +
+  labs(
+    subtitle = "Financial distress compared with ABS Employee households LCI",
+    x = "Quarter",
+    y = "Financial distress / scaled LCI",
+    colour = NULL
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title.y = element_text(face = "bold", colour = "#173A59"),
+    axis.title.x = element_text(face = "bold", colour = "#173A59"),
+    axis.text.x = element_text(face = "bold", colour = "#173A59"),
+    axis.text.y = element_text(colour = "#16212F"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p_lci
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Cost-of-living context</div>
+<div class="number">ABS LCI</div>
+<div class="label">The Employee households Living Cost Index helps interpret financial distress against broader living-cost pressure.</div>
+</div>
+
+</div>
+
+# Financial distress differs by age group
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r age-financial-heatmap, fig.width=8.6, fig.height=4.8}
+p_age <- ggplot(
+  age_financial,
+  aes(
+    x = quarter_full,
+    y = fct_rev(age_group),
+    fill = mean_f10
+  )
+) +
+  geom_tile(colour = "white", linewidth = 1.2) +
+  geom_text(
+    aes(label = round(mean_f10, 1)),
+    colour = "white",
+    fontface = "bold",
+    size = 3.6
+  ) +
+  scale_fill_gradientn(
+    colours = c("#00A7C8", "#17B8A6", "#F49E22", "#C31861"),
+    name = "Mean Financial distress"
+  ) +
+  labs(
+    subtitle = "Mean financial distress by age group and quarter",
+    x = NULL,
+    y = NULL
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.text.x = element_text(face = "bold", colour = "#173A59"),
+    axis.text.y = element_text(face = "bold", colour = "#173A59"),
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p_age
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Age profile</div>
+<div class="number">Younger Workers</div>
+<div class="label">Age categories show whether financial pressure is concentrated among younger or working-age groups.</div>
+</div>
+
+</div>
+
+# Financial pressure differs by occupation type
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r worker-financial-line, fig.width=8.6, fig.height=4.8}
+p_worker <- ggplot(
+  worker_financial,
+  aes(
+    x = quarter_full,
+    y = mean_f10,
+    colour = worker_type,
+    group = worker_type
+  )
+) +
+  geom_line(linewidth = 2.1, lineend = "round") +
+  geom_point(size = 5) +
+  geom_text(
+    aes(label = round(mean_f10, 1)),
+    vjust = -1,
+    fontface = "bold",
+    colour = "#173A59",
+    size = 3.5
+  ) +
+  scale_colour_manual(
+    values = c("Blue collar" = "#C31861", "White collar" = "#00A7C8")
+  ) +
+  labs(
+    subtitle = "Mean financial distress by occupational group",
+    x = NULL,
+    y = "Mean financial distress score"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title.y = element_text(face = "bold", colour = "#173A59"),
+    axis.text.x = element_text(face = "bold", colour = "#173A59"),
+    axis.text.y = element_text(colour = "#16212F"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p_worker
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Occupation</div>
+<div class="number">Blue vs White</div>
+<div class="label">This shows whether financial pressure differs by type of work, not just across the whole workforce.</div>
+</div>
+
+</div>
+
+
+# RBA interest rates provide economic context
+
+<div class="two-col">
+
+<div class="chart-frame">
+
+```{r rba-financial-distress, fig.width=8.6, fig.height=4.8}
+phase2_rba_long <- phase2_rba |>
+  select(quarter_full, mean_f10, cash_rate) |>
+  pivot_longer(
+    cols = c(mean_f10, cash_rate),
+    names_to = "indicator",
+    values_to = "value"
+  ) |>
+  mutate(
+    indicator = case_when(
+      indicator == "mean_f10" ~ "Financial Distress",
+      indicator == "cash_rate" ~ "RBA Cash Rate (%)"
+    )
+  )
+
+p_rba <- ggplot() +
+  geom_line(
+    data = phase2_rba_long |> filter(indicator == "Financial Distress"),
+    aes(x = quarter_full, y = value, group = indicator, colour = indicator),
+    linewidth = 1.8
+  ) +
+  geom_point(
+    data = phase2_rba_long |> filter(indicator == "Financial Distress"),
+    aes(x = quarter_full, y = value, colour = indicator),
+    size = 4
+  ) +
+  geom_line(
+    data = phase2_rba_long |> filter(indicator == "RBA Cash Rate (%)"),
+    aes(x = quarter_full, y = value, group = indicator, colour = indicator),
+    linewidth = 1.5,
+    linetype = "dashed"
+  ) +
+  geom_point(
+    data = phase2_rba_long |> filter(indicator == "RBA Cash Rate (%)"),
+    aes(x = quarter_full, y = value, colour = indicator),
+    size = 3.5
+  ) +
+  scale_colour_manual(
+    values = c(
+      "Financial Distress" = "#1E40FF",
+      "RBA Cash Rate (%)" = "#F49E22"
+    )
+  ) +
+  labs(
+    subtitle = "Comparing Workforce Sentiment with Monetary Policy",
+    x = "Quarter",
+    y = "Score",
+    colour = "Indicator"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.background = element_rect(fill = "#F7FAFC", colour = NA),
+    panel.background = element_rect(fill = "#F7FAFC", colour = NA),
+    plot.subtitle = element_text(colour = "#435469", size = 12),
+    axis.title.y = element_text(face = "bold", colour = "#173A59"),
+    axis.title.x = element_text(face = "bold", colour = "#173A59"),
+    axis.text.x = element_text(face = "bold", colour = "#173A59", angle = 45, hjust = 1),
+    axis.text.y = element_text(colour = "#16212F"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold"),
+    plot.margin = margin(6, 10, 2, 10)
+  )
+
+p_rba
+```
+
+</div>
+
+<div class="side-card">
+<div class="kicker">Macro context</div>
+<div class="number">RBA rates</div>
+<div class="label">Interest rates provide economic context for interpreting changes in workforce financial distress.</div>
+</div>
+
+</div>
+
+# Final takeaways
+
+<div class="chart-note">
+<strong>Project objective:</strong> Develop a repeatable approach to identify meaningful workforce mental health and financial distress signals across ITW survey waves, and translate those signals into practical workplace action.
+</div>
+
+<div class="insight-row">
+
+<div class="insight-card">
+<div class="kicker">When to act</div>
+<div class="value">Distress peaks around Q2</div>
+<div class="text">This helps SuperFriend identify a recurring mid-year pressure point where early support may be useful.</div>
+</div>
+
+<div class="insight-card magenta">
+<div class="kicker">Who to support</div>
+<div class="value">Risk is uneven</div>
+<div class="text">Industry, age and occupation results show that risk is not spread equally across all workers.</div>
+</div>
+
+<div class="insight-card orange">
+<div class="kicker">What to consider</div>
+<div class="value">Economic context matters</div>
+<div class="text">Financial distress should be interpreted alongside psychological distress, living costs and interest rates.</div>
+</div>
+
+</div>
+
+<div class="takeaway">
+<strong>Overall conclusion:</strong> This project developed a repeatable cross-sectional trend approach that helps SuperFriend separate meaningful workforce mental health signals from normal quarterly variation, and translate those signals into targeted workplace action.
+</div>
