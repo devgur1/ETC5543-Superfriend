@@ -38,11 +38,13 @@ The main files in this repository are:
 - `Superfriend.Rproj`
 - `data/README.md`
 
-## Data availability
+## Data availability and reproducibility
 
 Raw ITW survey data is not included in this public repository because it contains confidential survey responses.
 
-To reproduce the analysis in an approved environment, place the required ITW survey files and approved external economic indicator files in the `data/` folder using the filenames expected by `Report.qmd`.
+The final report PDF is included so that the analysis outputs can be reviewed without access to the confidential data. The source QMD files are also included so that the data preparation steps, visualisation code, statistical testing code and interpretation workflow can be inspected.
+
+To fully reproduce the analysis in an approved environment, place the required private ITW survey files and approved external economic indicator file in the `data/` folder using the filenames expected by `Report.qmd`.
 
 Expected private data files include:
 
@@ -52,15 +54,11 @@ Expected private data files include:
 
 These files are ignored by Git and should not be uploaded publicly.
 
-## Reproducibility
-
-The final report was prepared using R and Quarto. The main R packages used include tidyverse, haven, janitor, readxl, lubridate, broom, knitr and kableExtra.
-
-To render the report:
+After the required private files are available, the report can be rendered with:
 
 `quarto render Report.qmd --to pdf`
 
-To render the presentation:
+The presentation can be rendered with:
 
 `quarto render Presentation.qmd`
 
