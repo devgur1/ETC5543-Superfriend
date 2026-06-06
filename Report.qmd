@@ -1,0 +1,1656 @@
+---
+title: "Analysis of Financial and Psychological Distress in the Australian Workforce"
+subtitle: "A repeated cross-sectional analysis of ITW survey waves, workplace conditions and economic context, 2024-2025"
+author: "Dev Gur"
+date: "8 June 2026"
+
+format:
+  pdf:
+    documentclass: article
+    toc: true
+    number-sections: true
+    colorlinks: true
+    geometry:
+      - margin=1in
+    fontsize: 10pt
+    fig-pos: "H"
+    include-in-header:
+      text: |
+        \usepackage{array}
+        \usepackage{ragged2e}
+        \renewcommand{\arraystretch}{1.25}
+  html:
+    toc: true
+    number-sections: true
+    code-fold: true
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(tidyverse)
+library(haven)
+library(janitor)
+library(forcats)
+library(scales)
+library(readxl)
+library(lubridate)
+library(broom)
+library(knitr)
+library(kableExtra)
+
+options(dplyr.summarise.inform = FALSE)
+
+style_report_table <- function(x, caption = NULL, font_size = 8, widths = NULL) {
+  
+  names(x) <- stringr::str_replace_all(names(x), "_", " ")
+  
+  tab <- kable(
+    x,
+    caption = caption,
+    booktabs = TRUE,
+    escape = TRUE,
+    linesep = "",
+    align = "l"
+  )
+  
+  if (knitr::is_latex_output()) {
+    tab <- tab |>
+      kable_styling(
+        latex_options = c("hold_position"),
+        font_size = font_size,
+        full_width = FALSE,
+        position = "center"
+      )
+    
+    if (!is.null(widths)) {
+      for (i in seq_along(widths)) {
+        tab <- tab |>
+          column_spec(
+            i,
+            width = widths[i],
+            latex_valign = "m"
+          )
+      }
+    }
+  } else {
+    tab <- tab |>
+      kable_styling(
+        full_width = FALSE,
+        position = "center"
+      )
+  }
+  
+  tab
+}
+```
+
+# Abstract
+
+Workplace mental health reflects a complex interaction between individual psychological symptoms, workplace conditions and broader economic pressures. As Australian workers continue to experience changing organisational and financial conditions, there is value in monitoring whether workforce wellbeing indicators move in ways that are meaningful for planning, prevention and support. This is especially important for organisations such as SuperFriend, whose work focuses on supporting mentally healthy workplaces and helping employers understand where workplace action may be needed.
+
+This report presents a repeated cross-sectional analysis of SuperFriend's Indicators of a Thriving Workplace survey waves from 2024 and 2025. The project objective was to develop a repeatable approach that helps SuperFriend distinguish meaningful workforce wellbeing signals from normal quarter-to-quarter variation, and translate those signals into practical workplace action. In this report, a meaningful signal is interpreted as a pattern that is visible in the data, supported by statistical checks where appropriate, and useful for decision-making. This definition deliberately combines statistical and practical meaning. A pattern may be statistically interesting, but for SuperFriend it is most valuable when it can help identify when support may be needed, which groups may require attention, and what workplace or economic context should be considered.
+
+The analysis is organised around three practical questions. First, **When does workforce wellbeing risk appear to increase?** Second, **Who appears to be more affected?** Third, **What workplace and economic context helps explain the observed patterns?** The report examines psychological distress, burnout, SuperFriend workplace domains, psychosocial hazard management, financial distress, age groups, occupation type, the ABS Living Cost Index and the RBA cash rate.
+
+The methods combine descriptive visualisation, 95% confidence intervals, independent quarter comparisons with Bonferroni correction, linear trend models, chi-square tests, proportion trend tests and correlation analysis. These methods were selected because the data is repeated cross-sectional rather than longitudinal. The analysis therefore focuses on workforce-level signals across survey waves, rather than individual-level change.
+
+The results suggest that psychological distress appears elevated around Q2, some groups show higher or more variable distress than others, and financial distress is positively associated with psychological distress. Workplace domains and psychosocial hazard management scores provide practical workplace levers, while economic indicators such as living costs and interest rates provide useful context. Because the ITW data is repeated cross-sectional rather than longitudinal, the findings are interpreted as workforce-level signals and associations, not individual-level change or causal proof.
+
+# Introduction
+
+## Project context
+
+SuperFriend works to support mentally healthy workplaces in Australia. In this report, ITW refers to SuperFriend’s *Indicators of a Thriving Workplace* survey. ITW is a workforce survey that collects information about workers’ wellbeing, workplace experience, psychosocial conditions and related pressures.
+
+The ITW survey has been implemented annually by SuperFriend for the past 11 years to monitor workplace mental health and related workplace conditions across the Australian workforce. Since 2024, SuperFriend has collected ITW data quarterly through ORU, a social research organisation. This quarterly collection allows workplace mental health indicators to be tracked across the year and helps identify possible seasonal patterns. ITW is one of Australia’s major workplace mental health surveys. It captures information across all 19 ABS-defined industries and is designed to provide a national picture of workplace mental health, psychosocial conditions and related worker experiences. This makes it useful for identifying where risk may be concentrated and where workplace action may be most needed. The ITW survey and SuperFriend Domains are used in this report as the project’s main workplace mental health framework (SuperFriend, 2025).
+
+The project was motivated by a practical problem. SuperFriend needed a repeatable way to determine whether changes in ITW measures over time were meaningful and useful for action, rather than simply normal movement between survey waves. This is important because survey estimates naturally fluctuate. A graph may show movement, but an organisation needs a stronger approach for deciding whether that movement is large enough, consistent enough or relevant enough to support planning.
+
+The project therefore sits at the intersection of data analysis and workplace decision-making. From a statistical perspective, the main challenge is that the data is repeated cross-sectional rather than longitudinal. This means the same workers are not necessarily followed from one quarter to the next. From a business analytics perspective, the challenge is to turn repeated survey data into information that is clear enough to guide organisational action.
+
+A longitudinal design was not used because it would require the same participants to respond repeatedly over time. In this project context, that would place a high commitment on participants and would likely lead to substantial attrition at each time point. Instead, SuperFriend uses repeated cross-sectional survey waves, with the annual dataset designed to be representative of the national workforce across key characteristics such as state, gender, age group and the 19 ABS industry categories.
+
+Workplace mental health is not shaped by one factor alone. Psychological distress may reflect personal, workplace and economic pressures. Burnout may reflect longer-term accumulated strain. Workplace domains such as leadership, safety, connectedness, work design and capability provide information about organisational conditions. Psychosocial hazard management scores provide insight into how well workplace risks are being managed. Financial distress and external economic indicators provide broader context about the cost-of-living environment in which workers are living.
+
+Bringing these measures together makes the project more complex, but also more useful, because it allows workforce wellbeing to be interpreted as a system rather than a single score. For SuperFriend, the value of the analysis is not only in identifying whether a number has changed, but in understanding whether the change can help inform prevention, support, advocacy or future monitoring.
+
+This report therefore combines exploratory data analysis, visualisation, statistical testing and contextual interpretation. The intention is not simply to produce charts. The intention is to build a repeatable workflow that SuperFriend could reuse when new ITW waves become available. This workflow is designed to support a practical question: **What signals are emerging from the data, and how can they inform targeted workplace action?**
+
+## Project objective
+
+The objective of this project was to develop a repeatable cross-sectional trend approach that SuperFriend can apply to future ITW survey waves.
+
+The approach aimed to:
+
+- Clean and combine repeated ITW survey waves;
+- Calculate consistent mental health, workplace and financial measures;
+- Compare results across quarters, years and selected groups;
+- Use statistical checks to avoid overclaiming visual patterns;
+- Integrate financial and economic context where relevant;
+- Communicate findings in a way that supports practical workplace action.
+
+This objective reflects both an analytical and practical contribution. Analytically, the project provides a structured way to work with repeated cross-sectional survey data. Practically, it helps SuperFriend move from observing separate survey results to monitoring repeated workforce-level signals over time.
+
+## Significance of the project
+
+The significance of this project comes from the need to make repeated survey data useful for decision-making. Organisations often collect survey data over time, but without a repeatable methodology, it can be difficult to know whether apparent changes are important or simply normal variation. This is especially important in mental health and wellbeing analysis, where overclaiming can lead to misleading conclusions, while under-interpreting can cause important signals to be missed.
+
+The project contributes a practical framework for repeated ITW wave analysis. The framework is not a single predictive model. Instead, it combines data preparation, score construction, visualisation, statistical checks and cautious interpretation. This is appropriate for the project because the core problem is not only prediction, but monitoring and interpretation. The analysis needed to help SuperFriend understand when signals appear, who may be more affected, and what context may help explain the patterns.
+
+The five SuperFriend Domains provide an evidence-based framework for interpreting workplace mental health conditions. They help translate survey results into practical workplace areas such as Connectedness, Safety, Leadership, Work Design and Capability. This is important because workplace mental health action should not only focus on reducing harm, but also on strengthening protective workplace conditions.
+
+A novel feature of the project is the combination of workplace mental health indicators with broader financial and economic context. Psychological distress and burnout are analysed alongside workplace domains, psychosocial hazard management, financial distress, living costs and interest rates. This helps position workforce wellbeing as both a workplace and economic issue. It also allows the report to move beyond a narrow interpretation of mental health and consider the wider environment in which workers experience pressure.
+
+## Report storyline
+
+To improve cohesion, this report is structured around three applied questions.
+
+```{r storyline-table}
+storyline <- tibble(
+  Question = c(
+    "When does risk increase?",
+    "Who appears more affected?",
+    "What helps explain or contextualise risk?"
+  ),
+  Purpose = c(
+    "Identify timing of elevated workforce distress",
+    "Identify whether risk differs by industry, age or occupation",
+    "Connect distress patterns with workplace and economic context"
+  ),
+  `Main analyses` = c(
+    "K6, BAT-12, quarterly means, confidence intervals, trend models",
+    "Retail vs Transport, age groups, blue-collar vs white-collar workers",
+    "Domains, psychosocial hazard management, financial distress, ABS LCI, RBA cash rate"
+  )
+)
+
+style_report_table(
+  storyline,
+  caption = "Report storyline linking findings to the project objective",
+  font_size = 8,
+  widths = c("3cm", "5.2cm", "6cm")
+)
+```
+
+This structure helps link every analysis back to the same project goal: helping SuperFriend identify workforce wellbeing signals that can inform targeted action. It also avoids presenting the results as a long list of unrelated charts. Each result is interpreted in relation to one of the three applied questions.
+
+# Data and measures
+
+## Data sources
+
+The main data source was SuperFriend's ITW (Indicators of a Thriving Workplace) survey data for 2024 and 2025. Each year included quarterly survey waves. The underlying data consists of individual worker survey responses. The analysis starts from individual records, but many results are summarised by quarter, year, industry, age group or occupation group.
+
+The analysis also incorporated two external economic indicators:
+
+- ABS Employee households Living Cost Index;
+- RBA cash rate.
+
+These external indicators were aligned with the ITW survey data at the quarterly level. They are used as economic context, not as direct causal predictors. Because the ITW data contains survey responses, raw data files are not included publicly in the Git repository unless sharing has been approved.
+
+## Repeated cross-sectional design
+
+The ITW data is repeated cross-sectional, not longitudinal. This means that each quarterly wave contains worker responses, but the same workers are not necessarily followed over time. A longitudinal design was not used because it would require the same participants to respond repeatedly across time. For this project context, that would place a high commitment on participants and would likely lead to substantial attrition at each time point. Instead, SuperFriend uses repeated cross-sectional survey waves, with each annual dataset designed to remain representative of the national workforce across key characteristics such as state, gender, age group and industry.
+
+This distinction is central to the report. A longitudinal design would allow analysis of how the same workers changed across time. In contrast, a repeated cross-sectional design allows analysis of how workforce-level estimates differ across waves. This is still useful for organisational monitoring, but the interpretation is different. The results can describe population-level or workforce-level patterns across quarters, but they cannot prove that the same individual workers became more or less distressed over time.
+
+For this reason, line plots in the report connect quarterly group means for visual clarity only. They should not be interpreted as individual level trajectories. Because the ITW data is repeated cross-sectional, the report uses cautious language when interpreting results. Terms such as “appears”, “suggests”, “is associated with”, “may indicate” and “provides context” are used to emphasise that the project identifies workforce-level patterns and relationships, rather than causal effects or individual-level change.
+
+## Key measures
+
+```{r measures-table}
+measures <- tibble(
+  Measure = c(
+    "K6 psychological distress: 0–24",
+    "K6 >= 13",
+    "BAT-12 burnout: 1–5 average score",
+    "SuperFriend domains: 0–100",
+    "Psychosocial hazard management: 0–100",
+    "Financial distress: 1–10",
+    "ABS Employee households LCI",
+    "RBA cash rate"
+  ),
+  Meaning = c(
+    "Psychological distress score",
+    "Moderate-to-severe psychological distress threshold",
+    "Burnout score",
+    "Workplace conditions that support thriving",
+    "Selected indicators of how psychosocial hazards are managed",
+    "Worker financial pressure",
+    "Cost-of-living context for working households",
+    "Interest-rate context"
+  ),
+  Interpretation = c(
+    "Higher = greater psychological distress",
+    "Higher proportion = larger high-risk group",
+    "Higher = greater burnout",
+    "Higher = stronger workplace performance / better management",
+    "Higher = better management of psychosocial hazards",
+    "Higher = greater financial distress",
+    "External economic context, not causal proof",
+    "External economic context, not causal proof"
+  )
+)
+
+style_report_table(
+  measures,
+  caption = "Main measures used in the report",
+  font_size = 8,
+  widths = c("3cm", "5.2cm", "6cm")
+)
+```
+
+The key measures were selected because together they represent different parts of workforce wellbeing. K6 provides a measure of psychological distress. BAT-12 provides a measure of burnout. The SuperFriend domain scores provide information about workplace conditions that may support or weaken worker wellbeing. Psychosocial hazard management scores indicate how well selected workplace risks appear to be managed. Financial distress and external economic indicators provide context about household and macroeconomic pressure.
+
+This combination of measures is important because mental health in the workforce cannot be understood through one variable alone. For example, a rise in psychological distress may be more meaningful if it occurs alongside weaker workplace domain scores or greater financial distress. Similarly, stable burnout does not necessarily mean there is no wellbeing risk; it may suggest that burnout is slower-moving than psychological distress. The report therefore interprets these measures together rather than treating each graph as a separate result. The K6 measure is widely used as a short screening scale for non-specific psychological distress (Kessler et al., 2002). The BAT-12 measure is used in this report as a burnout indicator, with higher scores interpreted as greater burnout (SuperFriend, 2025).
+
+# Data preparation
+
+The data preparation stage combined the 2024 and 2025 ITW survey files, harmonised key variable names, created quarter and year variables, and calculated the core mental health, workplace and financial distress measures used in the report. This step was important because all later comparisons rely on consistent scoring and consistent quarterly labels.
+
+```{r data-prep}
+# ------------------------------------------------------------
+# 1. Read ITW files
+# ------------------------------------------------------------
+
+sav_files <- list.files(
+  path = "data",
+  pattern = "\\.sav$",
+  recursive = TRUE,
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+file_2024 <- sav_files[str_detect(basename(sav_files), regex("2024", ignore_case = TRUE))][1]
+file_2025 <- sav_files[str_detect(basename(sav_files), regex("2025", ignore_case = TRUE))][1]
+
+if (is.na(file_2024) | is.na(file_2025)) {
+  stop("Could not find both 2024 and 2025 .sav files in the data folder.")
+}
+
+itw_2024 <- read_sav(file_2024) |>
+  haven::zap_labels() |>
+  haven::zap_label() |>
+  clean_names() |>
+  mutate(data_year = 2024)
+
+itw_2025 <- read_sav(file_2025) |>
+  haven::zap_labels() |>
+  haven::zap_label() |>
+  clean_names() |>
+  mutate(data_year = 2025)
+
+itw_all <- bind_rows(itw_2024, itw_2025)
+
+# ------------------------------------------------------------
+# 2. Helper functions
+# ------------------------------------------------------------
+
+pick_num <- function(df, possible_names) {
+  selected_name <- possible_names[possible_names %in% names(df)][1]
+  
+  if (is.na(selected_name)) {
+    return(rep(NA_real_, nrow(df)))
+  }
+  
+  as.numeric(df[[selected_name]])
+}
+
+pick_factor <- function(df, possible_names) {
+  selected_name <- possible_names[possible_names %in% names(df)][1]
+  
+  if (is.na(selected_name)) {
+    return(rep(NA_character_, nrow(df)))
+  }
+  
+  as.character(as_factor(df[[selected_name]]))
+}
+
+score_domain <- function(df, item_names) {
+  item_names <- intersect(item_names, names(df))
+  
+  if (length(item_names) == 0) {
+    return(rep(NA_real_, nrow(df)))
+  }
+  
+  m <- rowMeans(as.data.frame(lapply(df[item_names], as.numeric)), na.rm = TRUE)
+  s <- (m - 1) * 25
+  s[is.nan(m)] <- NA_real_
+  s
+}
+
+score_hazard <- function(df, item_names) {
+  item_names <- intersect(item_names, names(df))
+  
+  if (length(item_names) == 0) {
+    return(rep(NA_real_, nrow(df)))
+  }
+  
+  m <- rowMeans(as.data.frame(lapply(df[item_names], as.numeric)), na.rm = TRUE)
+  s <- (m - 1) * 25
+  s[is.nan(m)] <- NA_real_
+  s
+}
+
+mean_ci <- function(df, variable, group_vars) {
+  df |>
+    group_by(across(all_of(group_vars))) |>
+    summarise(
+      mean = mean(.data[[variable]], na.rm = TRUE),
+      sd = sd(.data[[variable]], na.rm = TRUE),
+      n = sum(!is.na(.data[[variable]])),
+      se = sd / sqrt(n),
+      lower = mean - 1.96 * se,
+      upper = mean + 1.96 * se,
+      .groups = "drop"
+    )
+}
+
+safe_cor <- function(x, y) {
+  complete <- complete.cases(x, y)
+  if (sum(complete) < 3) {
+    return(list(estimate = NA_real_, p.value = NA_real_))
+  }
+  cor.test(x[complete], y[complete])
+}
+
+# ------------------------------------------------------------
+# 3. Core variables
+# ------------------------------------------------------------
+
+year_raw <- pick_num(itw_all, c("year"))
+wave_raw <- pick_num(itw_all, c("wave", "quarter", "timepoint"))
+
+itw_all <- itw_all |>
+  mutate(
+    year = if_else(is.na(year_raw), as.integer(data_year), as.integer(year_raw)),
+    wave = as.integer(wave_raw),
+    quarter = factor(
+      paste0("Q", wave),
+      levels = c("Q1", "Q2", "Q3", "Q4"),
+      ordered = TRUE
+    )
+  )
+
+quarter_order <- c(
+  "2024 Q1", "2024 Q2", "2024 Q3", "2024 Q4",
+  "2025 Q1", "2025 Q2", "2025 Q3", "2025 Q4"
+)
+
+itw_all <- itw_all |>
+  mutate(
+    quarter_full = factor(
+      paste(year, quarter),
+      levels = quarter_order,
+      ordered = TRUE
+    ),
+    time_index = as.numeric(quarter_full),
+    
+    k6_score = pick_num(cur_data(), c("k6score", "k6_score", "k6_total")),
+    bat12_total = pick_num(cur_data(), c("bat12_total", "bat_12_total", "burnout")),
+    financial_distress = pick_num(cur_data(), c("f10_1", "financial_distress")),
+    
+    age_code = pick_num(cur_data(), c("age")),
+    age_group = case_when(
+      age_code == 1 ~ "18 to 24 years",
+      age_code == 2 ~ "25 to 34 years",
+      age_code == 3 ~ "35 to 44 years",
+      age_code == 4 ~ "45 to 54 years",
+      age_code == 5 ~ "55 to 64 years",
+      age_code == 6 ~ "65+ years",
+      TRUE ~ NA_character_
+    ),
+    age_group = factor(
+      age_group,
+      levels = c(
+        "18 to 24 years",
+        "25 to 34 years",
+        "35 to 44 years",
+        "45 to 54 years",
+        "55 to 64 years",
+        "65+ years"
+      ),
+      ordered = TRUE
+    ),
+    
+    industry_number = pick_num(cur_data(), c("a6", "industry")),
+    industry_label = if ("a6" %in% names(itw_all)) {
+      as.character(as_factor(a6))
+    } else {
+      as.character(industry_number)
+    },
+    
+    industry_focus = case_when(
+      industry_number == 7 ~ "Retail",
+      industry_number == 9 ~ "Transport",
+      str_detect(industry_label, regex("retail", ignore_case = TRUE)) ~ "Retail",
+      str_detect(industry_label, regex("transport", ignore_case = TRUE)) ~ "Transport",
+      TRUE ~ NA_character_
+    ),
+    
+    worker_code = pick_num(cur_data(), c("a18")),
+    worker_type = case_when(
+      worker_code == 2 ~ "Blue collar",
+      worker_code == 1 ~ "White collar",
+      TRUE ~ NA_character_
+    ),
+    
+    k6_high = if_else(k6_score >= 13, 1, 0, missing = NA_real_)
+  )
+
+# ------------------------------------------------------------
+# 4. SuperFriend domain scores
+# ------------------------------------------------------------
+
+connectedness_items <- paste0("b1_", 1:10)
+leadership_items <- paste0("b2_", 1:10)
+
+safety_items <- c(
+  "b3x1_1",
+  paste0("b3x2_", 1:3),
+  paste0("b3x3_", 1:3),
+  paste0("b3x4_", 1:3)
+)
+
+work_design_items <- c(
+  paste0("b4x1_", 1:3),
+  paste0("b4x2_", 1:4),
+  paste0("b4x3_", 1:3)
+)
+
+capability_items <- paste0("b5_", 1:7)
+
+itw_all <- itw_all |>
+  mutate(
+    Connectedness = score_domain(cur_data(), connectedness_items),
+    Leadership = score_domain(cur_data(), leadership_items),
+    Safety = score_domain(cur_data(), safety_items),
+    Work_Design = score_domain(cur_data(), work_design_items),
+    Capability = score_domain(cur_data(), capability_items)
+  )
+
+# ------------------------------------------------------------
+# 5. Psychosocial hazard management scores
+# ------------------------------------------------------------
+
+management_support_items <- c("b2_1", "b2_2", "b2_3", "b2_4", "b2_5")
+recognition_items <- c("b2_6", "b2_7", "b2_8", "b2_9", "b2_10")
+workload_items <- c("b4x1_1", "b4x1_2", "b4x1_3")
+
+itw_all <- itw_all |>
+  mutate(
+    Management_Support = score_hazard(cur_data(), management_support_items),
+    Recognition = score_hazard(cur_data(), recognition_items),
+    Workload = score_hazard(cur_data(), workload_items)
+  )
+
+# ------------------------------------------------------------
+# 6. Summary datasets
+# ------------------------------------------------------------
+
+k6_national <- mean_ci(itw_all, "k6_score", c("year", "quarter"))
+
+burnout_national <- mean_ci(itw_all, "bat12_total", c("year", "quarter"))
+
+industry_k6 <- itw_all |>
+  filter(!is.na(industry_focus)) |>
+  mean_ci("k6_score", c("industry_focus", "year", "quarter"))
+
+industry_burnout <- itw_all |>
+  filter(!is.na(industry_focus)) |>
+  mean_ci("bat12_total", c("industry_focus", "year", "quarter"))
+
+domain_summary <- itw_all |>
+  select(year, quarter, quarter_full, Connectedness, Leadership, Safety, Work_Design, Capability) |>
+  pivot_longer(
+    cols = c(Connectedness, Leadership, Safety, Work_Design, Capability),
+    names_to = "domain",
+    values_to = "score"
+  ) |>
+  mutate(domain = str_replace_all(domain, "_", " ")) |>
+  group_by(year, quarter, domain) |>
+  summarise(
+    mean_score = mean(score, na.rm = TRUE),
+    sd = sd(score, na.rm = TRUE),
+    n = sum(!is.na(score)),
+    se = sd / sqrt(n),
+    lower = mean_score - 1.96 * se,
+    upper = mean_score + 1.96 * se,
+    .groups = "drop"
+  )
+
+hazard_summary <- itw_all |>
+  select(year, quarter, quarter_full, Management_Support, Recognition, Workload) |>
+  pivot_longer(
+    cols = c(Management_Support, Recognition, Workload),
+    names_to = "hazard",
+    values_to = "score"
+  ) |>
+  mutate(hazard = str_replace_all(hazard, "_", " ")) |>
+  group_by(year, quarter, hazard) |>
+  summarise(
+    mean_score = mean(score, na.rm = TRUE),
+    sd = sd(score, na.rm = TRUE),
+    n = sum(!is.na(score)),
+    se = sd / sqrt(n),
+    lower = mean_score - 1.96 * se,
+    upper = mean_score + 1.96 * se,
+    .groups = "drop"
+  )
+
+phase2_financial <- itw_all |>
+  group_by(quarter_full) |>
+  summarise(
+    mean_f10 = mean(financial_distress, na.rm = TRUE),
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    high_f10_pct = mean(financial_distress >= 8, na.rm = TRUE) * 100,
+    n = sum(!is.na(financial_distress)),
+    .groups = "drop"
+  )
+
+age_financial <- itw_all |>
+  filter(!is.na(age_group), !is.na(financial_distress)) |>
+  group_by(quarter_full, age_group) |>
+  summarise(
+    mean_f10 = mean(financial_distress, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+worker_financial <- itw_all |>
+  filter(!is.na(worker_type), !is.na(financial_distress)) |>
+  group_by(quarter_full, worker_type) |>
+  summarise(
+    mean_f10 = mean(financial_distress, na.rm = TRUE),
+    mean_k6 = mean(k6_score, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+year_cols <- c("2024" = "#1E40FF", "2025" = "#E31A1C")
+```
+
+The final prepared dataset contains standardised quarter labels, mental health measures, financial distress variables, workplace domain scores, psychosocial hazard management scores and selected grouping variables. These prepared variables are used throughout the results sections.
+
+The main data-processing contribution was the creation of a consistent analysis-ready dataset from repeated survey files. This required harmonising variable names, checking that key measures were comparable across years, creating quarter identifiers, calculating derived scores and preparing grouped summaries for visualisation and statistical testing. This work is important because repeated wave analysis depends on consistency. If quarters, scores or group labels are not created consistently, later comparisons may reflect data-processing differences rather than meaningful workforce patterns.
+
+# Methodology
+
+## Exploratory data analysis and visualisation
+
+After the ITW files were cleaned, harmonised and converted into an analysis-ready dataset, exploratory data analysis (EDA) was used as the first analytical stage of the project. The purpose of EDA was to understand the structure of the prepared data, identify early patterns across survey waves, compare key workforce groups, and decide which variables required further statistical checking.
+
+In this report, data preparation and EDA are treated as separate stages. Data preparation involved combining the 2024 and 2025 files, standardising quarter labels, constructing key measures, and creating analysis variables. EDA then used the prepared dataset to explore patterns in psychological distress, burnout, financial distress, workplace domains and psychosocial hazard management.
+
+Visualisation was central to the EDA stage because the project aimed to identify workforce-level signals over time. Different graph types were used for different analytical questions. Line charts with confidence intervals were used to compare quarterly averages, violin plots were used to show the spread of psychological distress and identify the high-distress tail, heatmaps were used to compare financial distress across groups and quarters, and scatterplots were used to examine the association between financial distress and psychological distress.
+
+The visual design was chosen to support interpretation rather than decoration. For example, quarterly line plots made it easier to compare 2024 and 2025 patterns, while confidence intervals helped show uncertainty around the estimates. Violin plots were useful because average K6 scores alone could hide whether a smaller group of workers was experiencing much higher distress. Heatmaps were useful for identifying whether financial distress was concentrated in particular age groups or time periods. Scatterplots helped connect psychological distress outcomes with financial distress and broader economic context.
+
+Because the ITW data is repeated cross-sectional, the visualisations were interpreted carefully. The lines in the time-series style plots connect quarterly group means for visual clarity only. They do not show the same individual workers being followed over time. This is a key methodological caveat. Therefore, the report avoids language such as “workers became more distressed” and instead uses wording such as “average distress appears higher in this wave” or “the workforce-level estimate appears elevated.”
+
+Overall, EDA helped shape the rest of the analysis. It identified the main patterns to investigate, guided which subgroup comparisons were most useful, and provided the basis for later statistical checks such as confidence intervals, independent quarter comparisons, trend models and threshold tests.
+
+
+## Statistical testing
+
+Statistical testing was used to support the visual analysis and reduce the risk of overclaiming. The tests were selected to match the type of question being asked.
+
+```{r statistical-tests}
+# ------------------------------------------------------------
+# 1. Independent quarter comparisons with Bonferroni correction
+# ------------------------------------------------------------
+
+run_quarter_comparisons <- function(df, outcome) {
+  
+  df2 <- df |>
+    select(quarter, all_of(outcome)) |>
+    drop_na()
+  
+  if (n_distinct(df2$quarter) < 2) {
+    return(tibble())
+  }
+  
+  means_tbl <- df2 |>
+    group_by(quarter) |>
+    summarise(mean_value = mean(.data[[outcome]], na.rm = TRUE), .groups = "drop")
+  
+  pairwise.t.test(
+    x = df2[[outcome]],
+    g = df2$quarter,
+    p.adjust.method = "none"
+  ) |>
+    broom::tidy() |>
+    rowwise() |>
+    mutate(
+      estimate = means_tbl$mean_value[means_tbl$quarter == group2] -
+        means_tbl$mean_value[means_tbl$quarter == group1],
+      outcome = outcome
+    ) |>
+    ungroup()
+}
+
+outcomes <- c(
+  "k6_score", "bat12_total",
+  "Connectedness", "Leadership", "Safety", "Work_Design", "Capability",
+  "Management_Support", "Recognition", "Workload"
+)
+
+quarter_tests <- bind_rows(
+  lapply(c(2024, 2025), function(yr) {
+    bind_rows(
+      lapply(outcomes, function(out) {
+        run_quarter_comparisons(
+          filter(itw_all, year == yr),
+          out
+        ) |>
+          mutate(year = yr)
+      })
+    )
+  })
+) |>
+  group_by(year, outcome) |>
+  mutate(
+    p_adj = p.adjust(p.value, method = "bonferroni"),
+    significant = p_adj < 0.05
+  ) |>
+  ungroup()
+
+# ------------------------------------------------------------
+# 2. Linear trend models across eight waves
+# ------------------------------------------------------------
+
+run_trend_model <- function(df, outcome) {
+  lm(as.formula(paste(outcome, "~ time_index")), data = df) |>
+    tidy() |>
+    filter(term == "time_index") |>
+    mutate(outcome = outcome)
+}
+
+trend_results <- bind_rows(
+  lapply(outcomes, function(out) {
+    run_trend_model(itw_all, out)
+  })
+)
+
+# ------------------------------------------------------------
+# 3. K6 >= 13 threshold tests
+# ------------------------------------------------------------
+
+k6_threshold_tests <- itw_all |>
+  filter(!is.na(k6_high), !is.na(quarter_full)) |>
+  summarise(
+    chisq_p = chisq.test(table(quarter_full, k6_high))$p.value,
+    trend_p = {
+      tbl <- table(quarter_full, k6_high)
+      if ("1" %in% colnames(tbl)) {
+        prop.trend.test(tbl[, "1"], rowSums(tbl))$p.value
+      } else {
+        NA_real_
+      }
+    }
+  )
+
+industry_threshold_tests <- itw_all |>
+  filter(!is.na(industry_focus), !is.na(k6_high), !is.na(quarter_full)) |>
+  group_by(industry_focus) |>
+  summarise(
+    chisq_p = chisq.test(table(quarter_full, k6_high))$p.value,
+    trend_p = {
+      tbl <- table(quarter_full, k6_high)
+      if ("1" %in% colnames(tbl)) {
+        prop.trend.test(tbl[, "1"], rowSums(tbl))$p.value
+      } else {
+        NA_real_
+      }
+    },
+    .groups = "drop"
+  )
+```
+
+```{r test-summary-table}
+test_summary <- tibble(
+  Method = c(
+    "Independent quarter comparisons",
+    "Bonferroni correction",
+    "Linear trend models",
+    "Chi-square test",
+    "Proportion trend test",
+    "Pearson correlation"
+  ),
+  Purpose = c(
+    "Compare mean scores between quarters",
+    "Reduce false positives from many quarter comparisons",
+    "Assess whether outcomes increased or decreased across waves",
+    "Test whether the high-distress group changed across waves",
+    "Test whether the high-distress proportion showed a directional pattern",
+    "Explore associations between financial distress, psychological distress and economic indicators"
+  ),
+  Interpretation = c(
+    "Used for quarter-level differences, not paired individual change",
+    "Makes inference more conservative",
+    "Tests direction of workforce-level change",
+    "Used for distress >= 13 threshold analysis",
+    "Used for ordered high-risk proportion analysis",
+    "Association only, not causation"
+  )
+)
+
+style_report_table(
+  test_summary,
+  caption = "Statistical tests used and why",
+  font_size = 8,
+  widths = c("3.4cm", "6cm", "5.2cm")
+)
+```
+
+The quarter comparisons are described as independent comparisons because the same individuals were not followed over time. This is an important correction because paired tests would only be appropriate if the same participants were measured repeatedly. In this project, each wave is treated as a separate cross-sectional sample.
+
+Bonferroni correction was used because multiple comparisons can increase the chance of false positive findings. Linear regression models were used to assess gradual workforce-level trends across waves. Chi-square and proportion trend tests were used for the K6 >= 13 threshold analysis. Correlations were used to examine relationships between financial distress, psychological distress and external economic indicators.
+
+The statistical tests were not intended to replace visual interpretation. Instead, they were used as checks. Visualisations help identify patterns, while the tests help assess whether those patterns are likely to be more than ordinary quarter-to-quarter variation. This combination was useful because the project required both statistical caution and practical communication.
+
+## Robustness and interpretation checks
+
+Several checks were used to reduce the risk of over-interpreting visual patterns. First, 95% confidence intervals were included for key quarterly mean estimates to show uncertainty around the averages. Second, independent quarter comparisons were adjusted using Bonferroni correction to reduce the risk of false positive findings from multiple testing. Third, linear trend models were used alongside visualisations to assess whether patterns showed a directional workforce-level trend across waves. Finally, K6 >= 13 was analysed separately to check whether patterns were also visible in the higher-risk distress group, not only in average scores.
+
+These checks do not remove the limitations of repeated cross-sectional data. However, they make the interpretation more cautious and help distinguish stronger workforce-level signals from normal quarter-to-quarter variation. The report therefore treats the findings as signals for monitoring and decision-making, rather than as definitive proof of cause and effect.
+
+## Methodological contribution and skills developed
+
+A key contribution of this project was the development of a repeatable workflow for analysing repeated ITW survey waves. The work required combining data cleaning, variable harmonisation, score construction, visualisation, statistical testing and cautious interpretation into one coherent process. This was methodologically important because the data was repeated cross-sectional rather than longitudinal, meaning that the analysis had to focus on workforce-level signals rather than individual-level change.
+
+The project also involved several technical challenges. The 2024 and 2025 files needed to be harmonised so that variables were comparable across years. Workplace domain and psychosocial hazard scores had to be calculated consistently. External economic indicators such as the ABS Living Cost Index and RBA cash rate had to be aligned to quarterly survey waves. Another challenge was communicating the results clearly without overclaiming causation.
+
+Through this work, I strengthened skills in data cleaning, survey data analysis, score construction, statistical testing, visualisation and reproducible reporting in R and Quarto. The main innovation of the project is not a single model, but the creation of a practical and reusable analytical framework that SuperFriend can apply to future ITW waves.
+
+# Results: When does risk increase?
+
+## Psychological distress across quarters
+
+```{r fig-k6-national, fig.cap="Quarterly mean K6 psychological distress scores with 95% confidence intervals. Lines connect repeated cross-sectional group means for visual clarity only. Higher K6 scores indicate greater psychological distress", fig.width=7, fig.height=4.3}
+ggplot(
+  k6_national,
+  aes(x = quarter, y = mean, colour = factor(year), group = year)
+) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.8) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.1, linewidth = 0.7) +
+  scale_colour_manual(values = year_cols) +
+  labs(
+    title = "Psychological Distress (K6) - National Workforce",
+    x = "Quarter",
+    y = "Mean K6 score (0-24)",
+    colour = "Year",
+    ) +
+  theme_minimal(base_size = 12)
+```
+
+As shown in @fig-k6-national, psychological distress appears to rise around Q2, with 2024 remaining elevated into Q3 and 2025 dropping more sharply after Q2. This pattern suggests a possible mid-year pressure point in workforce wellbeing. In practical terms, Q2 may be a useful period for SuperFriend to monitor closely in future ITW waves and to consider earlier prevention or support.
+
+This result should be interpreted as a workforce-level signal rather than individual-level change. The same workers are not followed across waves, so the graph does not show individual workers becoming more distressed in Q2. Instead, it indicates that the average K6 score in the repeated cross-sectional sample appears higher around that period.
+
+The Q2 pattern is important because it answers the first guiding question of the report: **When does risk appear to increase?** If a similar pattern continues in later ITW waves, SuperFriend could use Q2 as a period for closer monitoring, targeted communication or early support. This does not mean that Q2 causes distress. Rather, Q2 may be a useful timing signal that deserves attention in future monitoring.
+
+The confidence intervals are also important. They remind the reader that the plotted means are estimates from survey samples. If intervals are wide or overlapping, differences should be interpreted more cautiously. Including uncertainty supports a more careful interpretation and helps avoid relying only on the visual appearance of the line.
+
+The statistical checks in Appendix A provide additional support for interpreting this pattern as a workforce-level timing signal. However, because the data is repeated cross-sectional, these checks should be read as evidence of differences between survey waves, not as proof that the same workers changed over time.
+
+## Distribution of psychological distress
+
+```{r fig-k6-distribution, fig.cap="Distribution of K6 psychological distress scores by quarter and year. The dashed line shows K6 >= 13, the moderate-to-severe psychological distress threshold. Higher values indicate greater psychological distress", fig.width=7, fig.height=4.4}
+violin_data <- itw_all |>
+  filter(!is.na(k6_score), !is.na(quarter), !is.na(year)) |>
+  mutate(year = factor(year))
+
+ggplot(
+  violin_data,
+  aes(x = quarter, y = k6_score, fill = year)
+) +
+  geom_violin(
+    position = position_dodge(width = 0.82),
+    alpha = 0.5,
+    trim = TRUE,
+    colour = NA
+  ) +
+  geom_boxplot(
+    position = position_dodge(width = 0.82),
+    width = 0.13,
+    outlier.alpha = 0.05,
+    colour = "grey25"
+  ) +
+  geom_hline(
+    yintercept = 13,
+    linetype = "dashed",
+    linewidth = 0.8,
+    colour = "#C31861"
+  ) +
+  scale_fill_manual(values = year_cols) +
+  labs(
+    title = "Distribution of Psychological Distress by Quarter",
+    x = "Quarter",
+    y = "K6 psychological distress score (0-24)",
+    fill = "Year",
+    ) +
+  theme_minimal(base_size = 12)
+```
+
+As shown in @fig-k6-distribution, the distribution plot adds detail beyond the average. It shows where most workers are concentrated and whether there is a high-distress tail. This is important because average scores can hide smaller groups of workers who report much higher distress.
+
+The K6 >= 13 threshold highlights workers reporting moderate-to-severe psychological distress. This makes the analysis more actionable because it allows SuperFriend to examine not only the average level of distress, but also whether the higher-risk group appears to change across waves.
+
+This plot also helps explain why both mean trends and distributional views are needed. A mean can increase because the whole distribution shifts upward, or because a smaller group of workers experiences much higher distress. These two situations have different practical implications. A broad upward shift may suggest general workforce pressure, while an expanding high-distress tail may suggest the need for targeted support for a higher-risk group.
+
+For SuperFriend, this distinction matters because workplace action may need to address both population-level and targeted needs. General wellbeing resources may be useful when average distress rises across the workforce. More intensive support may be needed when the group above the K6 threshold becomes larger or more concentrated in particular industries or demographic groups.
+
+The K6 threshold tests in Appendix A provide additional statistical context for the higher-risk group. These tests are useful because they examine whether the proportion of workers above the K6 >= 13 threshold changes across waves, rather than only focusing on changes in average distress.
+
+## Burnout across quarters
+
+```{r fig-burnout-national, fig.cap="Quarterly mean BAT-12 burnout scores with 95% confidence intervals. Lines connect group means for visual clarity only. Higher BAT-12 scores indicate greater burnout", fig.width=7, fig.height=4.3}
+ggplot(
+  burnout_national,
+  aes(x = quarter, y = mean, colour = factor(year), group = year)
+) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.8) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.1, linewidth = 0.7) +
+  scale_colour_manual(values = year_cols) +
+  labs(
+    title = "Burnout (BAT-12) - National Workforce",
+    x = "Quarter",
+    y = "Mean BAT-12 score (1-5)",
+    colour = "Year"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+Burnout appears more stable than psychological distress. This is useful because K6 and BAT-12 capture related but different aspects of worker wellbeing. K6 can reflect sharper psychological distress patterns, while burnout often reflects more accumulated work-related strain.
+The burnout scale shows smaller absolute movement than K6, so the pattern should be interpreted as relative stability rather than a large change in burnout.
+
+The relative stability of burnout does not mean burnout is unimportant. Rather, it suggests that burnout may change more slowly than psychological distress and may require ongoing monitoring across several survey waves. This distinction is useful for SuperFriend because it shows why multiple wellbeing measures are needed. If only K6 was analysed, the project may overemphasise sharper short-term distress. If only burnout was analysed, the project may miss more immediate psychological pressure.
+
+Burnout also provides an important comparison point for the Q2 distress signal. If psychological distress moves more sharply while burnout remains more stable, this may suggest that distress is responding to shorter-term pressures, while burnout reflects a more persistent background level of work-related strain. This interpretation remains cautious, but it is useful for planning because acute distress and accumulated burnout may require different types of workplace responses.
+
+# Results: Who appears more affected?
+
+## Why Retail and Transport were selected
+
+Retail and Transport were selected as focus industries because they represent different work environments and provide a useful comparison for examining whether workforce wellbeing signals are industry-specific rather than only national-level patterns.
+
+Retail work is often customer-facing and may involve seasonal demand, roster variability, staffing challenges, customer pressure and exposure to difficult interactions with the public. These conditions can shape how workers experience psychological distress, burnout and financial pressure. Transport work has a different risk profile, often involving operational pressure, scheduling demands, fatigue, time pressure and less flexible working conditions.
+
+Comparing Retail and Transport therefore helps test whether national workforce averages hide different industry risk profiles. This is important because workplace mental health risk is unlikely to be distributed evenly across all industries. A national average can provide a useful overall picture, but it may hide more specific patterns that are important for targeted action.
+
+The purpose of this comparison is not to claim that one industry is universally worse than another. Instead, the aim is to examine whether the pattern of distress, burnout and financial pressure differs across work contexts. If Retail and Transport show different patterns, this suggests that workplace mental health support may need to be tailored by industry context rather than applied in exactly the same way across all sectors.
+
+These explanations are used as contextual interpretation only. The quarterly ITW data cannot prove that a specific event such as Christmas, Easter or a particular week caused distress. However, industry context is still useful for interpreting why some workforce groups may show higher or more variable wellbeing risk across survey waves.
+
+## Retail and Transport: psychological distress
+
+```{r fig-retail-transport-k6, fig.cap="K6 psychological distress in Retail and Transport. Error bars show 95% confidence intervals.", fig.width=7, fig.height=4.4}
+ggplot(
+  industry_k6,
+  aes(x = quarter, y = mean, colour = factor(year), group = year)
+) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.6) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.1) +
+  facet_wrap(~ industry_focus) +
+  scale_colour_manual(values = year_cols) +
+  labs(
+    title = "Psychological Distress: Retail vs Transport",
+    x = "Quarter",
+    y = "Mean K6 score",
+    colour = "Year"
+    ) +
+  theme_minimal(base_size = 12)
+```
+
+Retail appears to show more variation in psychological distress than Transport. In particular, Retail shows a clearer rise around Q2, while Transport appears comparatively more stable across quarters.
+
+This suggests that industry-level context matters. However, the result should not be interpreted as proof that Retail work directly caused distress. A more cautious interpretation is that Retail may have a different risk profile and may require more targeted monitoring or support.
+
+This result links directly to the second guiding question: **Who appears more affected?** A national average can hide differences between industries. If Retail shows greater variation, SuperFriend may need to consider whether support messages, employer guidance or workplace interventions should be tailored to customer-facing sectors. This does not mean that Transport is free from risk. Rather, the evidence shown here suggests that the pattern in Transport appears more stable over the quarters examined.
+
+The graph also demonstrates why confidence intervals are important in subgroup analysis. Industry-level estimates may be less precise than national estimates because subgroup sample sizes are usually smaller. The visual comparison should therefore be interpreted together with uncertainty and the threshold tests presented later.
+
+## Retail and Transport: burnout
+
+```{r fig-retail-transport-burnout, fig.cap="BAT-12 burnout in Retail and Transport. Error bars show 95% confidence intervals.", fig.width=7, fig.height=4.4}
+ggplot(
+  industry_burnout,
+  aes(x = quarter, y = mean, colour = factor(year), group = year)
+) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.6) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.1) +
+  facet_wrap(~ industry_focus) +
+  scale_colour_manual(values = year_cols) +
+  labs(
+    title = "Burnout: Retail vs Transport",
+    x = "Quarter",
+    y = "Mean BAT-12 score",
+    colour = "Year"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+The burnout comparison provides a second view of worker wellbeing. It helps distinguish acute psychological distress from more accumulated work-related strain. Retail appears to show somewhat greater variability, while Transport appears more stable.
+
+This supports the broader finding that worker wellbeing should not be treated as uniform across industries. Different industries may need different forms of support. For example, if Retail shows both distress and burnout variability, interventions may need to address both immediate pressure and longer-term work design or management practices.
+
+Burnout by industry also helps answer a question that can arise from looking only at K6: are industry differences limited to psychological distress, or are they also visible in work-related strain? By including both K6 and BAT-12, the report gives a more balanced view of worker wellbeing. This avoids relying on a single measure and supports a more nuanced interpretation.
+
+## High psychological distress by industry
+
+```{r fig-high-k6-industry, fig.cap="Percentage of workers with K6 >= 13 in Retail and Transport. K6 >= 13 is used as a moderate-to-severe psychological distress threshold.", fig.width=7, fig.height=4.4}
+high_k6_industry <- itw_all |>
+  filter(!is.na(industry_focus), !is.na(k6_high)) |>
+  group_by(industry_focus, year, quarter) |>
+  summarise(
+    high_k6_pct = mean(k6_high == 1, na.rm = TRUE) * 100,
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(
+  high_k6_industry,
+  aes(x = quarter, y = high_k6_pct, colour = factor(year), group = year)
+) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.6) +
+  facet_wrap(~ industry_focus) +
+  scale_colour_manual(values = year_cols) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    title = "Moderate-to-Severe Psychological Distress by Industry",
+    x = "Quarter",
+    y = "Workers with K6 >= 13",
+    colour = "Year"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+The threshold analysis focuses on the higher-risk group rather than only average distress. This is important because a small change in the average may still mask a meaningful change in the proportion of workers above the distress threshold.
+
+```{r threshold-tests-table}
+style_report_table(
+  industry_threshold_tests |>
+    mutate(across(where(is.numeric), ~ round(.x, 4))),
+  caption = "Industry-level K6 >= 13 chi-square and proportion trend tests",
+  font_size = 8
+)
+```
+
+The industry threshold tests provide statistical support for examining whether the proportion of workers above the K6 threshold differs across waves. These results should be interpreted alongside sample size, confidence intervals and the repeated cross-sectional design.
+
+For Retail, the chi-square result suggests that the proportion of workers above the K6 >= 13 threshold varies across waves. However, the trend test is not clearly significant, so the evidence points more to quarter-to-quarter variation than to a simple upward or downward trend. For Transport, the threshold pattern appears less strong. This supports a cautious interpretation: Retail may have a more variable high-distress profile, but the result should be monitored across future waves before making strong claims.
+
+This analysis strengthens the practical value of the industry comparison. Means are useful for understanding overall levels, but threshold proportions are useful for understanding higher-risk groups. If the proportion above K6 >= 13 changes across waves, this may indicate that a larger share of workers is experiencing moderate-to-severe psychological distress. For SuperFriend, this is especially relevant because the higher-risk group may require more targeted support.
+
+## Financial distress by age group
+
+```{r fig-age-financial, fig.cap="Mean financial distress by age group and quarter. Financial distress is measured on a 1-10 scale. Higher values indicate greater financial distress.", fig.width=7.5, fig.height=4.8}
+ggplot(
+  age_financial,
+  aes(x = quarter_full, y = fct_rev(age_group), fill = mean_f10)
+) +
+  geom_tile(colour = "white", linewidth = 0.8) +
+  geom_text(aes(label = round(mean_f10, 1)), colour = "white", fontface = "bold", size = 3) +
+  scale_fill_gradientn(
+    colours = c("#00A7C8", "#17B8A6", "#F49E22", "#C31861"),
+    name = "Mean financial distress"
+  ) +
+  labs(
+    title = "Financial Distress by Age Group",
+    x = "Quarter",
+    y = "Age group"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The age-based analysis provides insight into whether financial distress is evenly distributed across the workforce. Younger and working-age groups appear to show higher or more variable financial distress than older groups. This may reflect greater exposure to housing costs, debt, rent, early-career financial commitments or household expenses.
+
+This finding supports targeted support rather than a one-size-fits-all approach. It also shows why the financial distress analysis is useful for SuperFriend's broader mental health work: financial pressure can affect different groups in different ways.
+
+The heatmap is particularly useful because it shows both group differences and time differences at once. If one age group is consistently higher across several quarters, this may suggest a more persistent financial pressure profile. If a group changes sharply in one quarter, it may suggest a temporary or wave-specific pattern. In either case, the graph helps SuperFriend identify where more detailed investigation may be useful.
+
+This result also links financial wellbeing to workforce mental health. Financial distress may not be a workplace condition in the narrow sense, but it can affect workers' stress, attention, wellbeing and need for support. For that reason, financial distress is relevant to SuperFriend's broader goal of supporting mentally healthy workplaces.
+
+## Financial distress by occupation type
+
+```{r fig-worker-financial, fig.cap="Mean financial distress by occupation type. Lines connect repeated cross-sectional group means for visual clarity", fig.width=7, fig.height=4.3}
+ggplot(
+  worker_financial,
+  aes(x = quarter_full, y = mean_f10, colour = worker_type, group = worker_type)
+) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.6) +
+  scale_colour_manual(
+    values = c(
+      "Blue collar" = "#1E40FF",
+      "White collar" = "grey45"
+    )
+  ) +
+  labs(
+    title = "Financial Distress by Occupation Type",
+    x = "Quarter",
+    y = "Mean financial distress (1-10)",
+    colour = "Worker type"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Occupation type provides another way to examine whether financial pressure is evenly distributed. Blue collar workers are shown in blue to make the graph easier to interpret. The results suggest that financial distress may differ by type of work, although the size and stability of this difference should be interpreted carefully.
+
+This comparison is useful because job type can shape exposure to financial pressure. For example, workers may differ in income stability, hours, flexibility, bargaining power, access to paid leave and ability to absorb cost changes. The analysis does not directly test these mechanisms, but it shows why occupation type is a relevant grouping variable. The blue-collar group appears consistently higher than the white-collar group, although the size of the gap should be interpreted cautiously because the plot focuses on a narrow financial distress range.
+
+This graph also responds to the practical question of who may need support. If financial distress is higher or more variable among one occupation group, SuperFriend could consider whether financial wellbeing resources should be adapted for different worker segments. The result should be treated as a signal for further analysis rather than a final causal explanation.
+
+# Results: What workplace conditions help contextualise risk?
+
+## SuperFriend workplace domains
+
+```{r fig-domains, fig.cap="SuperFriend workplace domain scores on a 0-100 scale. Higher scores indicate stronger workplace performance or better management.", fig.width=7.5, fig.height=4.8}
+domain_plot <- domain_summary |>
+  mutate(
+    domain = fct_reorder(domain, mean_score, .fun = base::mean, na.rm = TRUE)
+  )
+
+ggplot(
+  domain_plot,
+  aes(x = quarter, y = mean_score, colour = factor(year), group = year)
+) +
+  geom_line(linewidth = 1.0) +
+  geom_point(size = 2.4) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.1) +
+  facet_wrap(~ domain, ncol = 3) +
+  scale_colour_manual(values = year_cols) +
+  labs(
+    title = "SuperFriend Domains - National Workforce",
+    subtitle = "0-100 scale: higher scores indicate stronger workplace performance / better management",
+    x = "Quarter",
+    y = "Mean domain score",
+    colour = "Year"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+The SuperFriend domains help translate mental health patterns into workplace levers. Higher domain scores indicate stronger workplace performance or better management. Lower scores suggest areas where workplace support, leadership, work design or capability may need improvement.
+
+The domain results are useful because they show which workplace conditions appear stronger and which may need more attention. Connectedness and Safety can be interpreted as relative strengths, while Capability, Work Design and Leadership provide useful areas for improvement. This helps translate the wellbeing findings into practical workplace levers rather than leaving the analysis only at the level of distress scores.
+
+The domain analysis is important because it connects wellbeing signals to potential areas of organisational action. Psychological distress identifies where workers may be under pressure; domain scores help indicate which workplace conditions may be relevant for improvement.
+
+For example, if distress appears elevated while Leadership or Work Design scores are comparatively lower, this may suggest that workplace practices should be part of the response. The analysis does not prove that domain scores cause distress, but it provides a practical way to connect worker wellbeing outcomes with workplace conditions that organisations can potentially influence.
+
+The 0–100 interpretation is important. These scores should not be read like distress scores. For K6 and financial distress, higher values mean more distress. For domains, higher values mean better workplace conditions. This difference in direction is one reason the key measures table is included early in the report. Without clear definitions, audiences may misinterpret whether a high value is good or bad.
+
+The trend model results in Appendix A provide additional statistical context for the workplace domain measures. The main purpose of @fig-domains, however, is practical interpretation: it helps identify which workplace conditions appear stronger and which may require more attention.
+
+## Psychosocial hazard management
+
+```{r fig-hazards, fig.cap="Psychosocial hazard management scores on a 0-100 scale. Higher scores indicate better management of psychosocial hazards.", fig.width=7.5, fig.height=4.3}
+hazard_plot <- hazard_summary |>
+  mutate(
+    hazard = fct_relevel(hazard, "Management Support", "Recognition", "Workload")
+  )
+
+ggplot(
+  hazard_plot,
+  aes(x = quarter, y = mean_score, colour = factor(year), group = year)
+) +
+  geom_line(linewidth = 1.0) +
+  geom_point(size = 2.4) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.1) +
+  facet_wrap(~ hazard) +
+  scale_colour_manual(values = year_cols) +
+  labs(
+    title = "Psychosocial Hazard Management - National Workforce",
+    subtitle = "0-100 scale: higher scores indicate better management of psychosocial hazards",
+    x = "Quarter",
+    y = "Mean score",
+    colour = "Year"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+The psychosocial hazard analysis shows that workplace pressure is not only about workload. Management support and recognition are relational workplace signals that can also matter for worker wellbeing.
+
+If workload remains relatively stable while management support or recognition changes, the practical implication is that organisations should monitor relational and management factors alongside task demands. This interpretation is useful for SuperFriend because it highlights areas where workplace practices may be improved.
+
+This section helps answer the third guiding question: **What workplace context helps contextualise risk?** Psychological distress and burnout describe wellbeing outcomes. Psychosocial hazard management scores help identify workplace conditions that may be relevant to those outcomes. For example, workers may experience pressure not only because of how much work they have, but also because of whether they feel supported, recognised and well managed.
+
+As with the domain scores, higher psychosocial hazard management scores indicate better management. Lower scores suggest areas where stronger workplace action may be useful. This should be clearly distinguished from K6, where higher values indicate greater distress.
+
+The trend model results in Appendix A also provide statistical context for the psychosocial hazard management measures. These results should be interpreted alongside the figure rather than in isolation, because the main value of this section is to connect wellbeing signals with workplace conditions that organisations may be able to influence.
+
+# Results: What economic context helps contextualise risk?
+
+## Prepare economic context data
+
+```{r economic-data-prep}
+# ------------------------------------------------------------
+# ABS Living Cost Index
+# ------------------------------------------------------------
+
+abs_file <- list.files(
+  path = "data",
+  pattern = "allgroupsbyhouseholds\\.xlsx$",
+  recursive = TRUE,
+  full.names = TRUE,
+  ignore.case = TRUE
+)[1]
+
+if (is.na(abs_file)) {
+  stop("Could not find allgroupsbyhouseholds.xlsx in the data folder.")
+}
+
+abs_raw <- read_excel(
+  abs_file,
+  sheet = "Data1",
+  col_names = FALSE
+) |>
+  clean_names()
+
+abs_lci <- abs_raw |>
+  slice(11:n()) |>
+  transmute(
+    date_raw = suppressWarnings(as.numeric(x1)),
+    employee_lci = suppressWarnings(as.numeric(x3))
+  ) |>
+  filter(!is.na(date_raw), !is.na(employee_lci)) |>
+  mutate(
+    date = as.Date(date_raw, origin = "1899-12-30"),
+    quarter_full = factor(
+      paste(format(date, "%Y"), paste0("Q", quarter(date))),
+      levels = quarter_order,
+      ordered = TRUE
+    )
+  ) |>
+  filter(!is.na(quarter_full)) |>
+  group_by(quarter_full) |>
+  summarise(employee_lci = mean(employee_lci, na.rm = TRUE), .groups = "drop")
+
+# ------------------------------------------------------------
+# RBA cash rate
+# ------------------------------------------------------------
+
+rba_rates <- tibble(
+  quarter_full = factor(
+    c(
+      "2024 Q1", "2024 Q2", "2024 Q3", "2024 Q4",
+      "2025 Q1", "2025 Q2", "2025 Q3", "2025 Q4"
+    ),
+    levels = quarter_order,
+    ordered = TRUE
+  ),
+  cash_rate = c(4.35, 4.35, 4.35, 4.35, 4.10, 3.85, 3.60, 3.60)
+)
+
+phase2_dataset <- phase2_financial |>
+  left_join(abs_lci, by = "quarter_full") |>
+  left_join(rba_rates, by = "quarter_full")
+
+cor_fin_k6 <- safe_cor(
+  phase2_dataset$mean_f10,
+  phase2_dataset$mean_k6
+)
+
+cor_fin_lci <- safe_cor(
+  phase2_dataset$mean_f10,
+  phase2_dataset$employee_lci
+)
+
+cor_fin_rba <- safe_cor(
+  phase2_dataset$mean_f10,
+  phase2_dataset$cash_rate
+)
+```
+
+The economic context dataset combines quarterly financial distress summaries with external economic indicators. The ABS Living Cost Index is used to represent cost-of-living context for employee households. The RBA cash rate is used to represent broader interest-rate conditions. These indicators help interpret worker financial distress, but they should not be treated as proof of causation. The ABS Living Cost Index was used as the external cost-of-living indicator, while the RBA cash rate was used as the external interest-rate indicator (Australian Bureau of Statistics, 2025; Reserve Bank of Australia, 2025).
+
+The economic indicators are included because financial distress does not occur in isolation. Workers experience financial pressure within a broader environment of living costs, interest rates, housing costs, debt repayments and household expenses. External indicators cannot explain individual worker distress on their own, but they provide useful background for interpreting why financial distress may change over time.
+
+## Financial distress and psychological distress
+
+```{r fig-financial-k6, fig.cap="Association between quarterly mean financial distress and quarterly mean psychological distress. Each point represents one quarterly workforce level summary. The line shows association, not causation.", fig.width=7, fig.height=4.4}
+ggplot(
+  phase2_dataset,
+  aes(x = mean_f10, y = mean_k6)
+) +
+  geom_point(aes(size = n), colour = "#176B3A", alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, colour = "black", linetype = "dashed") +
+  scale_size_continuous(guide = "none") +
+  labs(
+    title = "Financial Distress and Psychological Distress",
+    x = "Mean financial distress",
+    y = "Mean K6 psychological distress"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+As shown in @fig-financial-k6, the relationship between financial and psychological distress shows a positive association. Higher financial distress aligns with higher psychological distress across quarterly summaries. This finding supports the idea that workforce mental health should be interpreted alongside financial wellbeing.
+
+However, the relationship should not be interpreted causally. The analysis shows association at the quarterly workforce-summary level. It does not prove that financial distress directly caused psychological distress.
+
+The correlation results in Appendix A provide statistical support for this positive association, but the relationship remains descriptive. The number of quarterly observations is limited, so the result should be interpreted as useful contextual evidence rather than strong causal or predictive proof.
+
+This result is important because it connects the mental health and financial wellbeing parts of the analysis. Psychological distress, burnout and workplace conditions describe workforce wellbeing outcomes, while financial distress and economic context help describe the broader pressures workers may be experiencing. The positive association between financial and psychological distress supports the argument that worker wellbeing should be understood through both workplace and financial lenses, rather than as separate issues.
+
+For SuperFriend, this has practical significance. Workplace mental health strategies may benefit from recognising that financial wellbeing can be part of the broader wellbeing picture. This does not mean that employers can solve all financial stress, but it does suggest that financial pressure may be relevant when interpreting distress signals in the workforce.
+
+## Living costs and financial distress
+
+```{r fig-lci-financial, fig.cap="Financial distress compared with ABS Employee households Living Cost Index. The LCI is divided by 20 only for visual comparison.", fig.width=7, fig.height=4.4}
+phase2_lci_plot <- phase2_dataset |>
+  mutate(lci_scaled = employee_lci / 20)
+
+ggplot(phase2_lci_plot, aes(x = quarter_full)) +
+  geom_line(
+    aes(y = mean_f10, group = 1, colour = "Financial distress"),
+    linewidth = 1.1
+  ) +
+  geom_point(
+    aes(y = mean_f10, colour = "Financial distress"),
+    size = 2.8
+  ) +
+  geom_line(
+    aes(y = lci_scaled, group = 1, colour = "ABS Living Cost Index (scaled /20)"),
+    linewidth = 1.1
+  ) +
+  geom_point(
+    aes(y = lci_scaled, colour = "ABS Living Cost Index (scaled /20)"),
+    size = 2.8
+  ) +
+  scale_colour_manual(
+    values = c(
+      "Financial distress" = "#1E40FF",
+      "ABS Living Cost Index (scaled /20)" = "#E31A1C"
+    )
+  ) +
+  labs(
+    title = "Financial Distress and Living Cost Index Over Time",
+    x = "Quarter",
+    y = "Financial distress / scaled LCI",
+    colour = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The Living Cost Index increased steadily across the period, while financial distress fluctuated rather than increasing in the same steady way. This is an important result because it suggests that cost-of-living pressure is relevant context, but it does not fully explain financial distress on its own.
+
+One possible interpretation is that workers may adapt to ongoing cost pressures over time, or that other factors such as income, savings, debt, household structure, expectations and employment conditions also shape financial distress. This interpretation should remain cautious because the analysis does not directly test these mechanisms.
+
+The Living Cost Index is scaled only for visual comparison. This means the red line should not be interpreted as being on the same original scale as financial distress. The purpose of the graph is to compare broad movement over time, not to claim that the two measures are numerically equivalent.
+
+This finding is useful because it prevents an overly simple explanation. It would be tempting to assume that financial distress must rise steadily when living costs rise steadily. The data suggests a more complex pattern. Financial distress may respond to living costs, but it may also be influenced by timing, expectations, wage changes, household buffers and adaptation. For SuperFriend, this means that economic context should be considered, but not treated as a single explanation for worker financial pressure.
+
+## RBA cash rate and financial distress
+
+```{r fig-rba-financial, fig.cap="Financial distress compared with the RBA cash rate. Both are shown as raw values because they are on a similar visual scale.", fig.width=7, fig.height=4.4}
+phase2_rba_long <- phase2_dataset |>
+  select(quarter_full, mean_f10, cash_rate) |>
+  pivot_longer(
+    cols = c(mean_f10, cash_rate),
+    names_to = "indicator",
+    values_to = "value"
+  ) |>
+  mutate(
+    indicator = case_when(
+      indicator == "mean_f10" ~ "Financial distress",
+      indicator == "cash_rate" ~ "RBA cash rate (%)"
+    )
+  )
+
+ggplot(
+  phase2_rba_long,
+  aes(x = quarter_full, y = value, colour = indicator, group = indicator)
+) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.8) +
+  scale_colour_manual(
+    values = c(
+      "Financial distress" = "#1E40FF",
+      "RBA cash rate (%)" = "#F49E22"
+    )
+  ) +
+  labs(
+    title = "Financial Distress and RBA Cash Rate",
+    x = "Quarter",
+    y = "Score",
+    colour = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The RBA cash rate provides macroeconomic context for household budgets, borrowing costs and debt pressure. As interest rates began to ease in 2025, financial distress also appears to stabilise and decline slightly.
+
+This pattern is useful, but it should be interpreted carefully. It suggests that interest rates may be relevant context for understanding worker financial pressure, but the graph alone does not prove that interest rates caused the observed changes in financial distress.
+
+This graph differs from the Living Cost Index graph because the RBA cash rate and the financial distress score are shown closer to their raw values. The aim is to show whether broad changes in the interest-rate environment align with reported financial distress. Interest rates can affect workers through mortgages, rent, debt repayments and general household financial conditions. However, the analysis is still descriptive and contextual.
+
+For SuperFriend, the practical implication is that economic monitoring may help interpret changes in worker financial wellbeing. If financial distress rises during periods of high or rising interest rates, this may help explain why workers are feeling pressure. However, future analysis would be needed to separate the effect of interest rates from other factors such as wages, inflation, household type and employment conditions.
+
+## Essential costs: housing, utilities and food
+
+```{r fig-essential-costs, fig.cap="Reported ease or difficulty of meeting essential living costs across quarters.", fig.width=7.5, fig.height=4.8}
+essential_costs <- itw_all |>
+  select(quarter_full, f8_1, f8_2, f8_3) |>
+  pivot_longer(
+    cols = c(f8_1, f8_2, f8_3),
+    names_to = "category",
+    values_to = "rating"
+  ) |>
+  filter(!is.na(rating)) |>
+  mutate(
+    category = case_when(
+      category == "f8_1" ~ "Housing",
+      category == "f8_2" ~ "Utilities",
+      category == "f8_3" ~ "Food"
+    ),
+    rating_label = factor(
+      rating,
+      levels = 1:5,
+      labels = c(
+        "Very difficult",
+        "Difficult",
+        "Neutral",
+        "Easy",
+        "Very easy"
+      )
+    )
+  ) |>
+  group_by(quarter_full, category, rating_label) |>
+  summarise(count = n(), .groups = "drop") |>
+  group_by(quarter_full, category) |>
+  mutate(pct = count / sum(count)) |>
+  ungroup()
+
+ggplot(
+  essential_costs,
+  aes(x = quarter_full, y = pct, fill = rating_label)
+) +
+  geom_col(position = "fill") +
+  facet_wrap(~ category) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_fill_brewer(palette = "RdYlGn", direction = -1) +
+  labs(
+    title = "Ease of Meeting Essential Living Costs",
+    x = "Quarter",
+    y = "Percentage of workers",
+    fill = "Ease of payment"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+```
+
+Essential cost measures make financial distress more concrete. Financial distress is not only an abstract score; it reflects everyday household pressures such as housing, utilities and food. Examining these categories helps explain what financial pressure may look like in practical terms for workers.
+
+This graph is useful because it translates financial distress into practical household categories. A worker may not describe their experience in terms of an index or score, but they may experience financial pressure through difficulty paying rent, mortgage costs, electricity, gas, water or food. This makes the financial wellbeing analysis more meaningful for workplace and policy discussion.
+
+Housing, utilities and food are also useful categories because they represent essential expenses rather than discretionary spending. Difficulty paying these costs may have direct implications for stress, sleep, concentration and overall wellbeing. For SuperFriend, this strengthens the argument that financial distress should be considered as part of the broader workforce wellbeing environment.
+
+# Discussion
+
+## Summary of findings
+
+This report developed and applied a repeatable cross-sectional trend approach for identifying workforce wellbeing signals in ITW survey data. The findings can be summarised through the three guiding questions.
+
+First, psychological distress appears elevated around Q2. This suggests a possible mid-year pressure point that SuperFriend may wish to monitor in future waves. The pattern should not be interpreted as individual-level change, but it may still be useful as a workforce-level early warning signal.
+
+Second, risk appears uneven. Retail, younger workers and occupation groups show different patterns of psychological or financial distress. This supports the idea that workplace support should be targeted rather than generic. A national average may be useful for overall monitoring, but it can hide variation across groups.
+
+Third, workplace and economic context matter. SuperFriend domain scores and psychosocial hazard management indicators provide workplace levers for interpretation. Financial distress, living costs and interest rates provide broader economic context for understanding worker wellbeing.
+
+Taken together, the findings show that workforce wellbeing should be interpreted as a connected system. Psychological distress is one important outcome, but it is better understood when examined alongside burnout, workplace conditions, psychosocial hazard management and financial pressure. This integrated interpretation is more useful for SuperFriend than a set of isolated graphs.
+
+## Link back to the project objective
+
+The project objective was not simply to produce a set of graphs. The objective was to create a repeatable approach that SuperFriend could use to identify meaningful workforce wellbeing signals across ITW waves.
+
+This project contributes by showing how to:
+
+- clean and combine repeated survey waves;
+- score mental health, workplace and financial measures consistently;
+- compare workforce-level patterns across quarters;
+- use statistical checks to avoid overclaiming visual patterns;
+- interpret the results in relation to workplace action;
+- integrate external economic context without making unsupported causal claims.
+
+The approach is repeatable because it follows a clear workflow: prepare the data, define the measures, summarise by quarter and group, visualise patterns, apply statistical checks, interpret results cautiously and link findings back to practical action. This workflow can be applied to future ITW waves as new data becomes available.
+
+The value of the workflow is that it helps SuperFriend move from reactive reporting to structured monitoring. Instead of only asking what happened in one survey wave, SuperFriend can ask whether patterns are recurring, whether particular groups are more affected, and whether workplace or economic context helps explain the results.
+
+## Practical implications for SuperFriend
+
+A key implication of the analysis is that workplace mental health risk is not evenly distributed. The results suggest that timing, industry, age group, occupation type, workplace conditions and financial pressure all provide useful context. This means that a one-size-fits-all response is unlikely to be enough. A stronger approach is to use repeated survey waves to identify where risk is concentrated and then connect those signals to targeted workplace action.
+
+The findings also support a preventive approach to workplace mental health. Managing psychosocial hazards is essential, but it is only one part of the picture. Workplaces also need to build protective conditions such as strong connectedness, psychological safety, supportive leadership, effective work design and worker capability. These conditions can help reduce harm, support recovery and create environments where workers are more likely to thrive.
+
+The analysis suggests three practical uses for SuperFriend.
+
+First, SuperFriend can use the approach to monitor timing. If the Q2 distress pattern continues in future waves, Q2 may be a useful period for early support, prevention campaigns or additional workplace resources. This could help shift action earlier, before distress becomes more severe.
+
+Second, SuperFriend can use subgroup analysis to target support. Industry, age and occupation differences suggest that risk is not evenly distributed across the workforce. This means support may need to be tailored to the groups most affected. For example, customer-facing industries, younger workers or workers under greater financial pressure may require different messages or resources.
+
+Third, SuperFriend can interpret workplace wellbeing alongside broader economic context. Financial distress, living costs and interest rates do not replace workplace analysis, but they help explain the environment in which workers experience distress. This broader context may be useful for advocacy, employer guidance and future research.
+
+The practical significance of the findings is therefore not limited to one result. The broader contribution is a structured approach for turning repeated survey data into actionable insight. This aligns with the project aim of helping SuperFriend distinguish meaningful signals from normal variation.
+
+# Limitations
+
+This project has several important limitations.
+
+First, the ITW data is repeated cross-sectional rather than longitudinal. This means the analysis tracks workforce-level patterns across survey waves, but it does not follow the same individual workers over time. A longitudinal design would allow stronger conclusions about individual-level change, but it would require repeated participation from the same workers and would likely create high participant burden and attrition. The repeated cross-sectional design is therefore a practical and appropriate approach for monitoring national workforce indicators, but it means the results should be interpreted as workforce-level signals rather than individual trajectories.
+
+Second, the results show patterns and associations, not causal effects. For example, financial distress is associated with psychological distress, but the analysis does not prove that one directly caused the other. Similarly, Retail may show higher or more variable distress, but the analysis does not prove that Retail work itself caused that distress.
+
+Third, some subgroup estimates may have smaller sample sizes. This can increase uncertainty and should be considered when interpreting industry, age or occupation-level patterns. Subgroup results are useful for identifying possible differences, but they should be monitored across future waves before strong conclusions are drawn.
+
+Fourth, quarterly data cannot test specific short-term events such as Christmas week, Easter week or individual workplace incidents. These can be used as contextual explanations, but not as direct causal claims. More detailed time-specific data would be needed to test those explanations directly.
+
+Fifth, external economic indicators such as the ABS Living Cost Index and RBA cash rate are measured at the macro level, while worker distress is measured through survey responses. They provide useful economic context, but they should not be treated as individual-level predictors without further modelling.
+
+Finally, the analysis depends on the consistency and availability of variables across survey waves. If variable names, scoring methods or survey wording change in future waves, the workflow would need to be updated. This is why clear documentation and reproducible code are important outputs of the project.
+
+# Recommendations and next steps
+
+Based on this analysis, the following next steps are recommended.
+
+1. Apply the same repeatable workflow to future ITW waves to test whether the Q2 distress signal persists.
+2. Extend industry comparisons beyond Retail and Transport to determine whether other sectors show similar or different patterns.
+3. Include uncertainty intervals in key figures wherever possible.
+4. Use clear measure definitions early in future reports and presentations to reduce audience confusion.
+5. Consider future modelling that tests whether workplace domains, psychosocial hazard management and financial distress jointly explain psychological distress.
+6. Apply survey weights consistently across waves if official weighting is required by SuperFriend's methodology.
+
+A further next step would be to develop a monitoring dashboard or automated reporting script that updates the main figures and tables when new ITW data becomes available. This would make the workflow easier for SuperFriend to reuse independently. It would also improve consistency across future reporting cycles.
+
+Another useful extension would be to examine interactions between workplace conditions and financial distress. For example, future analysis could explore whether financial distress is more strongly associated with psychological distress when workplace support is low. This type of analysis could help identify whether workplace conditions buffer or intensify the relationship between financial pressure and mental health.
+
+# Conclusion
+
+This project developed a repeatable approach for analysing ITW survey waves and identifying workforce wellbeing signals across time. The analysis suggests that psychological distress may be elevated around Q2, that wellbeing and financial pressure are not evenly distributed across worker groups, and that workplace conditions and economic context should be considered together when interpreting worker distress.
+
+The findings show that SuperFriend can use repeated cross-sectional ITW data to answer practical questions about when risk appears to increase, who may be more affected, and what workplace or economic context may help explain the patterns. This is useful because it moves the analysis beyond isolated survey results and toward a structured monitoring approach.
+
+The main contribution is not only the individual findings, but the workflow itself. By combining consistent data preparation, visualisation, confidence intervals, statistical checks and cautious interpretation, the approach gives SuperFriend a practical method for monitoring future ITW waves and translating workforce-level signals into targeted workplace action.
+
+Overall, the project supports a preventive approach to workplace mental health. The analysis shows that SuperFriend can use repeated ITW survey waves not only to monitor distress and burnout, but also to identify workplace conditions that may help guide action. The value of the workflow is that it turns repeated survey data into practical signals about when risk appears to increase, who may be more affected, and which workplace or economic factors may help contextualise the pattern.
+
+# My contribution
+
+My contribution was to develop and document a repeatable analytical workflow for SuperFriend's ITW data.
+
+This included:
+
+- Cleaning and harmonising 2024 and 2025 survey files;
+- Creating consistent quarterly variables;
+- Scoring domain and psychosocial hazard measures;
+- Summarising outcomes across quarters, industries and demographic groups;
+- Integrating ABS Living Cost Index and RBA cash rate context;
+- Conducting independent quarter comparisons, trend models, threshold tests and correlation analysis;
+- Designing visualisations;
+- Interpreting results with attention to the limitations of repeated cross-sectional data.
+
+This contribution is important because it gives SuperFriend a practical method that can be reused for future survey waves. It also demonstrates the value of business analytics work that combines technical analysis with communication and stakeholder interpretation. The project required not only coding and statistical testing, but also decisions about how to explain uncertainty, how to avoid causal overclaiming, and how to connect results to organisational action.
+
+# Reproducibility
+
+The analysis was completed in R using tidyverse tools for data preparation, visualisation and reproducible reporting (R Core Team, 2025; Wickham et al., 2019).
+
+The source code and project materials for this analysis are available in the Git repository:
+<https://github.com/devgur1/ETC5543-Superfriend>
+
+The repository contains the Quarto report file, analysis scripts, figure-generation code, presentation materials and supporting documentation. These materials were organised to make the analysis transparent and reproducible where possible.
+
+The raw ITW survey data is not publicly included because it contains confidential survey responses. Instead, the repository documents the expected data structure and file locations required to reproduce the analysis in an approved environment.
+
+Reproducibility is an important part of this project because the main contribution is not only the findings, but also the repeatable workflow. The same workflow can be rerun when future ITW survey waves become available, allowing SuperFriend to monitor whether the same workforce wellbeing signals continue over time.
+
+# Generative AI acknowledgement
+
+Generative AI tools were used to support report structure, wording, editing and communication. All analysis decisions, code review, interpretation and final content responsibility remain my own. No confidential raw data was entered into generative AI tools.
+
+# References
+
+Australian Bureau of Statistics. (2025). *Living Cost Indexes, Selected Household Types, Australia*. Australian Bureau of Statistics.
+
+Kessler, R. C., Andrews, G., Colpe, L. J., Hiripi, E., Mroczek, D. K., Normand, S.-L. T., Walters, E. E., & Zaslavsky, A. M. (2002). Short screening scales to monitor population prevalences and trends in non-specific psychological distress. *Psychological Medicine, 32*(6), 959–976.
+
+R Core Team. (2025). *R: A language and environment for statistical computing*. R Foundation for Statistical Computing.
+
+Reserve Bank of Australia. (2025). *Cash Rate Target*. Reserve Bank of Australia.
+
+SuperFriend. (2025). *Indicators of a Thriving Workplace survey documentation*.
+
+Wickham, H., Averick, M., Bryan, J., Chang, W., McGowan, L. D., François, R., Grolemund, G., Hayes, A., Henry, L., Hester, J., Kuhn, M., Pedersen, T. L., Miller, E., Bache, S. M., Müller, K., Ooms, J., Robinson, D., Seidel, D. P., Spinu, V., ... Yutani, H. (2019). Welcome to the tidyverse. *Journal of Open Source Software, 4*(43), 1686.
+
+Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). “Welcome to the tidyverse.” _Journal of Open Source Software_, *4*(43), 1686. doi:10.21105/joss.01686 <https://doi.org/10.21105/joss.01686>.
+
+Wickham H, Miller E, Smith D (2023). _haven: Import and Export 'SPSS', 'Stata' and 'SAS' Files_.
+doi:10.32614/CRAN.package.haven <https://doi.org/10.32614/CRAN.package.haven>, R package version 2.5.4,
+<https://CRAN.R-project.org/package=haven>.
+
+Firke S (2024). _janitor: Simple Tools for Examining and Cleaning Dirty Data_. doi:10.32614/CRAN.package.janitor <https://doi.org/10.32614/CRAN.package.janitor>, R package version 2.2.1, <https://CRAN.R-project.org/package=janitor>.
+
+Wickham H (2023). _forcats: Tools for Working with Categorical Variables (Factors)_.
+doi:10.32614/CRAN.package.forcats <https://doi.org/10.32614/CRAN.package.forcats>, R package version 1.0.0,
+<https://CRAN.R-project.org/package=forcats>.
+
+Wickham H, Pedersen T, Seidel D (2025). _scales: Scale Functions for Visualization_.
+doi:10.32614/CRAN.package.scales <https://doi.org/10.32614/CRAN.package.scales>, R package version 1.4.0,
+<https://CRAN.R-project.org/package=scales>.
+
+Wickham H, Bryan J (2025). _readxl: Read Excel Files_. doi:10.32614/CRAN.package.readxl <https://doi.org/10.32614/CRAN.package.readxl>, R package version 1.4.5, <https://CRAN.R-project.org/package=readxl>.
+
+Garrett Grolemund, Hadley Wickham (2011). Dates and Times Made Easy with lubridate. Journal of Statistical
+Software, 40(3), 1-25. URL https://www.jstatsoft.org/v40/i03/.
+
+Robinson D, Hayes A, Couch S, Hvitfeldt E (2026). _broom: Convert Statistical Objects into Tidy Tibbles_.
+doi:10.32614/CRAN.package.broom <https://doi.org/10.32614/CRAN.package.broom>, R package version 1.0.12,
+<https://CRAN.R-project.org/package=broom>.
+
+Xie Y (2025). _knitr: A General-Purpose Package for Dynamic Report Generation in R_. R package version 1.50,
+  <https://yihui.org/knitr/>.
+
+Yihui Xie (2015) Dynamic Documents with R and knitr. 2nd edition. Chapman and Hall/CRC. ISBN 978-1498716963
+
+Yihui Xie (2014) knitr: A Comprehensive Tool for Reproducible Research in R. In Victoria Stodden, Friedrich
+Leisch and Roger D. Peng, editors, Implementing Reproducible Computational Research. Chapman and Hall/CRC.
+ISBN 978-1466561595
+
+Zhu H (2024). _kableExtra: Construct Complex Table with 'kable' and Pipe Syntax_.
+doi:10.32614/CRAN.package.kableExtra <https://doi.org/10.32614/CRAN.package.kableExtra>, R package version
+1.4.0, <https://CRAN.R-project.org/package=kableExtra>.
+  
+# Appendix A: Statistical results
+
+## Linear trend results
+
+```{r appendix-trend-results}
+trend_results |>
+  select(outcome, estimate, std.error, statistic, p.value) |>
+  mutate(
+    across(where(is.numeric), ~ round(.x, 4))
+  ) |>
+  style_report_table(caption = "Linear trend model results across quarterly waves", font_size = 7)
+```
+
+## K6 threshold tests
+
+```{r appendix-k6-threshold}
+style_report_table(
+  k6_threshold_tests |>
+    mutate(across(where(is.numeric), ~ round(.x, 4))),
+  caption = "National K6 >= 13 chi-square and proportion trend tests",
+  font_size = 8
+)
+```
+
+## Financial distress correlations
+
+```{r appendix-correlations}
+correlation_results <- tibble(
+  Relationship = c(
+    "Financial distress and psychological distress",
+    "Financial distress and ABS Employee households LCI",
+    "Financial distress and RBA cash rate"
+  ),
+  Correlation = c(
+    unname(cor_fin_k6$estimate),
+    unname(cor_fin_lci$estimate),
+    unname(cor_fin_rba$estimate)
+  ),
+  p_value = c(
+    cor_fin_k6$p.value,
+    cor_fin_lci$p.value,
+    cor_fin_rba$p.value
+  )
+) |>
+  mutate(
+    Correlation = round(Correlation, 3),
+    p_value = round(p_value, 4)
+  )
+
+style_report_table(
+  correlation_results,
+  caption = "Correlation results for financial distress and contextual indicators",
+  font_size = 8
+)
+```
+
+# Appendix B: Independent quarter comparison results
+
+```{r appendix-quarter-tests}
+quarter_tests |>
+  filter(significant == TRUE) |>
+  select(year, outcome, group1, group2, estimate, p.value, p_adj) |>
+  mutate(
+    estimate = round(estimate, 3),
+    p.value = round(p.value, 4),
+    p_adj = round(p_adj, 4)
+  ) |>
+  style_report_table(
+    caption = "Significant independent quarter comparisons after Bonferroni adjustment",
+    font_size = 6
+  )
+```
+
+
+
+# Appendix C: Computational environment
+
+The analysis was completed using R, Quarto and the tidyverse ecosystem. The main packages used included tidyverse, haven, janitor, readxl, broom, knitr and kableExtra. Full session information is available in the project Git repository to support reproducibility.
+
