@@ -10,4 +10,3 @@ Expected private data files include:
 - `ITW_2025.sav`
 - `allgroupsbyhouseholds.xlsx`
 
-These files are ignored by Git and should not be uploaded publicly.
