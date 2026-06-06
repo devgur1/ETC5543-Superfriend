@@ -1,7 +1,39 @@
-data_raw/
-data_processed/
-outputs/
+# macOS
+.DS_Store
 
+# R / RStudio
 .Rhistory
 .RData
+.Ruserdata
 .Rproj.user/
+
+# Quarto / RMarkdown generated folders and cache
+*_files/
+*_cache/
+_freeze/
+.quarto/
+
+# LaTeX intermediate files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Raw/private data
+data/*
+!data/README.md
+private-data/
+raw-data/
+*.sav
+*.zsav
+*.por
+*.xlsx
+
+# Temporary files
+*.tmp
+*.bak
